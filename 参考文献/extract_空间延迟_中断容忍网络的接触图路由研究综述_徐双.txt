@@ -1,0 +1,1210 @@
+ 
+软件学报 ISSN 1000-9825, CODEN RUXUEW E-mail: jos@iscas.ac.cn 
+Journal of Software ,2019,30(2):323 −345 [doi: 10.13328/j.cnki.jos.005635] http://www.jos.org.cn 
+©中国科学院软件研究所版权所有 . Tel: +86-10-62562563 
+ 
+空间延迟/中断容忍网络的接触图路由研究综述
+∗
+ 
+徐  双 1,  王兴伟 1,  黄  敏 2,  张琳琳 1 
+1(东北大学  计算机科学与工程学院 ,辽宁 沈阳  110169) 
+2(东北大学  信息科学与工程学院 ,辽宁 沈阳  110819) 
+通讯作者 : 王兴伟 , E-mail: wangxw@mail.neu.edu.cn  
+ 
+摘  要: 基于覆盖协议和存储-携带-转发范式的延迟/中断容忍网络(delay/disruption tolerant network,简称 DTN)被
+认为是应对空间环境挑战(如长延迟、间歇性连接等)的有效解决方案.接触图路由(contact graph routing, 简称 CGR)
+是一种利用空间 DTN 网络拓扑的先验知识来计算路径的动态路由算法.首先介绍了 CGR 的基本原理和算法过程,
+并给出了相关术语的定义及相应计算公式;然后,从路由环路避免、计算效率、路由准确性、拥塞控制、机会性扩
+展和异常处理方面总结了现有的 CGR 改进工作;接下来概述了已经进行的评估 DTN 协议栈和 CGR 适用性的代表
+性实测实验,并通过 GEO/MEO/LEO 卫星网络仿真实验,对比评估了 CGR 算法与多层卫星路由算法(multi-layered 
+satellite routing algorithm, 简称 MLSR)的性能差异 ;最后给出了 CGR 的未来发展方向 ,包括扩展块 CGR(CGR- 
+extension block, 简称 CGR-EB)和缓存 CGR(cache-CGR,简称 C-CGR)整合、机会 CGR、CGR 向大型网络的扩展、
+服务质量保障 CGR 和接触计划描述方法改进等. 
+关键词: 空间延迟/中断容忍网络;接触图路由;接触图路由改进;实测实验;性能评估 
+中图法分类号 : TP393 
+中文引用格式 : 徐双 ,王兴伟 ,黄敏 ,张琳琳 .空间延迟 /中断容忍网络的接触图路由研究综述 .软件学报 ,2019,30(2):323 −345. 
+http://www.jos.org.cn/1000-9825/5635.htm 
+英文引用格式 : Xu S, Wang XW, Huang M, Zhang LL. Survey on contact graph routing for space delay/disruption tolerant 
+networks. Ruan Jian Xue Bao/Journal of Software, 2019,30(2):323 −345 (in Chinese).  http://www.jos.org.cn/1000-9825/5635.htm 
+Survey on Contact Graph Routing for Sp ace Delay/Disruption  Tolerant Networks  
+XU Shuang 1,  WANG Xing-Wei 1,  HUANG Min 2,  ZHANG Lin-Lin 1 
+1(College of Computer Science and Engineering, Northeastern University, Shenyang 110169, China) 
+2(College of Information Science and Engineering, Northeastern University, Shenyang 110819, China) 
+Abstract :  Delay/Disruption Tolerant Networks (DTNs), which are based on an overlay protocol and the store-carry-forward paradigm, 
+are considered as a promising solution to cope with the challenges imposed by space environment, such as long delay, intermitte nt 
+connectivity, etc. Contact Graph Routing (CGR) is a dynamic routing algorithm which can compute routes by taking advantage of a  priori 
+knowledge of the space DTN topology. In this paper, the basic principles and algorithm procedures of the CGR are introduced, an d the 
+definitions of the associated terminologies and corresponding formulas are given, firstly. Then, the existing enhancements of t he CGR are 
+summarized in terms of routing loops avoidance, computational efficiency, routing accuracy, congestion control, opportunistic e xtension, 
+and exception handling. Next, the representative real test experiments that have been conducted to evaluate the applicability o f the DTN 
+protocol stack and CGR, are outlined, and the performance differences between the CGR algorithm and the multi-layered satellite  routing 
+                                                                 
+∗ 基金项目 : 国家自然科学基金 (61572123, 71620107003); 国家杰出青年科学基金 (71325002); 辽宁省高校创新团队支持计划
+(LT2016007); 教育部-中国移动科研基金 (MCM20160201) 
+ Foundation item: National Natural Science Foundation of China (61572123, 71620107003); National Science Foundation for 
+Distinguished Young Scholars of China (71325002); Program for Liaoning Innovative Research Term in University (LT2016007); MoE 
+and ChinaMobile Joint Research Fund (MCM20160201) 
+ 收稿时间 : 2017-11-26; 修改时间 : 2018-06-19; 采用时间 : 2018-08-18 
+
+ 
+ 
+ 
+324 Journal of Software  软件学报 V ol.30, No.2, February 2019   
+ 
+algorithm (MLSR) are evaluated by GEO/MEO/LEO satellite network simulation. Finally, the future developments of CGR are given, 
+including the integration of CGR-extension block (CGR-EB) and cache-CGR (C-CGR), opportunistic CGR, CGR extension to large 
+network, CGR-Quality of service (QoS) provision, enhancement of contact plan description method, etc. 
+Key words :  space delay/disruption tolerant network (DTN); contact graph routing (CGR); CGR enhancement; real test experiment; 
+performance evaluation  
+空间通信和组网技术的发展 ,为空间探索技术的发展开启了新纪元 [1].早期空间通信大多采用地球同步轨
+道(geo-synchronous orbit) 卫星 ,利用弯管通信技术实现数据中继转发和广播 ,难以完成连续的信息捕捉和传
+输[2].星上计算和处理能力的提高以及星际链路通信技术的发展 ,为空间通信和组网提供了重要的技术支撑 [3].
+卫星通信具有覆盖范围广、通信距离远、传输容量大、对地面环境依赖性低等特点 [4],在防灾救灾、紧急救援、
+全球导航定位、 空间遥测等任务中发挥着重要作用[5].然而,卫星通信系统主要需要应对如下困难 :(1) 远距离传
+输造成的长传输延迟 ;(2) 通信链路易受干扰造成的高误码率 ;(3) 复杂的空间环境以及节点移动造成的链路中
+断;(4) 特定于供应商的网络基础设施造成的网络协议标准难以统一 ,特别是由此导致的网络异构性 ;(5) 星上
+设备存储和处理能力有限 ,特别是维修困难 [6].随着空间通信需求的不断增长 ,实现空间设备间类似于 Internet 的
+通信变得越来越重要 [7]. 
+延迟 /中断容忍网络 (delay/disruption tolerant network, 简称 DTN)最初是由美国喷气推进实验室 (Jet 
+Propulsion Laboratory, 简称 JPL)为开发行星际互联网 (interplanetary Internet, 简称 IPN)而提出的一种网络体系架
+构[8],后被广泛应用于军事作战网络、稀疏传感网络等地面网络 .DTN 也是构建卫星网络的可选方案 [9],尤其是
+满足低地球轨道星座系统间歇性连接的需要 [10].DTN 在传输层与应用层之间引入叠加层 (overlay) [11],采用消息
+的“存储-携带-转发(store-carry-forward)” 机制解决网络中的间歇性连接、长传输延迟、高误码率等问题 ,适用于
+通信受延迟、带宽、误码等严重影响的空间网络 [9].束协议(bundle protocol, 简称 BP)作为 DTN 协议的重要组成
+部分,提供了保管传输 (custody transfer) 、主动和被动式束分片 (proactive and reactive bundle fragmentation) 、滞
+后绑定(late binding) 这些重要功能 ,为 DTN 网络的实施提供了可能性 [12].在 BP 中,采用束作为传输数据的基本
+单元,并通过汇聚层适配器实现与 TCP、UDP、LTP(licklider transmission protocol) 、蓝牙等不同协议之间的匹
+配,从而使 DTN 能够解决异构网络互联中存在的问题 . 
+路由是 DTN 必备的基本功能 ,旨在提高束的交付率并降低交付延迟 [13].通常,路由是指路径上的每个节点
+选择最优相邻节点转发数据的复杂过程 .Internet 网络主机在分发数据前 ,根据当前网络拓扑和节点间连接信息
+计算最优的包转发路径 ,而 DTN 所采用的网络状态信息中还需包含接触传输速率、节点存储容量等 .由于网络
+状态信息可能随时间推移而变化 ,网络转发节点需要根据当前可用的网络状态信息判断是否需要重新计算转
+发路径或仍沿先前路径继续转发数据 .Internet 网络状态信息变化可被迅速地传播 ,因此每个节点掌握的当前网
+络状态几乎都是准确、一致的.而 DTN 连接具有间歇性 ,且信号传播时延长 ,所以网络状态信息的一致性维护困
+难,网络状态信息具有滞后性 .此外,数据包在转发到相邻节点前 ,可能需要长时间存储在当前节点 . 
+在机会性 DTN(opportunistic DTN) 中,节点具有移动性 ,节点间的接触具有随机性 [14].因此,基于洪泛和概率
+的路由算法被广泛应用在机会性 DTN 中[15−17].空间 DTN 节点彼此之间不断相对运动 ,节点位置不断变化 ,但节
+点运动轨迹的数学模型可预先建立 ,从而准确地计算出节点间的接触机会 [18],这类网络被称为确定性 DTN 
+(deterministic DTN) [13].关于确定性 DTN 的路由分析研究工作可追溯到 2003 年,文献[19]提出了采用时间演化
+图表示网络拓扑变化来研究最小成本路径 .2004 年,文献[20]根据节点运动的可预知性 ,提出了一个时空路由
+(space-time routing) 框架,为每个节点构建由每个时隙间隔内的下一跳组成的时空路由表 ,给出了基于时空图模
+型的路由算法 .然而,上述两种静态路由算法依赖于地面上预计算的完整路径以及分配这些路径到网络节点的
+及时性 ,缺乏对变化业务流和拓扑的响应 .为解决上述问题 ,2008 年,Burleigh 提出了分布式的接触图路由
+(contact graph routing, 简称 CGR)算法.该算法利用网络接触的可预知性 ,采用启发式算法动态计算出多条路径 ,
+为空间 DTN 提供了一种有效的路由方案 [21].文献[22,23]评估了 CGR、Epidemic 和 Prophet 在空间 DTN 中的性
+能并指出 ,在拓扑信息可预知的空间网络中 ,CGR 具有较小的延迟和缓存消耗 .此外,CGR 已被多次成功地应用
+ 
+ 
+ 
+徐双 等:空间延迟/中断容忍网络的接触图路由研究综述 325 
+ 
+于 DTN 的空间实测实验 [24].目前 ,CGR 白皮书已被提交到国际空间数据系统咨询委员会 (Consultative 
+Committee for Space Data Systems, 简称 CCSDS)进行标准化 ,并重新标记为 “调度感知束路由 (schedule-aware 
+bundle routing,简称 SABR)”[25]. 
+本文第 1 节描述 CGR 的基本原理、相关术语和算法过程 .第 2 节分析和总结 CGR 存在的问题和相应的改
+进方法.第 3 节介绍 CGR 的工程应用 .第 4 节对比评估 CGR 算法在多层卫星网络中的性能 .第 5 节总结全文 ,对
+未来的研究方向进行展望 . 
+1   CGR 
+1.1   基本原理  
+CGR 是一种分布式路径计算方法 ,路径上的每个节点一旦接收到束 ,则重新计算到达该束的目的节点的最
+佳路径,从而确定当前节点的下一跳节点 [26].CGR 假定:(1) 网络具有拓扑预计算能力 ;(2) 网络中的每个节点能
+够及时而准确地获知全局网络接触信息和本地队列占用情况 ;(3) 网络拓扑的变化频率低于网络节点配置信息
+的同步频率 [27];(4) 不可预知的拓扑变化发生频率低 ,节点失效彼此独立发生 [28].可预知的网络拓扑变化作为节
+点配置信息 ,可以提前分发到网络中的每个节点 ,而对于不可预知的拓扑变化 ,CGR 依赖于网络管理功能来更新
+被影响节点的配置 . 
+图 1 是一个由 4 个卫星节点组成的空间 DTN 网络,节点 A 发送数据到节点 D;表 1 是该网络对应的接触计
+划,其中的每个表项描述两节点之间接触的起止时刻和数据传输速率 [31].以表 1 中的接触计划为例 ,构建从节点
+A 到节点 D 的接触图 ,结果如图 2 所示[26].图中添加了两个概念顶点 (notional vertice), 分别为图中的根顶点和终
+端顶点.前者表示从节点 A到 A的接触,而后者表示从节点 D到 D的接触,图中其他顶点均为表 1中有助于节点
+A发送数据到节点 D的接触.在图 2中进行路径搜索 ,构建从发送节点 A到目的节点 D的路由列表 (route list) [32].
+每次搜索都找出从根顶点开始到终端顶点结束的最低成本路径 ,并将搜索到的路径添加到节点的路由列表中 .
+在进行下一次搜索之前 ,从接触图中删除本次搜索到的路径的初始接触 .重复以上过程 ,直到搜索不到路径为
+止.从图 2 中可以看出 ,从 A 到 D 共有 3 条可用路径
+接触(contact)是指两个 DTN 节点之间建立通信链路的机会 ,由拓扑间隔内的所有可行接触组成的时序列
+表称为接触计划 (contact plan, 简称 CP)[29].接触计划采用接触消息 (contact message) 和范围消息 (range message)
+两种类型的接触计划消息 (contact plan message) 表示[21,30] .其中,接触消息包含接触的起始时刻、结束时刻、发
+送节点、接收节点和数据传输速率 (B/s);范围消息包含接触的起始时刻、结束时刻、发送节点、接收节点、发
+送节点与接收节点间的距离 (<1 光秒).根据接触计划 ,每个节点可以在本地构建以任意其他节点为目的节点的
+有向无环图 ,即接触图 (contact graph), 接触图的顶点对应于接触 ,边对应于束在节点上的存储 .接触图可用以下
+两个链表表示 :由所有以目的节点为接收节点的接触消息派生出来的 xmit 对象链表 ,该链表封装了接触的起始
+时刻、结束时刻、发送节点和数据传输速率 ,链表中的对象根据接触的结束时刻排序 ;由范围消息得出的 origin
+对象链表 ,该链表封装了发送节点以及发送节点与目的节点间的当前距离 . 
+. 
+A
+B
+C
+D  
+Fig.1  DTN network topology 
+图 1  DTN 网络拓扑  
+ 
+ 
+ 
+326 Journal of Software  软件学报 V ol.30, No.2, February 2019   
+ 
+Table 1  Contact plan list 
+表 1  接触计划列表 
+接触 发送节点 接收节点 开始时刻 (s) 结束时刻 (s) 速率(KB/s) 
+1 A B 1 000 1 100 125 
+2 B A 1 000 1 100 125 
+3 B D 1 100 1 200 125 
+4 D B 1 100 1 200 125 
+5 A C 1 100 1 200 125 
+6 C A 1 100 1 200 125 
+7 A B 1 300 1 400 125 
+8 B A 1 300 1 400 125 
+9 B D 1 400 1 500 125 
+10 D B 1 400 1 500 125 
+11 C D 1 500 1 600 125 
+12 D C 1 500 1 600 125 
+3
+1
+9
+7
+11
+5
+A-B
+1000-
+1100s
+B-D
+1100-
+1200s
+A-A
+D-D
+路径1:
+网络距离：2
+容量：125×100 KB
+交付时间：1100
+路径2:
+网络距离：2
+容量：125×100 KB
+交付时间：1400
+路径3:
+网络距离：2
+容量：125×100 KB
+交付时间：1500
+A-B
+1300-
+1400s
+B-D
+1400-
+1500s
+A-C
+1100-
+1200s
+C-D
+1500-
+1600s
+ 
+Fig.2  Contact graph from node A  to D 
+图 2  从 A 到 D 的接触图 
+基于接触图的路由工作流程由接触计划生成、接触计划分发和路由计算这 3 个阶段构成 ,如图 3 所示[26]. 
+ 
+Fig.3
+  Contact plan generation, distribution and utilization 
+图 3  接触计划的生成、分发和利用 
+(a) 接触计划生成 (b) 接触计划分发 (c) 接触图路由 
+
+ 
+ 
+ 
+徐双 等:空间延迟/中断容忍网络的接触图路由研究综述 327 
+ 
+由于接触计划依赖于特定的网络和通信平台 ,因此将接触计划的生成过程从路由应用中解耦出来 .在初始
+阶段,空间任务操控中心根据网络节点的通信系统属性 (如传输功率、调制机制、误比特率、天线辐射方向等 )
+和节点的轨道动力学特性 (如位置、姿态等 )确定接触的可行性 ,构造接触计划 [33];然后,由地面站将接触计划分
+发到网络中的每个节点 ;最后,节点调用 CGR,根据已知的接触计划生成到达目的节点的有效路径 . 
+1.2   相关术语  
+本节给出 CGR 相关术语的定义和计算公式 ,并在表 2 中列出本文中使用的变量符号及含义 . 
+Table 2  Variable notations and definition 
+表 2  变量符号及含义  
+变量 含义 
+B 发送的束  
+c 接触 
+B
+expirationT  束的失效时刻  
+B
+creationT  束的创建时刻  
+TTLB 束的生存时间  
+Tdeadline  截止时刻  
+c
+transmitR  接触c的数据传输速率  
+c
+startT  接触c的起始时刻  
+c
+endT  接触c的结束时刻  
+SB 束B的大小 
+Nlocal  本地节点  
+Nneighbor  本地节点的相邻节点  
+,,neighbor localNN c
+listCon  不晚于c被调度的 Nlocal和Nneighbor 之间的接触集合  
+,,neighbor local B
+qu
+NN
+euedB  Nlocal中等待传输到 Nneighbor 且优先级不低于 B的束 
+current
+destinationN  当前目的节点  
+B
+destinationN  束的目的节点  
+localN
+proximateN  本地节点的相邻节点集合  
+route
+forfeitT  路径的收回时刻  
+B
+routeD  转发束B的可用路径的网络距离  
+B
+excludedN  束B路由计算不需考虑的节点集合 ,即被排除的相邻节点  
+B
+deliveryT  交付束B到 current
+destinationN 的时刻 
+m xmit对象 
+current
+destinationN
+listM  current
+destinationN 的xmit对象列表  
+B
+sendT  束B发送的最后时刻  
+current
+destination
+B
+ND  转发束B从Nlocal到 current
+destinationN 的网络距离  
+Tcurrent  当前时刻  
+m
+startT  m的起始时刻  
+m
+endT  m的结束时刻  
+m
+transmitN  m的发送节点  
+B
+consumptionC  束B的估计容量消耗  
+m
+residualC  m的剩余容量  
+B
+forwardL  束B的转发延迟  
+IB 束B的重要性 ,用于区分是否为关键束  
+B
+nextN  束B转发的下一跳节点  
+ 
+(1) 合格路径 (well-formed routes): 构成从源节点到目的节点的端到端路径的接触序列 ,该序列的第 1个接
+ 
+ 
+ 
+328 Journal of Software  软件学报 V ol.30, No.2, February 2019   
+ 
+触为源节点与其相邻节点间的接触 ,后续接触是前一个接触的接收节点与其相邻节点间的接触 ,而最
+后一个接触是以接收节点为目的节点的接触 .该路径中不存在环路 ,即不存在两个接触的发送节点或
+接收节点相同的情况 . 
+(2) 失效时刻 (expiration time): 束的创建时刻与其生存时间 (time-to-live)之和,即 .B B
+creat
+B
+expirat ionion TTT T L =+  
+(3) 单向光行时边界 (one-way light time (OWLT) margin):OWLT 是光在两节点间传输所需的时间 ,指代距
+离.OWLT边界是束在任意两节点间传播时 ,节点间 OWLT变化的最大增量 .假设网络中任意两节点间
+距离变化的最大速率约为 67km/s,则初始距离为 K 光秒的两节点间每秒增加的最大距离为 67km.因
+此,数据从发送节点传输到接收节点所需的传播时间不会超过 (K+Q)s,其中,Q=(67×K)/30000. 
+(4) 最后时刻 (last moment): 接触发送束的最晚时刻 ,即保证束在截止时刻 Tdeadline 之前到达接收节点的最
+晚发送时刻 ,Last_moment(c,B,Tdeadline )=Tdeadline −(K+Q).如果接触的起始时刻在最后时刻之后 ,则该接
+触的接收节点无法在 Tdeadline 之前接收到束 . 
+(5) 容量(capacity):接触的数据传输速率与其持续时间 ( cc
+end startTT − )的乘积,即 
+() ( ) . cc c
+transmit end startCap c R T T=× −  
+(6) 估计容量消耗 (estimated capacity consumption): 假设汇聚层采用 UDP/IP 协议,则每个帧的开销为 100
+字节.每帧中可封装的束的字节数等于帧的大小减去每帧的开销 .例如,Internet 的最大传输单元大小
+为 1 500 字节,则每帧中束的最大字节数为 1400=(1500 −100).传输给定大小的束所需的帧数等于束的
+大小除以每帧中束的最大字节数的商向上取整 .束的总开销为每个帧的开销乘以传输该束所需的帧
+数.束的估计容量消耗为束的大小与总开销之和 ,即 
+_ _ ( ) 100. 1400
+B
+BEst cap con B ce SilS ⎛⎞=+ × ⎜⎟
+⎝⎠
+ 
+(7) 剩余容量 (residual capacity): 本地节点与邻居节点间给定接触的剩余容量是两节点间不晚于给定接
+触调度的所有接触的容量之和减去优先级不低于发送束的所有待传输束的估计容量消耗之和 ,即 
+,, ,,
+_ (, , , ) () _ _ ( ) .
+NN c NN Bneighbor local neighbor
+list queue
+l
+d
+ocalcC o
+neighbor loc
+n
+a
+B
+l
+B
+Res cap c B Cap c Est cap conNN B
+∈∈
+=− ∑ ∑  
+(8) 可用机会 (plausible opportunity): 剩余容量不小于发送束的估计容量消耗的接触 . 
+(9) 可用路径 (plausible route): 由可用传输机会组成的合格路径 ,且路径上每个接触开始传输束的时刻先
+于最后时刻 .最后一个接触的截止时刻为束的失效时刻 ,而其余每个接触的截止时刻为每个接触的结
+束时刻. 
+(10) 收回时刻 (forfeit time):可用路径上所有接触的最早结束时刻 . 
+(11) 网络距离 (network distance): 可用路径的网络距离是指束沿着该路径从源节点转发到目的节点所经
+过的中间节点数 ,即跳数. 
+(12) 被排除的相邻节点 (excluded neighbor): 本地节点的相邻节点中拒绝托管发送到给定目的节点的束的
+相邻节点 . 
+(13) 关键束(critical bundles): 必须且应尽快投递到目的节点的束 .关键束将被插入到所有可用路径对应的
+输出队列中 ,而非关键束仅被插入到所有可用路径中收回时刻最早的路径所对应的输出队列中 . 
+(14) 转发延迟 (forwarding latency): 节点接收、排队以及发送束所用的时间 ,使用束大小的 2 倍除以接触的  
+数据发送速率估算 ,即 2_( , ) c
+tra
+B
+nsmit
+SF Ror lat B c ×= . 
+1.3   算法过程  
+CGR 利用可预知的接触计划消息获取网络拓扑 ,不需要预测或发现过程 [34].CGR 的处理过程如图 4 所示.
+首先,节点根据接收到的接触消息和范围消息生成接触图 ;之后,执行接触检查过程 (contact review procedure, 简
+ 
+ 
+ 
+徐双 等:空间延迟/中断容忍网络的接触图路由研究综述 329 
+ 
+称 CRP),根据生成的接触图计算出可用来转发束的相邻节点列表 ;最后,通过转发决策过程 (forwarding decision 
+procedure,简称 FDP)选择下一跳节点 . 
+接触消息
+范围消息
+接触设
+计模块
+接触检
+查过程
+转发决
+策过程
+ 下一跳节点
+相邻节点
+接触图
+ 
+Fig.4  Three processing steps of CGR algorithm 
+图 4  CGR 算法的 3 个处理步骤  
+接触图构建完成后 ,节点通过 CGR-CRP 过程和 CGR-FDP 过程实现路径计算与束转发的流程如下 . 
+输入:B,CP. 
+输出:将 B 插入到相应的输出队列 . 
+Initialization . 
+1.  ,{ } , , 0 { , ,, } 0localNBr o u t e B B
+deadline expiration proxima
+current B B
+destination destination deliveryte forfeit route excludedTT N TNN T DN←←←← ∞ ← ← ← . 
+CGR-CRP 
+2.  {}BB
+excluded excluded
+current
+destinationNN N←∪  
+3.  FOR 
+current
+destinationN
+listmM∈  DO 
+4.  _ (,, ) dead
+B
+se linnd eT Last momen T tmB←  
+5.    IF ( ) current
+B
+sendTT >  OR ( ) mB
+start sendTT >  THEN 
+6.      Continue 
+7.    ELSE 
+8 .       I F  current B
+destination destinationNN =  THEN route
+forfeit
+m
+endTT ←  END IF 
+9 .       I F  m
+transmit localNN =  THEN 
+10.       _ _( )B
+consumptionCE s t c a p c o n B←  
+11.       _ (,, , )mc u r r e n t
+residual destination localCR e s c a p N mBN←  
+12.       IF mB
+residual consumptionCC <  THEN 
+13.         Continue 
+14.       ELSE 
+1 5 .          I F  localcurrent N
+proximatdestina i eto n NN ∈  THEN 
+1 6 .            I F  route B
+deliveryforfeit TT <  THEN route
+forfei
+B
+del ery tiv TT ←  END IF 
+1 7 .            I F  route B
+deliveryforfeit TT =  AND current
+destination
+BB
+route NDD <  THEN current
+destination
+BB
+route NDD ←  END IF 
+1 8 .          E L S E  
+1 9 .            {}local localNN
+pr
+current
+deoximate proxima stinationte NNN ←∪  
+2 0 .            current
+destination
+BB
+route NDD ←  
+ 
+ 
+ 
+330 Journal of Software  软件学报 V ol.30, No.2, February 2019   
+ 
+2 1 .            route B
+deliveryforfeit TT ←  
+2 2 .          E N D  I F  
+23.       END IF 
+24.     ELSE 
+25.       IF mB
+excludetransmi dtNN ∈  THEN 
+26.         Continue 
+27.       ELSE 
+2 8 .          M[ ]IN ,route m route
+forfeit end forfeitTT T ←  
+2 9 .          current m
+destination transmitNN ←  
+3 0 .          1current current
+destination destination
+BB
+NNDD ←+  
+3 1 .          1 BB
+route routeDD ←+  
+3 2 .          _ (, )B
+forwardL For lat B m←  
+3 3 .          MIN[ , ]mm B
+deadline send end forwardTT T L ←−  
+3 4 .          C a l l  CGR-CRP 
+35.       END IF 
+36.     END IF 
+37.   END IF 
+38. END FOR 
+39. { } BB
+excluded excluded
+current
+destinationNN N←−  
+CGR-FBP 
+40. IF {}localN
+proximateN ≠  THEN 
+41.   IF IB=Critical  THEN 
+42.     Transmit B to each localN
+proximate
+B
+nextNN ∈  
+43.   ELSE 
+44.     (_ ) () localB
+nex
+N
+proximatetN Pop Sort nodes N←  
+45.     Transmit B to B
+nextN  
+46.   END IF 
+47. ELSE 
+48.   Error: No Route 
+49. END IF 
+50. Return 
+算法的第 2 行~第 39 行是节点根据接触计划执行路径计算的过程 . 
+• 第 2 行将每次迭代的目的节点加入到被排除的相邻节点集合中 ,以防止路由环路的产生 . 
+• 第 4 行~第 6 行计算通过每个接触发送束的最晚时刻 :如果该时刻早于当前时刻或接触的起始时刻 ,则
+跳过此接触 . 
+• 第 8行~第 11行表示当前目的节点为束的目的节点时 ,更新路径收回时间 ;当接触的发送节点为本地节
+点时,计算束的估计容量消耗和接触剩余容量 . 
+• 第 14 行~第 23 行是当接触剩余容量大于束的估计容量消耗时 ,判断当前目的节点与本地节点的相邻
+节点间的从属关系以及路径收回时间与束的投递时间的大小关系 ,决定是否更新束的交付时间、路径
+距离和路径列表 . 
+ 
+ 
+ 
+徐双 等:空间延迟/中断容忍网络的接触图路由研究综述 331 
+ 
+• 第 28 行~第 34 行是当接触的发送节点既不是本地节点也不是排除节点时 ,更新路径收回时刻、当前
+目的节点、路径网络距离等 ,并递归调用 CGR-CRP 过程. 
+算法的第 40 行~第 50 行是根据束的重要性将其插入到输出队列的过程 ,其中,第 41 行、第 42 行表示束是
+关键束时 ,将其复制并插入到本地节点的所有可用相邻节点对应的输出队列中 ;第 44 行、第 45 行表示束是普
+通束时,从本地节点的所有可用相邻节点中选出最早收回的相邻节点 ,将束插入到该节点所对应的输出队列中 . 
+2   CGR 的改进 
+自 2008年 CGR首次提出以来 ,很多研究都致力于 CGR的功能完善和应用 .图 5是 CGR的发展简史 [26].2009
+年,IETF(Internet Engineering Task Force) 发布了 CGR 文档[35];2010 年,CGR 文档被更新为 IETF 互联网草案 [30]; 
+2011年,Segui 等人[24]提出了增强 CGR(enhanced CGR, 简称 ECGR),把最早到达时刻 (earliest-arrival-time) 作为路
+径选择度量值 ,并使用标准的 Dijkstra 算法选择路径 ;2012 年,Birrane 等人提出了扩展块 CGR(CGR-extension 
+block,简称 CGR-EB),以增加数据包报头开销为代价来降低中间节点的计算开销 [28];2014 年,Fraire 等人提出了
+缓存 CGR(cache-CGR,简称 C-CGR),以最大程度地减少 CGR 的执行次数 [36];同年,Bezirgiannidis 等人提出了最
+早传输机会 CGR(CGR-earliest tran smission opportunity, 简称 CGR-ETO),引入节点队列信息 ,以改善 CGR应对网
+络状态变化的能力 [37],并在文献 [38]中提出了超额预订管理 (overbooking management) 机制,以提高低优先级束
+的交付率 . 
+向大规模
+网络扩展
+拥塞管理
+2008 2009 2010 2011 2012 2013 2014 2015 2016 2017
+早期版本
+存档
+草案
+CGR-EB
+E-CGR
+C-CGR
+CGR-ETO
+超额预定
+管理
+O-CGR
+2018
+异常处理
+ 
+Fig.5  Brief history of CGR 
+图 5  CGR 简史 
+关于拥塞控制 (congestion control), 文献[39−41]相继提出了预测容量消耗 (predictive capacity consumption,
+简称 PCC)[39]、基于本地信息的拥塞控制 [40]、路径感知 CGR(path-aware CGR, 简称 PA-CGR)和多图 CGR(multi- 
+graph CGR,简称 MG-CGR)[41]等多种改进方法 .2016 年,Burleigh 等人为了实现确定性 DTN 和机会性 DTN 路由
+机制的统一 ,提出了机会 CGR(opportunistic CGR, 简称 OCGR)[31].2017 年,时文丰等人在 CGR 中引入了接触异
+常处理机制 ,提高了 CGR 应对接触失效的能力 [42]. 
+2.1   算法收敛性  
+保证路由算法的收敛性需要满足两个特性 :不存在路由环路、不存在持续震荡 .在路径选择中采用单调递
+增(或递减)的度量指标 ,可以保证路由的收敛性 [24].CGR 采用最早收回时刻作为路径选择度量指标 ,以最大程度
+地减少传输机会的浪费 .然而,最早收回时刻不是一个单调递增 (或递减 )的度量指标 ,不能保证路径选择过程中
+始终不会出现路由环路和震荡 .为此,文献[24]提出了 ECGR 算法,用最早到达时刻代替最早收回时刻 ,并使用标
+准的 Dijkstra 算法进行路径选择 .最早到达时刻满足全局单调递减的特性 ,因而可以避免路由环路和持续震荡
+的产生.此外,Dijkstra 算法计算开销小 ,且可用于构建多播树 .上述功能改善已经成为 CGR 核心功能的一部分 ,
+在 JPL 开发的星际覆盖网络 (interplanetary overlay network, 简称 ION)仿真平台中得以实现 [43]. 
+ 
+ 
+ 
+332 Journal of Software  软件学报 V ol.30, No.2, February 2019   
+ 
+2.2   计算开销  
+CGR 路径上的每个中间节点重新计算束的最优转发路径 ,以应对网络状态的变化 .重计算在给算法带来灵
+活性的同时 ,也增加了算法的计算开销 .为了解决此问题 ,文献[28,34]提出了 CGR-EB,将计算出的路径信息和用
+于路径计算的接触图信息编码到束的扩展块中 ,传输到下游节点 .下游节点进行如下路径有效性验证 . 
+首先,根据当前节点的接触计划检查下一跳接触的稳定性 . 
+• 如果下一跳接触不稳定 ,则重新执行 CGR 来计算新的路径 ,并根据新路径更新 CGR 的扩展块 . 
+• 如果接触是稳定的 ,则验证接触传输速率和容量是否在容错范围内 : 
+¾ 如果误差超出了容错范围 ,则重新执行 CGR来计算新的路径 ,并根据新路径更新 CGR的扩展块 ; 
+¾ 否则,可选择进行一跳扫描来查找是否存在到达指定的下一跳节点的更快路径 ,如果存在 ,则采
+用较快的接触转发束 . 
+继续重复上述过程 ,检测后续几个接触的稳定性 . 
+CGR-EB 仅当接触稳定性验证失效时才重新执行 CGR,不需要在每个中间节点都执行复杂的 CGR 路由计
+算.与执行 CGR 相比,验证路径有效性的计算开销小 ,因此,CGR-EB 更加适合节点资源受限的网络环境 .此外,当
+编码路径有效时 ,可使用多种成本函数重新搜索潜在的较优路径 ,既不必担心产生路由环路 ,又避免了预计算路
+径为当前次优路径的情况 .最后,利用束携带并传播路径信息可以为拥塞预测和拓扑同步提供可用的信息 .受
+CGR-EB 算法的启发 ,文献[44]提出了一种基于 CGR 的源路由算法 ,由源节点根据已知的接触计划和节点缓冲
+区占用率计算束的转发路径 ,并将所得路径编码在包头中供中间节点使用 .该方法以传输成本为代价 ,降低了中
+间节点的计算开销 . 
+虽然 CGR-EB 算法和基于 CGR的源路由算法采用路径编码的方式减少了调用 CGR的次数,但同时也增加
+了每个束的报头开销 .文献 [36]提出的 C-CGR 在减少 CGR 执行次数的同时 ,保留了本地拥塞避免的特性 . 
+C-CGR 将每个目的节点对应的当前节点的下一跳相邻节点记录到本地缓存区中 .当有束到达时 ,本地节点先查
+找缓存区中是否存在与此束的目的节点对应的下一跳相邻节点 . 
+• 如果不存在 ,则调用 CGR 为此束计算可用的下一跳相邻节点 ,并将计算出的下一跳节点记录到本地缓
+存区中. 
+• 如果查找到了对应的下一跳相邻节点 ,则判断相应接触的容量和结束时刻是否有效 :如果接触失效 ,则
+调用 CGR 计算新的下一跳节点 ,并更新本地缓存区中目的节点对应的下一跳相邻节点信息 ;如果接触
+可用,则仅需更新接触的剩余容量信息 . 
+在最坏情况下 ,C-CGR 的计算开销与 CGR 相同;在分片密集型 DTN 中,C-CGR 的计算开销明显低于 CGR. 
+2.3   预测准确性  
+虽然 CGR、ECGR、CGR-EB 和 C-CGR 均采用动态转发决策策略 ,但它们可能使用的是已经过时或不能
+反映当前网络状态的接触信息 .这是因为空间网络接触调度虽然具有规律性 ,但仍然存在由不利的天气条件或
+概率性动态参数 (如排队延迟 )等扰乱预定网络接触调度的情况 ,因此需要改进路由算法以应对网络接触调度规
+律变化等问题 .文献[37]提出了 CGR-ETO 算法,引入最早传输机会 (由排队延迟和链路中断确定 )作为路由计算
+的度量指标 ,并使用接触计划更新协议 (contact plan update protocol, 简称 CPUP)传播网络特征和参数变化信息 ,
+从而提高了延迟预测的准确度 .然而,CGR-ETO 仅考虑本地节点的排队延迟 ,无法应对所选路径下游节点以及
+下游链路的性能瓶颈 .文献[45]提出了基于统计预测的多跳节点排队延迟预测方法 ,提高了投递时间预测的准
+确性.但此方法依赖于节点间信息的定期交互 ,增加了额外的网络信息交互开销 .而文献 [46]提出了增强 CGR- 
+ETO(enhanced CGR-ETO), 既将所考虑的排队延迟范围由本地节点扩展到路径上的所有节点 ,又避免了额外的
+信息交互开销 .增强 CGR-ETO 将 ETO 的值作为参数值编码到节点接触信息中 ,本地节点根据获取的接触信息
+计算路径上所有节点的队列长度 ,而不使用任何类似于 CPUP 的传播机制 .该方法在提高投递时间预测准确性
+的同时,避免了节点间状态信息交互的昂贵代价 . 
+ 
+ 
+ 
+徐双 等:空间延迟/中断容忍网络的接触图路由研究综述 333 
+ 
+2.4   超额预订管理  
+由于接触持续时间和数据传输速率有限 ,因此接触容量有限 .虽然 CGR 在转发束之前检查接触剩余容量的
+可用性,但在剩余容量的计算中 ,只考虑了队列中优先级不低于转发束的束所需消耗的容量 ,因此在转发较高优
+先级的束时 ,CGR 通过忽略低优先级的束来保证高优先级束的转发 .如果接触已经被低优先级的束完全预订了 ,
+则在转发高优先级的束时 ,低优先级的束将错过其接触 ,造成接触超额认购 (contact oversubscription) [47].CGR 采
+用后验方式处理接触超额认购 ,即一旦已经错过接触的束的有效时间到期 (一般为接触的结束时刻 ),则重新转
+发这些束 .这种后验方法虽然健壮 ,但效率不高 .文献[38]提出了一种先验方法 ,即超额预订管理 ,改善 CGR 性能.
+在超额预定管理中 ,用总剩余容量评估接触可用性 ,计算总剩余容量时 ,不区分束的优先级而综合考虑队列中所
+有束所需消耗的容量 .当出现超额认购时 ,首先转发引发超额认购的高优先级的束 ,然后立即转发错过接触的低
+优先级束 .此外,文献[38]指出,最早传输机会与超额预定管理能够实现优势互补 ,极大地改善了 CGR路由决策的
+性能.这两项改进均已被 CGR 的官方版所采纳 ,并在 ION 中得以实现 [43]. 
+2.5   拥塞控制  
+拥塞问题可以定义为试图发送比接触或节点缓冲区可承载数据量要多的数据 ,因此,网络中的接触容量限
+制和过多的业务量都可能会引起拥塞 .CGR 通过维护本地节点接触的剩余容量信息来避免使用本地拥塞链路
+转发数据的情况 .这种仅考虑本地接触剩余容量而忽略后续路径接触容量及中间节点存储能力的方式可能会
+引起不必要的业务量反弹效应 [41],因此,文献[39]提出了 PCC 算法.PCC 既可以作为 DTN 流量控制方案 ,也可以
+作为 DTN 拓扑同步方法 .它将节点生成的源与目的节点间的可行路径及路径上每个接触的剩余容量信息封装
+到数据包头部中 ,中间节点根据接收的数据包头部信息和异步反馈消息完成本地接触图更新、 容量预测和路由
+决策.PCC 虽然通过利用相邻节点间的信息交互改善了本地节点的知识处理能力 ,但所需的包头部开销非常大 . 
+文献[41]提出了 PA-CGR和 MG-CGR两种拥塞避免方法 ,并提出了基于可预知的接触计划和业务量的线性
+规划模型 ,作为分析和对比 DTN 拥塞感知机制的基准 .PA-CGR算法利用接触计划中已包含的接触容量信息 ,推
+测路径容量 (路径容量由路径上剩余容量最小的接触决定 ),并根据路径容量和本地接触的剩余容量进行路由决
+策.PA-CGR 提高了接触计划中网络拓扑信息的利用率 ,扩展了 CGR 的拥塞避免特性 .与 PCC 相比,包头部开销
+减小了,但包投递率降低了 .MG-CGR 利用确定性 DTN中接触计划和业务量的可预知性以及线性规划模型构建
+拥塞避免路由架构 .MG-CGR 与 CGR、PCC 和 PA-CGR 最大的区别在于 ,MG-CGR 利用线性规划模型为每个节
+点定制特定的接触计划 ,然后,每个节点根据特定的接触计划采用 CGR-EB 进行路由计算和转发 .对于业务量可
+预知的确定性 DTN,MG-CGR 性能逼近线性规划模型的上限 ,而对于业务量随机的情况 ,PCC 的性能最好 . 
+此外,针对地球观测卫星网络这类数据生成和资源预留均由任务操控制中心管理的空间 DTN,文献[48]提
+出了全局路径感知 CGR(global path-aware CGR, 简称 GPA-CGR),即在接触图生成阶段 ,基于可预知的拓扑信息
+和业务量全局视图采用演化算法生成无拥塞的接触计划 ,并分发给网络中的每个节点 .每个节点基于接收到的
+接触计划 ,应用 CGR-EB 计算数据包转发路径 .鉴于 GPA-CGR 依赖于可预测的业务量生成接触计划 ,处理不可
+预测业务、拓扑变化以及业务量预测误差的能力有限 ,文献[48]在 GPA-CGR 中引入了容量计算误差余量 ,并分
+发次优备份接触计划到网络中的所有节点以防网络突发事件的发生 . 
+除了上述工作以外 ,文献[40]改进了 CGR-ETO的转发决策机制 ,提出了基于本地信息的拥塞控制机制 .该机
+制充分利用了 CGR 的多路径计算能力 ,将次优路径作为备用路径 ,通过队列出队 /入队速率和束的最早传输时
+刻预测网络状态 .如果将束沿着最优路径转发会造成传输队列拥塞 ,则利用备用路径转发该束来避免拥塞发生 . 
+2.6   机会性扩展  
+目前,DTN 路由方案呈现二分性 ,即确定性 DTN 路由方案和随机性 DTN 路由方案彼此相互独立 .为了给出
+一个适合所有 DTN 环境的统一路由方案 ,文献[31]提出了基于 CGR 的 OCGR 算法.与 CGR 相比,OCGR 算法不
+仅扩展了接触计划 ,而且在转发决策过程中引入了束交付置信度 .在 OCGR 中,接触计划由预定接触 (scheduled 
+contact)、发现接触 (discovered contact) 和预测接触 (predicted contact) 组成.预定接触通过接触计划调度得出 ,发
+ 
+ 
+ 
+334 Journal of Software  软件学报 V ol.30, No.2, February 2019   
+ 
+现接触由节点实时发现 ,预测接触则依据发现接触的历史信息进行预测 .预定接触和发现接触的置信度为 1,而
+预测接触的置信度由发现接触日志信息推导得出 .OCGR 定义路径的置信度为路径中所有接触的置信度的乘
+积,并根据路径的置信度确定束的交付置信度 .OCGR 的研究仍处于起步阶段 ,其性能尚未超过其他机会路由算
+法,但一般认为 ,此改进是可行的 [31]. 
+2.7   异常处理  
+空间 DTN 网络所处网络环境复杂 ,接触易受电磁波干扰、邻频干扰等影响而意外中断 ,网络节点可能遭遇
+攻击、能量耗尽、天线故障等而失效 ,造成网络拓扑意外变化 .CGR 基于准确的接触计划进行路由决策 ,缺少应
+对节点或链路异常的能力 .文献[42]在 CGR中引入了应对接触意外中断的策略 ,提高了 CGR处理接触异常的能
+力.该机制首先根据接触上连续发生束重传的次数判断链路是否发生意外中断 ;一旦检测到接触中断 ,则将接触
+失效信息通告给所有节点 ,与此同时 ,激活接触失效探测机制发送探测束检测接触是否恢复 ;如果接触恢复 ,则
+将接触恢复消息下发给所有节点 ;节点接收到接触失效或恢复消息后更新本地接触图 ,重新计算路径 . 
+3   CGR 工程应用 
+已经有多种 DTN 开源仿真平台 ,包括 DTN2、ION、Postellation、IBR-DTN、JDTN 和 ONE 等[49].其中,DTN2
+由加利福尼亚大学采用 C 和 C++语言编程实现 ,主要包含的路由协议有静态路由、洪泛路由、延迟容忍链路状
+态路由(delay tolerant link state routing, 简称 DTLSR)和基于概率的 Prophet 路由等[50].ION 是由 JPL 实验室针对
+空间网络开发的软件平台 ,采用 C 语言实现 ,支持 Linux、Solaris、OS/X、FreeBSD、VxWorks、RTEMS 等平台,
+路由采用 CGR[51].Postellation 是由 Viagenie 使用 C语言开发的 ,支持 IPv4 和 IPv6[52].IBR-DTN 是由布伦瑞克工
+业大学基于 C++语言开发的 ,支持 Openwrt、Ubuntu、Android、MacOS 等系统,其路由模块主要包括静态连接
+路由、基于发现的路由、传染路由、洪泛路由和 Prophet 路由[53].JDTN 是由思科开发的基于 Java 语言实现的
+平台,支持 Android 等移动平台 [54].ONE 是由 Keränen 等人基于 Java 语言设计的机会 DTN 路由仿真平台 ,主要
+支持 DirectDelivery、Epidemic、Maxprop、Prophet、Spary and Wait 等路由协议 [55].在上述仿真平台中 ,CGR 主
+要在 ION 中实现 ,而 ION 多用于仿真由有限节点组成的小规模空间 DTN.为了补充 CGR 的研究评估手
+段,Berlati 等人已将 CGR 移植到 ONE 上,打破了基于小规模网络测试评估 CGR 性能的局面 [56]. 
+多项空间实验被相继展开 ,以验证 DTN 范型和 CGR 的有效性 .根据实测实验开展的时间先后顺序 ,我们简
+要介绍以下 4 个实验,如图 6 所示.在 2008 年 10 月进行的为期 27 天的深度撞击网络 (deep impact network, 简称
+DINET)实验中,顺利接收到了来自火星的 292张图片[57];2009 年 7月,美国国家航空航天局 (National Aeronautics 
+and Space Administration, 简称 NASA)在国际空间站 (International Space Station, 简称 ISS)上开始 DTN范式实验 ,
+并于 2016 年 5 月在 ISS 上正式运行 [58];2010 年 11 月,塞萨斯德谟克里特大学等多个研究单位共同开始了为期
+3 年半的空间数据路由器 (space-data router, 简称 SDR)项目,验证了 CGR 有助于空间科学数据的分发 [59];2011  
+年~2013年期间,日本宇宙航空研究开发机构 (Japan aerospace exploration agency, 简称 JAXA)与 NASA联合完成
+了 DTN 技术测试 ,证实了在航天器中使用 DTN 与 CGR 是可行的 [60]. 
+2008年10月 2009年7月 2010年11月 2011年4月
+深度撞击网络
+（DINET）
+国际空间站
+（ISS）
+空间数据路由器
+（SDR）
+JAXA DTN
+ 测试
+ 
+Fig.6  Conducted real test experiments 
+图 6  已开展的实测实验  
+3.1   深度撞击网络  
+DINET 是为测试 DTN 协议(如 BP、CGR 等)实施的深空飞行验证实验 [61].在该实验中 ,将 ION 软件上载到
+ 
+ 
+ 
+徐双 等:空间延迟/中断容忍网络的接触图路由研究综述 335 
+ 
+深度撞击飞行器中 ,同时,在地面多台计算机上安装 ION 软件模拟地球、火星和火卫一 (phobos),从而构建一个
+火星-地球通信的虚拟场景 .深度撞击飞行器作为中继路由 ,实现火星与地球之间的数据传递 .DINET 的网络系
+统组成如图 7 所示[57]. 
+• 7 号节点表示深度撞击飞行器 ,是网络中唯一没有被放置在 JPL 实验室的节点 . 
+• 节点 2、节点 4、节点 8 和节点 16 模拟地球表面的通信系统 . 
+• 节点 3、节点 6 和节点 12 模拟火星表面的通信系统 . 
+• 节点 5、节点 10 和节点 20 模拟火卫一表面的通信系统 [7]. 
+• 节点 8、节点 12 和节点 20 模拟终端节点 .其中,节点 12 和节点 20 生成图像文件 ,节点 8 接收和显示图
+像文件. 
+• 节点 2、节点 3 和节点 5 分别模拟地球、火星和火卫一通信系统与深度撞击号之间的中间接口系统 . 
+• 节点 4、节点 6、节点 10 模拟终端节点和地面系统间的路由器 . 
+• 节点 16 表示实验中用于分析和检测实验数据的管理系统 [62]. 
+ 
+Fig.
+7  DINET system components 
+图 7  DINET 的系统组成  
+该实验模拟了火星和火卫一表面探测节点将采集的图像通过深度撞击飞行器传回地面的过程 .图中的每
+个带箭头的虚线表示 DTN 网络接触序列 ;中间接口系统与实验操作中心之间带箭头的实蓝线表示用于连接实
+验设备的局域网 .图中节点 6 和节点 10 之间的链路为节点 12 和节点 20 之间的数据传输提供备用路径 .经过近
+一个月的测试 ,CGR 性能表现良好 ,实验中发现的漏洞也已经在高版本的 ION 中得以解决 . 
+3.2   国际空间站  
+自 2009 年起,NASA 在 ISS 上开展了多项 DTN 验证实验.2009 年 7 月的第 1 个实验是通过数据中继卫星
+系统(data relay satellite system, 简称 TDRSS)下载位于 ISS 上的商业通用生物处理设备 (commercial generic 
+bioprocessing apparatus 5, 简称 CGBA-5)中的图像文件 [63].图像文件从 ISS传输到位于亨茨维尔的马歇尔航天中
+
+ 
+ 
+ 
+336 Journal of Software  软件学报 V ol.30, No.2, February 2019   
+ 
+心,然后转发到位于科罗拉多大学波尔得分校的有效载荷操作控制中心 .虽然此次部署的 CGBA 拓扑复杂度并
+不足以充分发挥 CGR的作用,但其成功部署 ,使 ISS运营团队更加确信 DTN将成为 ISS通信技术的重要组成部
+分[64].2012 年,NASA 和欧洲航天局 (European Space Agency, 简称 ESA)模拟了在轨飞行器上的宇航员远程控制
+行星表面探测器的场景 [65].ISS 上的指挥官 Williams 成功地借助 DTN 协议发送远程控制命令 ,远程“驾驶”位于
+欧洲太空操作中心的小型乐高 (Lego)机器人[66].该实验证明了使用 DTN 通信基础设施从在轨航天器向地面机
+器人发送命令以及接收从机器人发回的数据的可行性 . 
+3.3   空间数据路由器  
+由于空间数据收集中心和学术研究机构与卫星间的可通信时间有限 ,而且空间数据收集中心与学术研究
+机构间缺乏高效的通信机制 ,因此空间数据分发面临庞大数据量、时效性和连续性的制约 ,常常造成空间数据
+未能被有效及时地利用 [59].为此,欧盟委员会资助成立空间数据路由器项目 ,旨在建立一个基于 DTN 的空间数
+据开发架构 ,从数据量、及时性和连续性方面改进空间数据的分发 .该项目的构想如图 8 所示[67]:利用 DTN 叠加
+层和 CGR 进行路由决策 ,一旦接收到空间任务数据 ,就直接转发给研究机构等感兴趣的终端用户 .该项目评估
+了 CGR 在空间任务地面段的适用性 ,证实了 CGR 有助于空间数据的高效分发 [60]. 
+空间段
+地面段
+空间数据路由器
+终端用户 终端用户 终端用户 终端用户
+ 
+Fig.8  Space data dissemination based on SDR 
+图 8  基于 SDR 的空间数据分发  
+3.4   JAXA/NASA DTN测试 
+JAXA 与 NASA 通过半真实半模拟的空间延迟 /中断环境 ,测试了 DTN 技术的可行性以及 CCSDS 文件传
+输协议(CCSDS file delivery protocol, 简称 CFDP)、Bundle 流服务(Bundle streaming service, 简称 BSS)和 CGR 的
+有效性.该测试分为 4 个不同的测试阶段 [68],见表 3.第 1 阶段主要是在开始正式测试之前验证网络连接性和
+DTN基本功能 ;第 2阶段通过模拟飞行器的运行场景验证 DTN功能;第 3阶段在真实的数据中继实验卫星 (data 
+relay test satellite, 简称 DRTS)空间链路环境下验证 DTN 功能;第 4阶段通过 DRTS空间链路连接 ISS 上的 DTN
+节点与 JAXA 航空中心的 DTN 节点来验证 DTN 的功能.为了证实在长距离延迟和中断环境中 CGR 的可行性 ,
+采用了一个典型的深空中继通信场景 ,如图 9 所示.该场景由 1 个任务操作中心 (mission operation center, 简称
+MOC)、1个行星表面探测车 (rover)、1个 DRTS卫星、2个行星中继轨道卫星 (ROP1 和 ROP2)和 2个地面站 (GT1
+和 GT2)组成[69].Rover 采集生成的数据通过 DRTS、ROP1、ROP2、GT1 和 GT2 传输到 MOC.测试中将 ION
+部署在所有节点上 ,并利用 CGR 动态查找最佳路由 .为了更加真实地模拟实际通信环境中的链路延迟和中断 ,
+在测试中加入 DRTS 卫星和两个地面站之间的实际传播延迟和处理延迟以及通过延迟模拟器模拟的 DRTS 卫
+ 
+ 
+ 
+徐双 等:空间延迟/中断容忍网络的接触图路由研究综述 337 
+ 
+星与 ROP1 和 ROP2 之间 3 600s 的往返延迟 .此外,通过开关射频链路 ,模拟由无线电干扰和雨衰引起的不可预
+测中断以及由航天器间不可视引起的可预测中断 ,并通过增加或减小射频电平大小 ,模拟实际降雨的衰减水平 .
+测试结果显示 ,CGR 能够实现传输路径的自动选择 ,成功地完成了图像文件的传输 . 
+Table 3  JAXA/NASA DTN test items 
+表 3  JAXA/NASA DTN 测试内容  
+测试阶段  测试项目  测试配置  CFDP BSS CGR
+JAXA内部 
+地面测试  
+2011.4-8 
+科罗拉多大学  
+波尔得分校  
+2013 
+马歇尔太空
+飞行中心  
+内部LAN
+JAXA节点 JAXA节点  
+JAXA/NASA 
+地面测试  
+2011.12-2012.1 
+科罗拉多大学  
+波尔得分校  
+2013.6 
+JAXA节点 NASA节点
+Internet
+ 
+JAXA内部 
+DRTS/DSS测试 
+2013.8 
+筑波航天中心  
+JAXA节点 JAXA节点
+DRTS
+ 
+JAXA/NASA 
+ISS/DRTS飞行测试
+2013 
+筑波航天中心  
+JAXA节点 NASA节点
+DRTS
+ 
+MOC
+DRTS
+GT1
+ROP2 Rover
+GT2
+ROP1
+源
+目的
+中继
+ 
+Fig.9  JAXA DTN test topology 
+图 9  JAXA 的 DTN 测试拓扑  
+4   性能评估 
+本文将 CGR 应用到由 GEO/MEO/LEO 组成的多层卫星网络中 ,从拓扑处理策略、路由跳数、路径延迟、
+故障处理和拥塞控制等 5个方面对比分析了 CGR与多层卫星路由算法 (multi-layered satellite routing algorithm,
+简称 MLSR)[70]的性能.MLSR 根据 GEO 卫星和 MEO 卫星的覆盖范围将 MEO 卫星和 LEO 卫星分组 ,并根据分
+组关系变化划分时隙 ,GEO 卫星和 MEO 卫星为组管理者 ,负责网络状态信息维护和路由表计算 .鉴于采用 ION
+仿真大规模多层卫星网络所需的硬件成本高 ,本文选用支持 CGR的 ONE平台作为多层卫星网络模拟器来对比
+评估两种路由算法性能 .由于 ONE 中不包含卫星节点的运动模型 ,我们采用 STK 构建多层卫星网络拓扑结构 ,
+ 
+ 
+ 
+338 Journal of Software  软件学报 V ol.30, No.2, February 2019   
+ 
+分析并生成其星间连接、距离、星下点轨迹等数据 ,导入到 ONE 中进行仿真 .ONE 模拟器的主要参数设置见    
+表 4. 
+Table 4  Main parameter settings of ONE  
+表 4  ONE 主要参数设置  
+参数名称  参数值 
+移动模型  StationaryMovement 
+仿真时长 (s) 864 000 
+TTL(s) 130 
+节点数 51 
+缓冲区大小 (M) 200 
+数据包大小 (M) 2 
+所用的多层星座参数见表 5,其中,GEO 卫星轨道位于赤道上方 ,MEO 卫星和 LEO 卫星则分别采用倾斜轨
+道和极轨道 .仿真中,将 36 颗 LEO 卫星编号为 0~35,12 颗 MEO 卫星编号为 36~47,3 颗 GEO 卫星编号为 48~50. 
+Table 5  Main parameters of satellite constellation 
+表 5  卫星星座主要参数  
+参数名称  GEO MEO LEO 
+轨道面数 (个) 1 2 6 
+每个轨道内的卫星数 (颗) 3 6 6 
+轨道高度 (km) 36 000 10 355 780 
+轨道倾角 (°) 0 55 90 
+ 
+4.1   时隙分布  
+本文以 24h 为系统周期 ,分别按照 CGR 和 MLSR 的拓扑处理策略 ,将多层卫星网络的一个系统周期划分为
+多个时隙 ,结果如图 10 和图 11 所示. 
+1000 2000 3000 4000 50000
+25
+50
+75
+100
+125时隙间隔长度 (s)
+时隙数  
+Fig.10  MLSR slot distribution 
+图 10  MLSR 时隙分布  
+0 1 02 03 04 05 06 00
+1500
+3000
+4500
+6000
+7500
+时隙间隔长度 (s)
+时隙数  
+Fig.11  CGR slot distribution 
+图 11  CGR 时隙分布  
+(s) 
+(s) 
+ 
+ 
+ 
+徐双 等:空间延迟/中断容忍网络的接触图路由研究综述 339 
+ 
+图 10 为按照 MLSR 的拓扑处理策略划分时隙的结果 ,多层星座的一个系统周期被划分为 4 972 个时隙,时
+隙间隔大多分布在 60s 以内,最短时隙间隔长度为 1s,最长为 122s.图 11 为按照 CGR 的拓扑处理策略划分时隙
+的结果,其时隙总数为 59 个,均匀分布在 7 100s 以内,最短时隙间隔长度为 439s,最长为 7 038s. 原因在于 ,MEO
+卫星与 LEO 卫星之间的组间关系频繁变化 ,造成 MLSR 一个系统周期内的时隙数量较大 ;而 CGR 采用星间接
+触的最大连通时间为单位划分时隙 ,时隙数量少 .过短的时隙间隔导致路由算法可能不收敛 ,而过多数量的时隙
+导致需要大量空间来存储相关状态信息 ,给星上资源有限的卫星节点带来挑战 . 
+4.2   跳数和延迟  
+假设地面站以编号为 0 的 LEO 卫星为接入卫星 ,分别向编号为 1~50 的卫星节点发送数据包 ,统计 MLSR
+和 CGR 求得的路径延迟和路由跳数 ,结果如图 12 所示.可以看出 ,CGR 求得的路径延迟比 MLSR 略小,但也存
+在部分路径延迟大于 MLSR 的情况 .原因在于 ,CGR 可以充分利用长时隙间隔内的所有链路进行数据传输 , 
+MLSR 只能通过短时隙间隔内始终连通的链路传输数据 .但由于 MLSR 综合考虑了传播延迟、处理延迟和队列
+延迟,而 CGR 只考虑了链路容量限制没有考虑排队延迟 ,因此当节点缓存队列中数据包较多时 ,CGR 的路径延
+迟略大于 MLSR. 
+10 20 30 40 50
+0
+1
+2
+3
+4跳数
+卫星节点编号
+ MLSR跳数
+ CGR  跳数
+0.0
+0.1
+0.2
+0.3
+0.4
+0.5
+0.6
+0.7
+ MLSR延迟
+  CGR 延迟
+延迟 (s)
+ 
+Fig.12  Hops and delay 
+图 12  跳数和延迟  
+由图 12 可知,通过编号为 0的 LEO 卫星向编号为 1~35 的 LEO 卫星发送数据时 ,MLSR 的路由跳数分布在
+2 跳;CGR 的路由跳数分别以 30%的概率分布在 1 跳、2 跳和 3 跳,而以 10%的概率分布在 4 跳.当通过编号为 0
+的 LEO 卫星向编号为 36~47 的 MEO 卫星发送数据时 ,MLSR 的路由跳数以 40%的概率分布在 3 跳,而以 60%
+的概率分布在 1 跳;CGR 的路由跳数以 30%的概率分布在 2 跳,而以 70%的概率分布在 1 跳.当通过编号为 0 的
+LEO 卫星向编号为 48~50 的 GEO 卫星发送数据时 ,MLSR 的路由跳数分布在 2 跳、3 跳、4 跳,CGR 的路由跳
+数为 4 跳.此外,对比路由跳数和延迟的关系可知 ,当路由跳数增大时 ,两种算法的路径延迟并未出现大幅度增大
+的情况 ,仅在向 GEO 卫星发送数据时 ,路径延迟大幅增大 .原因在于 ,卫星网络的路径延迟主要取决于传播延
+迟,MLSR 仅以路径延迟作为度量值指导选路过程 ,CGR 同时考虑了路径延迟和跳数两个度量值 ,LEO 卫星和
+GEO 卫星间的传输距离远 ,传输延迟长 ,导致路径延迟大 . 
+4.3   故障处理  
+卫星天线故障、能量耗尽或黑客攻击等会造成卫星节点意外失效 ,使得经过失效节点的路径无法继续使
+用.本文假设编号为 10、27 和 38 的 3 颗卫星同时在第 15s 发生意外失效 ,失效时长为 175s,统计分析该失效时
+间段内所有预计经过失效节点传输的数据包的投递率 ,结果如图 13 所示.由图可知 ,随着卫星节点失效时间的 (s) 
+ 
+ 
+ 
+340 Journal of Software  软件学报 V ol.30, No.2, February 2019   
+ 
+增加,CGR的包投递率逐渐降低 ;而 MLSR的包投递率仅在节点失效刚发生后的较短时间内出现下降 ,之后迅速
+恢复到较高水平 .原因在于 ,CGR 的路径计算所依据的是预知的接触计划 ,当节点失效发生后经过失效节点的最
+优路径仍被用来继续转发数据包 ,致使大量数据包聚积在失效节点附近的邻接节点中 ,引起数据包因生命周期
+失效或节点队列溢出而被丢失 ,降低了数据包投递率 ;而 MLSR 具有节点失效处理能力 ,当节点失效发生后 ,其
+邻接节点会主动发起拓扑更新及路由重计算 ,因此数据包可以避开失效节点进行转发 ,减轻了节点失效对数据
+包传输的影响 . 
+0 30 60 90 120 150 180
+50
+60
+70
+80
+90
+100投递率 (%)
+失效时间 (s)
+ CGR
+ MLSR
+ 
+Fig.13  Packet delivery ratio under node failures 
+图 13  节点失效时的数据包投递率  
+4.4   拥塞控制  
+当网络业务请求数量增多时 ,CGR 最多选用 3 条路径同时传输数据 .分别统计当业务请求增多时采用 CGR
+和 MLSR 传输业务请求的平均端到端延迟 ,结果如图 14 所示. 
+60 100 140 180 220
+0
+1000
+2000
+3000
+平均端到端延迟 (s)
+业务请求数
+ MLSR
+ CGR
+ 
+Fig.14  Influence of traffic requests on end-to-end delay 
+图 14  业务请求对端到端延迟的影响  
+由图可知 ,CGR 和 MLSR 的平均端到端延迟均随业务请求数增加而增加 ,但 CGR 的平均端到端延迟增长
+幅度比 MLSR 要小.此外,在业务请求数量相同的情况下 ,CGR 的平均端到端延迟明显低于 MLSR.原因在于 ,业
+务请求的增多会导致节点排队延迟变长 ,使路径的端到端延迟变大 .而 CGR 具有多路径计算能力 ,在业务请求
+数量增加时 ,可以通过多条路径进行业务传输 ,减小了节点上的排队延迟 ,因此,CGR 端到端延迟增长幅度比采
+(s) 
+(s)
+ 
+ 
+ 
+徐双 等:空间延迟/中断容忍网络的接触图路由研究综述 341 
+ 
+用单路径传输的 MLSR 要小. 
+5   总结与展望  
+空间 DTN 具有长延迟、高误码率、拓扑频繁变化等特点 ,这些特点给空间 DTN 路由带来严峻的挑战 .CGR
+为空间 DTN 路由提供了一个切实可行的解决方案 ,受到了学术界的广泛关注 .本文根据现有文献 ,给出了 CGR
+的基本原理、相关术语和算法过程 ,综述了针对 CGR 的缺陷提出的改进方案和已部署的验证 CGR 的空间飞行
+实验,并在多层卫星网络中对比评估了 CGR 的性能.在此基础上 ,本文提出以下有待进一步研究的问题 . 
+(1) CGR-EB 和 C-CGR分别采用路径编码和路径缓存的方式降低了 CGR的计算开销 ,但是前者增加了包
+头部开销 ,而后者以缓存空间为代价 .如何将 CGR-EB 和 C-CGR 相结合以进一步改善系统整体性能 ,
+是一个值得研究的问题 . 
+(2) 改进 CGR,使其适用于随机性 DTN.虽然针对该问题 ,现有文献已提出了 OCGR,但性能较差 ,算法设计
+有待进一步改进 . 
+(3) CGR 在有效性和带宽开销上与当前的 Internet 路由算法相当 ,但计算复杂度高 .尽管这对于小规模简
+单网络来说不是问题 ,但对于复杂的大规模网络则不可行 .文献[18]首次测试了 CGR 在小、中、大这
+3 种规模时变网络拓扑上的性能并指出 ,随着节点间接触数量和网络节点数目的增加 ,CGR 计算开销
+显著增长 ,每个束的转发时间呈指数增长 .因此,在 CGR 中引入划域的思想 ,对于降低 CGR 计算开销、
+完善其理论基础具有重要的意义 . 
+(4) 路由协议在提高服务质量 (quality of service, 简称 QoS)中扮演着重要的角色 ,而空间 DTN中的 QoS路
+由与 QoS 保障机制等研究仍处于发展的早期阶段 [71],因此,设计具有 QoS 保障能力的 CGR 是一个有
+待研究的问题 . 
+(5) CGR 采用接触列表描述所有时间间隔内节点间的通信机会 ,对于同一时间段内相同源和目的节点间
+的上下行链路分别使用不同的接触项描述 [72].因此,当网络规模扩大或网络服务持续时间变长时 ,接
+触计划列表将变得非常大 ,降低了 CGR 算法效率 .设计适用于大规模、长服务时间 DTN 的接触计划
+描述方法 ,对完善 CGR 理论基础具有重要的意义 . 
+(6) 空间网络配置更新困难、星上计算和处理能力有限、高异构性等特点 ,给空间组网技术的发展带来
+了严峻的挑战 .将 SDN(software defined networking) 和 NFV(network function virtualization) 引入到空
+间网络来设计新的网络组网范式 ,是应对上述挑战的有效途径 [73].引入 SDN,可以解耦控制平面和转
+发平面,使空间网络具有可编程性、灵活性和可重构的特点 ;引入 NFV ,能够简化网络管理 ,促进资源共
+享、聚合动态分配 [74,75] .同时,引入上述两种技术能够实现空间网络统一、灵活、细粒度的配置和管
+理,可以解决空间网络静态路由中因控制结构不灵活而无法满足负载均衡、故障管理和网络扩展的
+问题以及动态路由全网控制能力弱的问题 ,有效地权衡空间网络路由灵活性和可控性 . 
+References : 
+[1]   Mukherjee J, Ramamurthy B. Communication technologies and arch itectures for space network and interplanetary Internet. IEEE 
+Communications Surveys & Tutorials, 2013,15(2):881 −897. 
+[2]   Xu S, Wang XW, Huang M. Power and bandwidth joint allocation method for LEO satellites. Journal of Northeastern University: 
+Natural Science, 2017,38(3):320 −324,340 (in Chinese with English abstract). 
+[3]   Taleb T, Hadjadj-Aoul Y, Ahmed T. Challenges, opportunities, and solutions for converged satellite and terrestrial networks. IE EE 
+Wireless Communications, 2011,18(1). 
+[4]   Xu S, Wang XW, Huang M, et al. An intelligent analysis method of satellite network capacity. Chinese Journal of Computers, 2017, 
+40(7):1572 −1582 (in Chinese with English abstract). 
+[5]   Hu J, Wang R, Zhang Q, et al. Aggregation of DTN bundles for space internetworking systems. IEEE Systems Journal, 2013,7(4): 
+658−668. 
+ 
+ 
+ 
+342 Journal of Software  软件学报 V ol.30, No.2, February 2019   
+ 
+[6]   Farserotu J, Prasad R. A survey of future broadband multimedia satellite systems, issues and trends. IEEE Communications 
+Magazine, 2000,38(6):128 −133. 
+[7]   Araniti G, Bezirgiannidis N, Birrane E, et al. Contact graph routing in DTN space networks: Overview, enhancements and 
+performance. IEEE Communications Magazine, 2015,53(3):38 −46. 
+[8]   Burleigh S, Hooke A, Torgerson L, et al. Delay-tolerant networking: An approach to interplanetary Internet. IEEE Communications 
+Magazine, 2003,41(6):128 −136. 
+[9]   Caini C, Cruickshank H, Farrell S, et al. Delay- and disruption-tolerant networking (DTN): An alternative solution for future 
+satellite networking applications. Proc. of the IEEE, 2011,99(11):1980 −1997. 
+[10]   Caini C, Firrincieli R. DTN for LEO satellite communications. In: Proc. of the Personal Satellite Services: 3rd Int’l ICST Conf . 
+Heidelberg: Springer-Verlag, 2011. 186 −198. 
+[11]   Fall K. A delay-tolerant network architecture for challenged internets. In: Proc. of the Computer Communication Review. ACM 
+Press, 2003. 27 −34. 
+[12]   Scott K L, Burleigh S. Bundle protocol specification. 2007. https://tools.ietf.org/html/rfc5050 
+[13]   Jain S, Fall K, Patra R. Routing in a delay tolerant network. In: Proc. of the Computer Communication Review. ACM Press, 2004. 
+145−157. 
+[14]   Palazzo S, Campbell AT, de Amorim MD. Opportunistic and delay-tolerant networks. EURASIP Journal on Wireless 
+Communications and Networking, 2011,2011:Article No.164370. 
+[15]   Burgess J, Gallagher B, Jensen DD, et al. MaxProp: Routing for vehicle-based disruption-tolerant networks. In: Proc. of the 25th 
+IEEE INFOCOM Conf. Piscataway: IEEE, 2006. 1688 −1698. 
+[16]   Spyropoulos T, Psounis K, Raghavendra CS. Spray and wait: An efficient routing scheme for intermittently connected mobile 
+networks. In: Proc. of the ACM SIGCOMM 2005 Workshop on Delay-Tolerant Networking (WDTN 2005). ACM Press, 2005. 
+252−259. 
+[17]   Wu Y, Deng S, Huang H. Performance analysis of epidemic routing in DTNs with limited forwarding times and selfish nodes. Int’l 
+Journal of Ad Hoc and Ubiquitous Computing, 2013,13(3-4):254 −263. 
+[18]   Wang G, Burleigh SC, Wang R, et al. Scoping contact graph-routing scalability: Investigating the system’s usability in space- 
+vehicle communication networks. IEEE Vehicular Technology Magazine, 2016,11(4):46 −52. 
+[19]   Xuan BB, Ferreira A, Jarry A. Computing shortest, fastest, and foremost journeys in dynamic networks. Int’l Journal of 
+Foundations of Computer Science, 2003,14(2):267 −285. 
+[20]   Merugu S, Ammar MH, Zegura EW. Routing in space and time in networks with predictable mobility. In: Proc. of the Georgia 
+Institute of Technology. 2004. 1 −13. 
+[21]   Burleigh S. Dynamic routing for delay-tolerant networking in space flight operations. In: Proc. of the SpaceOps 2008 Conf. 
+American Institute of Aeronautics and Astronautics Inc., 2008. 1 −9. 
+[22]   Komnios I, Diamantopoulos S, Tsaoussidis V. Evaluation of dynamic DTN routing protocols in space environment. In: Proc. of the 
+2009 Int’l Workshop on Satellite and Space Communications (IWSSC). Piscataway: IEEE, 2009. 191 −195. 
+[23]   Wang S, Deng FX, Cheng ZJ, et al. Analysis of routing algorithm for space delay/disruption tolerant network. Geomatics and 
+Information Science of Wuhan University, 2015,40(10):1312 −1316 (in Chinese with English abstract). 
+[24]   Seguí J, Jennings E, Burleigh S. Enhancing contact graph routing for delay tolerant space networking. In: Proc. of the 2011 IEE E 
+Global Communications Conf. (GLOBECOM 2011). Piscataway: IEEE, 2011. 1 −6. 
+[25]   CCSDS Secretariat. CCSDS Schedule-aware Bundle Routing. CCSDS White Book, 2018. 
+[26]   Fraire JA, Madoery P, Burleigh S, et al. Assessing contact graph routing performance and reliability in distributed satellite 
+constellations. Journal of Computer Networks and Communications, 2017,2017:Article No.2830542. 
+[27]   Yang HC, Zhang QJ, Sun Y, et al. Routing performance evaluation in navigation constellation network based on contact graph 
+routing. In: Proc. of the 5th CSNC. 2014 (in Chinese with English abstract). 1 −5. 
+[28]   Birrane E, Burleigh S, Kasch N. Analysis of the contact graph routing algorithm: Bounding interplanetary paths. Acta Astronauti ca, 
+2012,75:108 −119. 
+ 
+ 
+ 
+徐双 等:空间延迟/中断容忍网络的接触图路由研究综述 343 
+ 
+[29]   Fraire JA, Madoery PG, Finochietto JM. On the design and analysis of fair contact plans in predictable delay-tolerant networks.  
+IEEE Sensors Journal, 2014,14(11):3874 −3882. 
+[30]   Burleigh SC. Contact graph routing: Draft-burleigh-dtnrg-cgr-01. 2010. https://tools.ietf.org/html/draft-burleigh-dtnrg-cgr-01 
+[31]   Burleigh S, Caini C, Messina JJ, et al. Toward a unified routing framework for delay-tolerant networking. In: Proc. of the 2016 
+IEEE Int’l Conf. on Wireless for Space and Extreme Environments (WiSEE). Piscataway: IEEE, 2016. 82 −86. 
+[32]   Bezirgiannidis N, Caini C, Montenero DDP, et al. Contact graph routing enhancements for delay tolerant space communications. In: 
+Proc. of the 2014 7th Advanced Satellite Multimedia Systems Conf. and the 13th Signal Processing for Space Communications 
+Workshop (ASMS/SPSC). IEEE, 2014. 17 −23. 
+[33]   Fraire JA, Finochietto JM. Design challenges in contact plans for disruption-tolerant satellite networks. IEEE Communications 
+Magazine, 2015,53(5):163 −169. 
+[34]   Birrane EJ. Improving graph-based overlay routing in delay tolerant networks. In: Proc. of the Wireless Days (WD), 2011 IFIP. 
+Piscataway: IEEE, 2011. 1 −6. 
+[35]   Burleigh S. Contact graph routing: Draft-burleighdtnrg-cgr-01. 2009. https://tools.ietf.org/html/draft-burleigh-dtnrg-cgr-00 
+[36]   Fraire JA, Madoery P, Finochietto JM. Leveraging routing performance and congestion avoidance in predictable delay tolerant 
+networks. In: Proc. of the 2014 IEEE Int’l Conf. on Wireless for Space and Extreme Environments (WiSEE). Piscataway: IEEE, 
+2014. 1 −7. 
+[37]   Bezirgiannidis N, Tsapeli F, Diamantopoulos S, et al. Towards flexibility and accuracy in space DTN communications. In: Proc. of 
+the Annual Int’l Conf. on Mobile Computing and Networking (MOBICOM). ACM Press, 2013. 43 −48. 
+[38]   Bezirgiannidis N, Caini C, Montenero DDP, et al. Contact graph routing enhancements for delay tolerant space communications. In: 
+Proc. of the 2014 7th Advanced Satellite Multimedia Systems Conf. and the 13th Signal Processing for Space Communications 
+Workshop (ASMS/SPSC). Piscataway: IEEE, 2014. 17 −23. 
+[39]   Birrane EJ. Congestion modeling in graph-routed delay tolerant networks with predictive capacity consumption. In: Proc. of the 
+2013 IEEE Global Communications Conf. (GLOBECOM 2013). Piscataway: IEEE, 2013. 3016 −3022. 
+[40]   Yan H, Zhang Q, Sun Y. Local information-based congestion control scheme for space delay/disruption tolerant networks. Wireless  
+Networks, 2015,21(6):2087 −2099. 
+[41]   Fraire JA, Madoery P, Finochietto JM, et al. Congestion modeling and management techniques for predictable disruption tolerant 
+networks. In: Proc. of the 2015 IEEE 40th Conf. on Local Computer Networks (LCN). Piscataway: IEEE, 2015. 544 −551. 
+[42]   Shi WF, Zhou HC, Gao DY. Accuracy enhancement for contact graph routing in space delay tolerant networks. Jouranl of the 
+China Railway Society, 2017,39(7):87 −97 (in Chinese with English abstract). 
+[43]   Burleigh S. Interplanetary overlay network: An implementation of the DTN bundle protocol. In: Proc. of the 2007 4th Annual IEEE  
+Consumer Communications and Networking Conf. (CCNC 2007). Institute of Electrical and Electronic Engineers Computer 
+Society, 2007. 222 −226. 
+[44]   Marchese M, Patrone F. A source routing algorithm based on cgr for DTN-nanosatellite networks. In: Proc. of the 2017 IEEE 
+Global Communications Conf. Piscataway: IEEE, 2017. 1 −6. 
+[45]   Bezirgiannidis N, Tsaoussidis V. Predicting queueing delays in delay tolerant networks with application in space. In: Proc. of the 
+Int’l Conf. on Wired/Wireless Internet Communications. Cham: Springer-Verlag, 2014. 228 −242. 
+[46]   Bezirgiannidis N, Caini C, Tsaoussidis V. Analysis of contact graph routing enhancements for DTN space communications. Int’l 
+Journal of Satellite Communications and Networking, 2016,34(5):695 −709. 
+[47]   Apollonio P, Caini C, Lülf M. DTN LEO satellite communications through ground stations and GEO relays. In: Proc. of the 
+Personal Satellite Services: 5th Int’l ICST Conf. Berlin: Springer-Verlag, 2013. 1 −12. 
+[48]   Madoery PG, Fraire JA, Finochietto JM. Congestion management techniques for disruption tolerant satellite networks. Int’l Journ al 
+of Satellite Communications and Networking, 2018,36(2):165 −178. 
+[49]   Morgenroth J. Event-driven software-architecture for delay- and disruption-tolerant networking [Ph.D. Thesis]. Braunschweig: 
+Technische Universität Braunschweig, 2015. 
+[50]   Demmer M.DTN2 manual: Contents. 2004. http://dtn.sourceforge.net/DTN2/doc/manual/index.html 
+[51]   Burleigh S, Ostermann S, Kruse H, et al. ION-DTN. https://sourceforge.net/projects/ion-dtn/ 
+ 
+ 
+ 
+344 Journal of Software  软件学报 V ol.30, No.2, February 2019   
+ 
+[52]   Viagenie. Postellation: A lean and deployable DTN implementation. 2017. http://postellation.viagenie.ca/features.html 
+[53]   Johannes M. IBR-DTN. 2016. https://github.com/ibrdtn/ibrdtn/wiki 
+[54]   Miner J, Moon B. JDTN. 2016. https://sourceforge.net/projects/jdtn/?source=typ_redirect 
+[55]   Keränen A. ONE. 2015. https://akeranen.github.io/the-one/ 
+[56]   Berlati A, Burleigh S, Caini C, et al. Implementation of (O-) CGR in the ONE. In: Proc. of the 6th Int’l Conf. on Space Mission 
+Challenges for Information Technology (SMC-IT). IEEE, 2017. 132 −135. 
+[57]   Torgerson JL, Clare L, Wang SY, et al. The deep impact network experiment operations center. In: Proc. of the Aerospace Conf. 
+2009 IEEE. IEEE, 2009. 1 −12. 
+[58]   Int’l space station. 2016. https://www.nasa.gov/ission_pages/station/research/experiments/730.html 
+[59]   Tsaoussidis V, Laroque C, Malkotsis A, et al . Space-data routers report summary. 2015. http://cordis.europa.eu/result/rcn/157342_ 
+en.html 
+[60]   Rodney G. NASA/JAXA DTN DRTS TIM. 2013. https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/20130001811.pdf 
+[61]   Schoolcraft J, Burleigh S, Jones R, et al. The deep impact network experiments —Concept, motivation and results. In: Proc. of the 
+SpaceOps 2010 Conf. American Institute of Aeronautics and Astronautics Inc., 2010. 1 −8. 
+[62]   Wang SY, Torgerson JL, Schoolcraft J, et al. The deep impact network experiment operations center monitor and control system. In: 
+Proc. of the 2009 3rd IEEE Int’l Conf. on Space Mission Challenges for Information Technology (SMC-IT 2009). Piscataway: 
+IEEE, 2009. 34 −40. 
+[63]   Kevin G. Disruption tolerant networking for space operations (DTN). 2017. https://www.nasa.gov/mission_pages/station/research/ 
+experiments/730.html#publications 
+[64]   Jenkins A, Kuzminsky S, Gifford KK, et al. Delay/Disruption-tolerant networking: Flight test results from the Int’l space station. In: 
+Proc. of the IEEE Aerospace Conf. IEEE Computer Society, 2010. 1 −8. 
+[65]   Raj VS, Chezian RM. Delay-disruption tolerant network (DTN), its network characteristics and core applications. Int’l Journal o f 
+Computer Science and Mobile Computing, 2013,2(9):256 −262. 
+[66]   Rachel K. NASA, ESA use experimental interplanetary Internet to test robot from Int’l space station. 2012. https://www.nasa.gov / 
+home/hqnews/2012/nov/HQ_12-391_DTN.html 
+[67]   Goetzelmann M, Tsaoussidis V, Diamantopoulos S, et al. Space data routers for the exploitation of space data. In: Proc. of the 
+SpaceOps 2012. Reston: American Institute of Aeronautics and Astronautics, 2012. 1335 −1347. 
+[68]   Paronis D, Daglis IA, Diamantopoulos S, et al. A DTN-ready application for the real-time dissemination of earth observation data 
+received by direct readout stations. In: Proc. of the NETSPACE Workshop. 2014. 17 −20. 
+[69]   Suzuki K, Inagawa S, Lippincott J, et al. JAXA-NASA interoperability demonstration for application of DTN under simulated rain 
+attenuation. In: Proc. of the 13th Int’l Conf. on Space Operations (SpaceOps 2014). Reston: American Institute of Aeronautics a nd 
+Astronautics, Inc., 2014. 1 −13. 
+[70]   Akyildiz IF, Ekici E, Bender MD. MLSR: A novel routing algorithm for multilayered satellite IP networks. IEEE/ACM Trans. on 
+Networking, 2002,10(3):411 −424. 
+[71]   Keith S, Torgerson L. Standardizing DTN for space communication. 2015. http://ipnsig.org/wp-content/uploads/2015/05/IPNSIG- 
+PrPresentati-DTN-for-CCSDS-v3.pdf 
+[72]   El Alaoui S, Ramamurthy B. EAODR: A novel routing algorithm based on the modified temporal graph network model for DTN- 
+based interplanetary networks. Computer Networks, 2017,129:129 −141. 
+[73]   Xu S, Wang XW, Huang M. Software-defined next-generation satellite networks: Architecture, challenges, and solutions. IEEE 
+Access, 2018,6:4027 −4041. 
+[74]   Yi B, Wang X, Li K, et al. A comprehensive survey of network function virtualization. In: Proc. of the Computer Networks. 2018. 
+212−262. 
+[75]   Bu C, Wang X, Cheng H, et al. Enabling adaptive routing service customization via the integration of SDN and NFV. Journal of 
+Network and Computer Applications, 2017,93:123 −136. 
+ 
+ 
+ 
+ 
+徐双 等:空间延迟/中断容忍网络的接触图路由研究综述 345 
+ 
+附中文参考文献 : 
+ [2] 徐双,王兴伟,黄敏.低轨道卫星功率带宽资源联合分配方法 .东北大学学报 (自然科学版 ),2017,38(3):320 −324,340. 
+ [4] 徐双,王兴伟,黄敏,等.一种卫星网络容量智能分析方法 .计算机学报 ,2017,40(7):1572 −1582. 
+[23] 王赛,邓福兴,程子敬,等.面向空间延迟可容忍网络的路由协议仿真研究 .武汉大学学报 :信息科学版 ,2015,40(10):1312 −1316. 
+[27] 燕洪成,张庆君,孙勇.基于连接图路由算法的导航星座网络路由性能研究 .见:第 5 届中国卫星导航学术年会论文集 .2014.1 −5. 
+[42] 时文丰,周华春,高德云.一种空间 DTN 接触图路由精确性提高方法 .铁道学报 ,2017,39(7):87 −97. 
+ 
+ 
+ 
+徐双 (1990－),女,河北秦皇岛人 ,博士生 ,
+主要研究领域为卫星网络资源分配 ,路由
+机制,软件定义卫星网络 . 
+ 
+ 黄敏 (1968－),女,博士 ,教授 ,博士生导师 ,
+主要研究领域为智能算法设计与优化 ,调
+度理论与方法 . 
+ 
+王兴伟 (1968－),男,博士 ,教授 ,博士生导
+师,CCF 高级会员 ,主要研究领域为未来互
+联网,云计算,网络空间安全 . 
+ 
+ 张琳琳 (1994－),女,硕士,主要研究领域为
+空间信息网络 . 
+ 

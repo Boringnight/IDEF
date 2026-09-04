@@ -1,0 +1,1018 @@
+ 
+引用格式 : 李勐 ， 冯肇晗 ， 梅云鹏 ， 等 .  多智能体强化学习赋能空间无人系统：方法、挑战与机 遇 [J] .  空间控制技术与应用， 2025，51（4） ：
+17 − 28.   LI M，FENG Z H，MEI Y P，et al.  Multi-agent reinforcement learning empower space unmanned systems: methods, challenges
+and  opportunities[J].   Aerospace  Control  and  Application， 2025， 51（ 4） ： 17 − 28（ in   Chinese） .   doi： 10.3969/j.issn.1674-
+1579.2025.04.002
+多智能体强化学习赋能空间无人系统：方法、挑战与
+机遇
+李　勐 2，冯肇晗 1 *，梅云鹏 1，曹宏杰 1，张　博 2，王　钢 1
+1.   北京理工大学，北京  100081
+2.   中国电子科技集团  电子科学研究院，北京  100041
+ 
+关键词：  多智能体强化学习 ；空间无人系统 ；协同控制 ；边缘计算 ；
+摘　要： 随着航天技术向智能化 、集群化发展 ，空间无人系统在深空探测 、对地观测等战略领域展现出巨大
+潜力 ，但传统集中式控制范式在应对高动态环境 、分布式任务和严格资源约束时面临严峻挑战 . 多智能体强
+化学习以其分布式决策架构和协同演化机制 ，为构建自主 、弹性的空间智能系统提供了突破性解决方案 . 本
+文系统探讨了多智能体强化学习在空间无人系统中的技术赋能路径 、方法体系 、工程挑战与发展机遇 ；剖析
+了卫星集群 协同通信和 多航天器 控制等核心场景的技术瓶颈 ；总结了空间无人系统在上述核心场景中的研究
+与应用现状 ；展望了多智能体强化学习作为新兴智能技术 ，在动态频谱分配 、星载边缘计算和抗扰协同控制
+等关键方向的应用前景 ，推动空间系统向 “自主决策 -弹性抗扰 -高效协同 ”的新范式演进 . 本文旨在为构建新
+一代空间智能无人集群提供现有技术梳理与前景展望 .
+自主决策
+中图分类号：  V448.22             文献标志码：  A             文章编号：  1674-1579（2025）04-0017-12
+ 
+0    引　言
+随着新一轮科技革命与产业变革的深入推进 ，
+人类社会正迈入一个以智能化 、网络化和集群化为
+核心特征的全新纪元 . 在这一宏大背景下 ，航天技术
+作为国家战略能力与综合国力的集中体现 ， 其发展
+范式正经历着一场深刻的变革 [1]. 传统的单星 、单任
+务模式正迅速被大规模 、分布式和协同化的空间系
+统所取代 [2]. 从近地轨道的巨型通信星座 ，到深空探
+测的航天器集群 ， 再到未来空间攻防体系中的协同
+自主单元 ， 空间无人系统正以前所未有的规模和复
+杂度 ，在深空探测 [3]、对地观测 [4]、全球通信 [5]、太空
+安全乃至星际探索等前沿战略领域 ， 展现出不可估
+量的应用价值与变革潜力 . 这一趋势标志着 “太空时
+代 2.0” 的到来 , 其核心驱动力在于通过群体智能实
+现系统能力的涌现式增长 ， 具体表现包括从单航天
+器执行任务到多航天器协同执行任务 、从近地空间
+到深空探索 、从预设程序或人在回路控制到高度自
+主协同 . 然而 ， 这一宏伟蓝图的实现并非坦途 . 传统
+的空间系统控制范式 ， 在很大程度上继承了地面工
+业控制的集中式思想 ， 即依赖于一个强大的地面运
+控中心进行全局感知 、统一规划与指令下发 [6]. 这种
+“地面大脑 -在轨执行 ”的模式 ，在应对简单 、静态任
+务时曾行之有效 . 但是 ，当面对当前和未来的空间任
+务时 ，其内在的局限性开始显现 ：1）空间环境本身具
+ 
+收稿日期 ：2025-07-26;录用日期 ：2025-08-26
+基金项目 ：国家自然科学基金资助项目 （U23B2059）
+ *  通信作者 ：E-mail: zhfeng@bit.edu.cn
+ 
+第 51 卷　第 4 期 空间控制技术与应用 Vol. 51　No. 4
+2025 年8 月 Aerospace  Control  and  Application August.　 2025
+http://www.acabice.cn 　acabice@163.com
+有高度的动态性与不确定性. 轨道漂移、太阳活动、
+空间碎片和通信链路的间歇性中断和潜在的多方博
+弈行为，共同构成了一个高维、非线性和强耦合的复
+杂动力学环境. 对于需要快速响应的协同任务而言，
+仍依赖存在显著时延的“天地链路”，已然成为决策
+闭环中的致命瓶颈. 2）任务需求的协同性与复杂性
+急剧提升. 未来的空间任务，如分布式孔径雷达[7]、多
+星协同对地成像和在轨服务与维护等，要求多个航
+天器作为一个有机整体，进行高精度的时空协同与
+功能互补. 这需要系统具备在任务层面进行动态分
+解、在资源层面进行实时分配并在行为层面进行紧
+密协作的能力，而这些是远端集中式调度所难以企
+及的. 3）系统面临着极为严格的资源约束. 单个航天
+器平台的星上计算能力、存储容量和能源供给均极
+为有限，且通信带宽是宝贵的稀缺资源. 在由成百上
+千个节点构成的庞大星座网络中，任何试图进行全
+局信息汇总与集中式计算的方案，都将引发无法承
+受的通信风暴与计算拥塞，同时形成单一故障点，威
+胁整个系统的生存能力与任务效能[8].
+在上述严峻挑战的交织作用下，传统集中式控
+制范式已然“力不从心”，成为制约空间系统向更高
+阶形态演进的关键桎梏. 因此迫切需要一种全新的
+理论框架与技术路径，以构建一种能够在极端环境
+下自主运行、弹性适应和高效协同的新一代空间智
+能系统. 在此背景下，多智能体强化学习凭借其内在
+的分布式决策架构、自组织的协同演化机制和从交
+互中学习的强大能力，为破解上述难题提供了一条
+极具潜力的突破性解决方案. 多智能体强化学习将
+系统中的每一个航天器或功能模块视为一个具有局
+部感知、计算和决策能力的“智能体”，这些智能体
+通过与环境和彼此之间的持续交互，在没有全局完
+美信息和集中指令的情况下，以最大化共同的长期
+回报为目标，自主学习并演化出复杂的协同策略. 这
+种“自下而上”的智能涌现机制，与空间系统分布
+式、去中心化的物理架构天然契合，能够有效规避单
+点故障风险，极大提升系统的鲁棒性与可扩展性.
+本文的核心目标是系统性地探讨多智能体强化
+学习在赋能空间无人系统智能化演进过程中的技术
+路径、核心方法体系、关键工程挑战与未来发展机
+遇. 研究的关注点将不再局限于单一技术点的探讨，
+而是力图构建一个从理论到应用的完整图景. 本文
+深入剖析当前空间无人系统在几个核心场景中所面
+临的技术瓶颈. 在卫星集群协同通信领域，静态的频
+段划分与路由协议难以应对动态变化的业务流量与
+复杂的电磁干扰环境，导致信道资源利用率低下、通
+信阻塞频发. 在多航天器协同控制领域，如高精度编
+队飞行和在轨自主交会对接，非线性的耦合动力学、
+外部环境扰动和执行器的物理约束，使得设计兼具
+精度与鲁棒性的协同控制器极具挑战[9]. 在此基础
+上，本文进一步总结了空间无人系统在上述核心场
+景中的研究与应用现状，并展望了多智能体强化学
+习作为新兴智能技术，在动态频谱分配、星载边缘计
+算和抗扰协同控制等关键方向的应用前景. 在动态
+频谱分配方面，多智能体强化学习可以构建一个分
+布式频谱拍卖或协商模型，各卫星智能体根据自身
+通信需求与感知到的信道状态，学习如何动态选择
+频点与功率，从而实现全网通信效能的最大化，有效
+应对频谱拥塞与恶意干扰. 在星载边缘计算方面，面
+对海量星上数据与有限下行带宽的矛盾，多智能体
+强化学习能够帮助智能体集群学习最优的计算卸载
+策略，自主决定哪些任务在本地处理、哪些任务协同
+邻近节点处理和哪些原始或预处理数据需要下传，
+从而将卫星从单纯的“数据采集器”转变为“智能处
+理节点”，极大提升了任务响应速度与信息提取效率.
+在抗扰协同控制方面，多智能体强化学习能够使航
+天器编队在遭遇非合作目标机动或空间环境突变
+时，通过在线学习与适应，实时调整队形构型与控制
+律，维持任务执行的稳定性和精确性，展现出卓越的
+弹性抗扰能力.
+本文将超越具体应用场景的讨论，着眼于推动
+整个空间系统向“自主决策-弹性抗扰-高效协同”这
+一全新范式演进. 因此必须打破传统航天动力学与
+现代人工智能算法之间的壁垒，提出一种深度融合
+空间动力学物理约束与多智能体强化学习算法创新
+的协同智能架构. 这种架构不仅要让智能体的学习
+过程充分尊重并利用开普勒定律等物理规律，以提
+升学习效率和策略的安全性；更要通过构建高保真
+的数字孪生环境[10]，为多智能体强化学习策略的在
+轨部署提供充分的验证与风险评估. 本研究的最终
+旨归，是为我国构建下一代自主、可控与高效的天基
+智能网络和未来的深空探索与利用体系，提供坚实
+的理论支撑、清晰的技术路径与前瞻性的战略思考，
+·18· 空间控制技术与应用 第 51 卷
+从而在日趋激烈的国际太空竞争中把握主动权 ， 拓
+展人类文明的生存与发展疆域 . 
+1    研究背景
+升行为策略的长期收益
+在多智能体系统的架构设计中 ， 常见结构类型
+包括 慎思型结构 、反应式结构和混合型结构
+[11]
+. 这些
+架构在本质上决定了系统在任务分解 、 协同决策 、
+计划调度与行为执行等各个阶段中 ， 各智能体的功
+能划分与协作机制 . 尤其在任务复杂 、信息异质的应
+用背景下 ， 慎思型结构因其具备更强的建模能力而
+被广泛应用于多智能体协同系统 ， 特别是在空间无
+人系统 （ 如多卫星协同观测 、 空间机器人在轨维护
+等 ） 中 ， 需要高精度地实现任务划分与局部感知协
+作，该结构尤为适用 . 此类结构强调在异构任务和动
+态环境中 ， 智能体通过任务建模 、 信息共享与融合 、
+任务分配和博弈机制等方式 ， 实现复杂群体行为的
+模拟与优化 . 为增强系统的适应性与可重构性 ，多智
+能体系统在实际部署中通常采用模块化建模方式 ，
+以应对环境变化和任务扰动 . 例如 ，在空间任务场景
+下，智能体需处理轨道漂移 、通信中断与观测对象状
+态不确定等问题 ， 从而在执行过程中持续调整策略
+行为. 应对此类挑战 ，研究者提出了多种群体智能建
+模技术 ，包括基于博弈论 、合同网协议与黑板系统等
+机制 ， 以实现智能体间在异构任务下的自主决策与
+知识共享 . 近年来 ， 随着空间探索任务日益复杂化 ，
+空间无人系统呈现出 多智能体协同控制趋势 ， 如多
+星编队控制 、星群任务分发与空间机器人联合作业
+等. 这类系统常面临通信受限 、环境动态剧烈与任务
+不确定性高等典型问题 ， 传统基于规则的控制策略
+已难以应对其复杂性与鲁棒性需求 . 因此 ，具备自适
+应性与分布式学习能力的多智能体强化学习逐渐成
+为空间无人系统中实现自主智能控制的重要研究路
+径. 强化学习作为机器学习的基本分支之一 ，致力于
+训练智能体通过与环境交互学习获得最大化长期回
+报的策略
+[12]
+. 不同于依赖人工标注的监督学习或结
+构挖掘为主的无监督学习 ， 强化学习强调基于试错
+机制获取反馈 ，从而在未知环境中不断修正决策 ，提
+. 
+1.1    多智能体协同过程建模
+在空间应用场景中 ， 任务常常涉及多个智能体
+的协同完成 . 例如 ，多颗卫星需结合各自的观测数据
+进行编队重构 、轨道同步或任务再规划 . 这类协同情
+形对智能体间的通信效率与策略协调性提出更高要
+ 
+智能体问题建模
+ 求，推动强化学习从单智能体范式 [13] 自然扩展至多
+ [14-15]. 特别地 ， 在合作型任务中 ， 多
+部分可观测马尔可夫决策过程可以被一个元组
+表 示 ， 其 中 ， 为
+全局状态 ， 表示全部 个智能体 .
+在每个时刻 ，每个智能体 从全局状态 中获取观
+测 并 通 过 其 动 作 策 略 来 选 择 一 个 动 作
+， 从而形成一个联合动作 . 联合动作策
+略 为所有智能体动作策略的乘
+积.  环 境 状 态 转 移 的 动 力 学 被 表 示 为
+. 所有智能体共享相同的奖励值 ，
+奖励函数为 ，其中 为计算折扣奖励使用的折
+扣系数 . 集合 描述了所有智能体在
+一个完整的回合中所形成的轨迹 ， 其中每个智能体
+的轨迹被表示为 ， 具体为一个
+包含该智能体自身获取的观测信息与执行的动作决
+策的序列 ，长度为回合时长 . 总的来说 ，智能体动作
+策略优化的目标是最大化整个回合的总奖励的数学
+期望. 总奖励期望可以被表示为
+其中 ， 代表整个回合的总时间长度 ， 代表每
+个时刻多智能体系统获得的奖励值
+智能体强化学习问题通常被形式化为 去中心化 的部
+分可观测马尔可夫决策过程 ， 该模型在传统马尔可
+夫决策过程基础上 ，引入多智能体与局部观测限制 ，
+刻画信息不完备下的联合决策问题 .
+. 
+1.2    多智能体强化学习方法 
+1.2.1    值分解方法
+基于价值函数的多智能体强化学习方法起源于
+深度Q 网络学习 [16]，其基本思想是通过对动作 -价值
+函数的逼近 ，评估各动作的未来期望回报 ，引导策略
+选择. 在多智能体情形中 ，为提升算法的可扩展性与
+通信效率 ，研究者提出了值函数分解机制 . Q 值混合
+(Q-value mixing, QMIX) 算法 [17] 通过构建全局联合价
+值函数 ， 并将其分解为各智能体局部效用函数的可
+加组合 ，从而在保持中心化训练优势的同时 ，支持去
+中心化执行 . 这一特性使得该类算法尤其适用于空
+间无人系统中具有局部观测限制但需执行全局协作
+第 4 期 李勐等 ：多智能体强化学习赋能空间无人系统 ：方法 、挑战与机遇 ·19·
+G = ⟨S , U, P, Π, O, N, γ, T, R⟩ s ∈ S
+N = {e1, e2, ..., eN} N
+i ∈ N s
+oi ∈ O πi
+ui ∈ U u ∈ U N
+Π = π1 × π2 × ... × πN
+P (s’| s, u) :
+S × U × S → [0, 1]
+r(s, u) γ
+T = {τ1, τ2, ..., τN
+τi = {[oi]0:T , [ui]0:T −1} τi
+T
+R (Γ) =
+T∑
+t=0
+γtr (st, ut) （1）
+T r(st, ut)
+任务的场景，具备良好的工程可部署性与计算效率.
+QMIX的核心思想是利用一个混合网络将每个智能
+体的个体Q值组合成联合Q值，该混合网络被设计
+为一个满足单调性约束的结构，即每个个体Q值的
+增加不会导致联合Q值下降，从而保证每个智能体
+可以通过贪婪地选择自身动作来最大化全局价值.
+该单调性约束可以被表示为
+∂Qtot
+∂Qind
+⩾ 0 （2）
+ 
+Qtot
+Qind
+Qtot
+其中， 为联合Q值， 为智能体个体Q值. 混合
+网络的参数由一个超网络生成，该超网络以全局状
+态作为输入，使得联合Q值 能有效地考虑环境的
+整体信息. QMIX的提出推动了多智能体强化学习领
+域 向 高 效 协 作 的 方 向 发 展 ， 为 后 续 如 加 权 QMIX
+(weighted QMIX, WQMIX)[18]、 双 工 对 偶 多 智 能 体 Q
+学 习 (duplex dueling multi-agent Q-learning, QPLEX)[19]
+等更复杂的值函数分解方法奠定了基础. 
+1.2.2    策略梯度方法
+相比基于价值函数的方法，基于策略的方法如
+深 度 确 定 性 策 略 梯 度 优 化 (deep deterministic policy
+gradient, DDPG)[20]与 近 端 策 略 优 化 (proximal policy
+optimization, PPO)[21]则直接对参数化策略进行优化，
+具备处理高维或连续动作空间的能力，尤其适用于
+空间任务中涉及姿态控制、推进调度等连续控制问
+题. 在多智能体扩展方面，代表性算法如多智能体
+DDPG (multi-agent DDPG, MADDPG)[22]和 多 智 能 体
+PPO(multi-agent PPO, MAPPO)[23]引入了中心化训练
+—去中心化执行框架，通过全局评论器共享联合信
+息反馈，同时保证个体动作决策仅依赖自身获得的
+观测信息，增强了策略学习的稳定性与协同性. 在中
+心化训练—去中心化执行框架下，多智能体系统中
+单个智能体的策略梯度可以被表示为
+∇θ J (πθ) = E
+■|||||■
+T∑
+t=0
+log (πθ (ut|ot) AΠ (st, ut))
+■|||||■ （3）
+ 
+i ∈ [1, N]
+θ
+AΠ
+AΠ
+其中，为了表述简洁，个体的编号 被略去，
+ 为个体动作策略的参数， 为个体动作策略的优势
+函数.  的详细表述方式如下：
+AΠ (st, ut) = QΠ (st, ut) − V Π (st) （4）
+ 
+QΠ (st, ut)
+Π
+st
+ut
+V Π (st)
+Π
+st
+其中， 为全局状态-动作价值函数，用于估
+计全体智能体联合策略 在面临全局状态 时选择
+联合动作 的预期收益； 则为全局状态价值函
+数，用于估计联合策略 在面临全局状态 时的预期
+AΠ (st, ut)
+收益. 由于所有个体共享相同的全局状态与奖励值，
+所以它们也共享相同的优势函数. 为了简化计算和
+便于学习，优势函数 通常通过时间差分的
+方法来计算
+AΠ (st, ut) = γ [V Π (st+1) + r (st, ut)] − V Π (st) （5）
+ 
+θ
+智 能 体 动 作 策 略 的 参 数 则 由 如 下 形 式 进 行
+更新：
+θt+1 = θt + α∇θ J (πθ) （6）
+ 
+这类方法能够有效应对空间任务中的动态博弈
+关系与局部最优陷阱问题，在多星协同轨道机动、联
+合观测计划生成等复杂任务中具有广泛应用潜力. 
+2    研究现状
+ 
+2.1    多节点协同测控
+在空间无人系统任务日益复杂化的背景下，多
+节点协同测控已成为实现系统高效运行的关键技术
+之一. 尤其在多星编队观测、卫星集群通信和灾害应
+急响应等场景中，单一卫星或孤立测控已难以满足
+任务对于覆盖范围、实时性和鲁棒性的综合要求. 多
+节点协同测控通过整合多个卫星节点与地面站资
+源，在测控、任务规划、数据处理和资源分配等方面
+实现了系统层级的信息共享与功能协同. 与传统“地
+面主控-单星被控”模式相比，这种协同模式具备更强
+的任务冗余性与灵活性，能够实现任务间快速接续
+与功能替补，提升空间无人系统整体的自主性与可
+靠性.
+针对多星任务中测控与规划系统存在的通信延
+迟、数据处理能力不足和资源分配不均等问题，当前
+研究逐渐转向以智能化、分布式机制为核心的协同
+机制设计. 例如，通过引入低时延、高可靠的卫星间
+通信协议与动态带宽分配策略，系统能够根据任务
+优先级实时调整传输资源，有效保障关键任务数据
+的优先调度. 在数据处理方面，采用分布式计算架构
+与深度学习压缩算法，显著提高了高分遥感图像等
+海量数据的处理效率，减少对地面中心的依赖. 而在
+任务调度方面，通过多目标优化与机器学习驱动的
+自适应策略，系统能根据卫星状态与任务反馈动态
+调整分配方案，提升任务完成率与系统响应速度[24].
+这些多节点协同机制不仅优化了传统测控链路的效
+率与稳定性，更为未来空间无人系统在高动态、高不
+·20· 空间控制技术与应用 第 51 卷
+确定环境下的自主运行奠定了技术基础. 
+2.1.1    地基测控网络
+地基测控网络是传统航天器任务管理的核心支
+撑系统，其主要职责包括任务下达、轨道与姿态测
+量、遥控指令注入和数据回传处理等. 典型的地基测
+控网络由多个地面测控站组成，分布于全球多个关
+键位置，以实现对目标航天器的周期性可见与稳定
+通信[25]. 我国已建成以西安、喀什、三亚和佳木斯等
+地为主的测控站群，并配套以测控船与远洋测控平
+台，构建起覆盖全球的地基测控体系.
+然而，随着星座规模扩大、任务复杂性提升，传
+统地基测控面临着诸多瓶颈. 在多星任务密集期，测
+控资源紧张导致地面天线排队现象频繁发生，进而
+影响测控效率；同时链路可用性受制于卫星过境时
+间与可见窗口，造成测控不连续性与时效性不足等
+问题；当前阶段使用的地基测控系统大多采用静态
+调度机制，难以动态响应突发任务或系统状态变化.
+针对上述挑战，近年来研究者开始探索地基测
+控系统的智能化改造. 通过引入基于强化学习的测
+控资源调度策略，系统可在任务冲突场景中实现自
+主优先级排序与调度优化[26]；结合图神经网络等算
+法，建立地面站间通信状态感知模型，提升多站协同
+调度能力；此外，面向突发任务响应，还引入了多目
+标实时优化框架，使测控系统具备更强的灵活性与
+动态适应性. 这些研究为后续多智能体强化学习在
+地基测控系统中的部署应用提供了理论基础和场景
+支撑. 
+2.1.2    天基测控网络
+天基测控网络是近年来空间测控体系的重要发
+展方向，旨在突破地基测控受限于地理布局与可见
+时间窗口的制约. 该系统通过在轨布设专用测控中
+继卫星或通信星座，构建空中“信息中继链路”，实现
+对任务航天器的全天候、实时覆盖与通信保障. 典型
+代表如美国的跟踪与数据中继卫星系统（tracking and
+data relay satellite system，TDRSS）与我国的“天链”系
+列中继卫星系统，已成功应用于载人航天、高分遥感
+等任务中.
+天基测控网络的核心优势在于：覆盖地域连续
+性强，可显著提高测控链路的时效性与稳定性；具备
+更大的通信容量，适配当前航天任务中图像、视频等
+大容量数据的快速回传需求；任务灵活性更高，适用
+于多星同时测控、星间数据中继等复杂应用场景[27].
+尽管天基测控网络具备诸多优势，但其建设与
+运行亦面临挑战，如星间链路干扰、资源冲突和通信
+拥塞等问题. 在应对这些挑战的过程中，强化学习方
+法逐渐显现出应用潜力. 例如，在中继资源调度方
+面，可借助多智能体强化学习方法实现多个中继卫
+星之间的协同调度，以动态应对多星数据回传需求[28]；
+在链路管理方面，可设计基于博弈建模与策略学习
+的链路控制机制，实现星间通信路径的负载均衡并
+避免冲突；在系统异常情况下，智能体还能基于历史
+经验自主恢复通信链路，提高测控系统的鲁棒性与
+智能化水平. 
+2.2    卫星集群协同通信
+卫星集群协同通信是指多个在轨卫星通过信息
+共享与任务协同，实现统一目标或分布式任务的高
+效协作机制. 随着全球航天活动的迅猛发展，单颗卫
+星已难以满足对高时空分辨率、持续覆盖和快速响
+应的需求，而由多颗卫星组成的集群在地球观测、通
+信中继、导航增强等任务中展现出显著优势[12]. 卫星
+集群协同通信不仅涵盖了信息传输层面的互联互
+通，还包括对任务规划、资源调度与动态编队控制的
+全局协调，是提升多星系统整体效能与任务成功率
+的关键支撑. 然而，在当前技术条件下，协同通信仍
+面临链路延迟高、带宽资源受限和计算与感知能力
+分布不均等一系列挑战，亟需构建具备智能决策、自
+适应调度与高鲁棒性的通信协同机制. 因此，深入研
+究卫星集群协同通信的体系结构、关键技术与优化
+策略，对于推动现代航天任务向智能化、自动化演
+进，具有重要的理论价值与应用前景. 
+2.2.1    星间通信链路调度
+随着航天测运控系统向智能化、组网化和天地
+一体化方向发展，星间链路作为天基测控网络中的
+核心通信机制，其调度技术正成为当前研究的重点
+方向之一. 在任务多样化、卫星集群化背景下，如何
+有效规划与调度有限的星间通信资源，保障链路稳
+定性与任务执行效率，是提升系统整体性能的关键[29].
+本节从链路构型设计与动态规划方面综述星间链路
+调度的研究现状.
+主流天基星座系统普遍采用“一星四链”拓扑策
+略，即每颗卫星维持两条同轨链路与两条异轨链路
+连接，形成较强的冗余性和灵活性. Starlink、Iridium
+等系统中，该策略既保障了广域覆盖能力，又可在卫
+星高速运动背景下维持拓扑稳定性[30]. Iridium星座
+第 4 期 李勐等 ：多智能体强化学习赋能空间无人系统 ：方法 、挑战与机遇 ·21·
+在高纬度区域采用“断链-重建”机制，避免因极区高
+度动态的轨道排列导致链路失效. 对于异构组网场
+景，多层次星间链路体系正逐步推广，地球同步轨道
+—中地球轨道、中地球轨道—低地球轨道等层间通
+信成为未来深空测控、星际中继的重点方向. 研究者
+通过2D-Torus网络构建星群层间链路与层内链路拓
+扑，提出以“虚拟拓扑图”替代瞬时可视拓扑，用以表
+达链路状态的时间演化，并结合预测窗口构建动态
+调度表，提高了复杂拓扑下调度策略的实时性与鲁
+棒性[31-32]. 在此基础上，西安卫星测控中心还提出一
+种用于链路拓扑规划的整数规划方法，采用可用性
+矩阵与约束条件相结合的方式，构建0-1整数规划模
+型以生成链路拓扑，并进一步开发了启发式优化算
+法，实现了针对主星优先测控任务的地面站资源调
+度策略设计[33]. 
+2.2.2    星群边缘智能计算
+卫星星座/集群通过在轨智能处理感知数据，实
+现“感知-计算一体化”（在轨信息感知与边缘计算协
+同）的能力正成为近年航天领域的研究热点[34]. 这一
+思路旨在缓解遥感数据量激增与下行链路带宽有限
+之间的矛盾，将部分图像处理、人工智能推理等计算
+任务前移到卫星上执行，从而减少对地传输压力，提
+升响应时效性. 传统上，卫星负责捕捉与积累传感数
+据，在经过地面站时将数据发送到地面站，或者通过
+数据中继卫星连接到地面站进行计算与后处理. 然
+而近年来，小卫星搭载高分辨率传感器产生的数据
+量呈指数级增长，而传统下行链路能力提升有限[35].
+在轨图像处理与人工智能成为解决这一问题的关键
+技术途径. FURANO等[36]指出传感器数据规模每代
+增大100倍，而下行能力仅增至原来的数倍，这将导
+致数据传输需求的爆炸式增长. 在星群系统中，这一
+问题由于星间通信需求的显著增长而更为显著，传
+统的卫星-地面站天地交互数据处理模式难以胜任.
+因此，卫星集群在轨边缘智能计算势在必行.
+过去十年，集成电路技术高速发展，使处理器更
+小型、低功耗且算力更强[37]. 过去十年，星上边缘智
+能计算技术取得显著进展，为遥感卫星系统从“数据
+采集平台”向“智能信息处理节点”转变奠定了基础.
+随着集成电路技术的进步，处理器芯片体积更小、功
+耗更低且算力更强，近地轨道较弱的辐射环境也使
+得商用处理器（如Loongson、宇龙和Jetson等）得以
+替代高价航天级芯片，逐步成为低轨遥感星的重要
+计算平台. 例如，我国北斗导航卫星搭载国产Loongson
+抗辐射处理器，珠海一号采用算力高达640亿次浮点
+计算每秒的宇龙芯片，吉林一号光谱星已实现基于
+图形处理器（graphic process unit，GPU）的舰船与火灾
+识 别 . 在 硬 件 层 面 ， 现 场 可 编 程 门 阵 列 (field-pro-
+grammable gate array， FPGA)、 GPU和 Myriad等 异 构
+计算平台被广泛用于星上人工智能（artificial intelli-
+gence，AI）推理与图像处理，典型如欧空局的PhiSat-
+1使用Myriad 2在轨实现云检测，显著降低无效图像
+的下行传输. 德国FireBIRD卫星、法国Pleiades星和
+加拿大RADARSAT等也已部署了星上实时目标识
+别与数据压缩处理模块. 我国在浦江一号、高分多模
+卫星和罗徕一号等任务中也进行了星上目标检测、
+几何/辐射校正和多载荷协同规划等功能验证，实现
+分钟级的快速响应. 为了适应高维、高频次的观测需
+求，软硬件协同优化成为星上计算的重要方向，通过
+模型压缩、近似计算和专用AI芯片设计等方式提升
+处理效率与能耗比. 总体而言，星上边缘智能计算已
+从基础的图像预处理发展到具备较强实时推理和信
+息提取能力，为实现自主、高效和低延迟的智能遥感
+奠定了关键技术基础. 
+2.3    在轨机械臂协同控制
+随着航天器集群化、任务协同化的发展趋势不
+断加深，单体航天器的独立控制已无法满足复杂任
+务对于协同决策与精准执行的要求 [38]. 航天器协同
+控制作为实现空间无人系统智能化的关键技术之
+一，主要面向多航天器间的姿态对齐、轨道协同与任
+务配合操作，涉及建模、信息交互和控制律设计等多
+个环节. 尤其在星座组网、干涉测量和在轨服务等任
+务中，航天器间需实现高精度协同控制，以确保整体
+系统的稳定运行与任务完成. 当前研究多聚焦于多
+机械臂等航天器间的分布式控制架构设计、信息一
+致性保障机制和任务调度控制一体化等问题. 在此
+基础上，强化学习等智能算法的引入为复杂动态环
+境下的高效协同控制提供了可行的解决路径. 
+2.3.1    主从任务分配与路径规划解耦
+在执行复杂的空间作业任务时，单机械臂空间
+机器人常因能力受限，难以独立完成操作，因此需引
+入双臂或多臂协同方式来增强任务能力[39-40]. 在此类
+多机械臂协作体系中，常见的设计模式是：一条机械
+臂承担操作任务，沿预定轨迹完成特定作业，称为
+“执行臂”；另一条机械臂则主要用于对抗执行臂所
+·22· 空间控制技术与应用 第 51 卷
+产生的反作用力，起到维持系统稳定、减小基座干扰
+的作用，被称为“支撑臂”或“平衡臂”，构成一种主-
+从式功能分工结构. 这种结构能将多机械臂的路径
+规划问题解耦简化，从而在实现高效率任务目标分
+解的同时为每个机械臂规划出无碰撞、高效率的操
+作轨迹. ZHANG和JIA等[41]提出了基于伪逆和零空
+间投影的主从任务切换机制，实现了冗余双臂空间
+机器人的无碰撞路径规划与任务分配. 这种方法不
+仅能确保主任务的执行精度，还能有效分担基座姿
+态扰动，提高整体系统的稳定性和控制裕度. 此外，
+HONG等[42]基于混合映射和人工势场法为任务臂规
+划无碰撞路径，并为平衡臂设计自适应耦合制导路
+径以最小化基座扰动. 这类方法强化了任务-辅助臂
+间的协同策略，是多臂系统实现精确捕获与姿态控
+制的一种有效方案. 
+2.3.2    虚拟基座建模与反作用零空间策略
+虚拟基座建模和反作用零空间控制是抑制基座
+扰动的重要技术. 虚拟基座建模将双臂空间机器人
+等效为一个具有额外自由度的超冗余机械臂，使得
+双臂系统的运动学和动力学描述类似于单臂超冗余
+系统. 一种主要方法是基于虚拟基座的双臂空间机
+器 人 模 型 ， 通 过 反 作 用 零 空 间 （ reaction null-space,
+RNS）方法规划关节运动轨迹以避免基座扰动，确保
+虚 拟 基 座 和 末 端 执 行 器 准 确 跟 踪 期 望 轨 迹 . 在
+RNS方法中，基于动量守恒原理将关节速度限制在
+使 基 座 保 持 稳 定 的 零 空 间 内 . 这 一 策 略 最 早 由
+YOSHIDA等[43]提出，后续 ZHOU等[44]设计了RNS
+驱动的路径规划算法，可以在规划末端轨迹的同时
+实现基座姿态的无扰动稳定. 通过上述虚拟基座和
+RNS策略，多臂系统能够充分利用冗余自由度，有效
+地将末端任务与基座姿态控制解耦，减少了耦合干
+扰，提高了末端控制精度和基座稳定性. 
+2.3.3    基于优化的任务-姿态多目标耦合控制
+多臂空间机器人系统的控制目标通常具有高度
+耦合特性，具体表现为任务执行（如末端轨迹跟踪）
+与姿态保持（如基座稳定或姿态变化）之间的矛盾.
+为解决这一问题，近年来出现了一类将任务规划建
+模为优化问题的方法，力求在满足任务目标的前提
+下，最优地调配姿态变化与路径轨迹. LU和JIA等[45]
+将自由漂浮空间机器人的路径规划转化为考虑时变
+基座姿态稳定约束、关节物理约束和末端位姿跟踪
+约束的凸二次规划问题，实现了基座姿态的稳定和
+末端执行器跟踪的同步优化，并避免了动力学奇异.
+此类优化控制方法的优势在于能系统地平衡任务执
+行与姿态控制需求，通过引入基座姿态约束来确保
+整体组合体的协调动作，从而显著提升协同控制性
+能和收敛速率. 
+2.3.4    强化学习与智能控制方法
+针对传统规划与控制算法难以快速适应复杂动
+态环境的问题，强化学习等智能方法逐渐得到应用.
+强化学习通过与环境交互自动学习最优策略，具有
+良好的适应性和泛化能力. SANTOS等[46]结合Nelder-
+Mead单纯形算法和支持向量机技术，对路径规划中
+的参数进行机器学习优化. WANG等[47-48]进一步将
+强化学习方法扩展到动态环境中，提出了分层解耦
+的多目标强化学习轨迹优化策略，先用快速遍历随
+机树（rapidly-exploring random trees，RRT）生成避碰参
+考轨迹，再采用演员-批评家算法跟踪目标轨迹，并结
+合扩展卡尔曼滤波预测非合作目标运动，实现了旋
+转 未 知 目 标 的 路 径 跟 踪 . 对 于 双 臂 系 统 ， CAO
+等[49]采用软性演员-批评家算法，在奖励函数中引入
+姿态误差无穷范数，实现了高效的双臂空间机器人
+末端位姿协同路径跟踪，显著提升了学习算法的收
+敛速度. 上述方法均表明，利用强化学习和智能优化
+技术可以有效应对动态环境、目标不确定和多目标
+优化需求，提高多机器人协同控制的自适应性和智
+能性. 
+3    空间多智能体系统强化学习研究
+前景展望
+随着空间任务复杂度从单星操作向分布式星群
+协同演进，空间环境的高动态性、强对抗性和资源约
+束性对自主决策系统提出了前所未有的挑战. 多智
+能体强化学习凭借其分布式架构与协同演化能力，
+正成为突破传统集中式控制范式瓶颈的核心技术路
+径. 该框架通过智能体间的竞争-协作学习机制，在通
+信受限、算力分散和干扰频发的极端条件下实现全
+局优化，为空间无人系统的“感知—决策—控制”闭
+环提供了新的方法论基础. 其应用前景不仅覆盖动
+态频谱分配、分布式计算迁移和高精度编队控制等
+传统领域，更延伸至深空探测集群自主协作、太空攻
+防博弈等战略场景，推动空间系统向“智能弹性网
+第 4 期 李勐等 ：多智能体强化学习赋能空间无人系统 ：方法 、挑战与机遇 ·23·
+络”范式转型.
+在通信资源严格受限的约束下，多智能体强化
+学习驱动星群构建自适应通信拓扑的能力具有显著
+优势. 空间任务中突发性监测需求（如电子侦察卫星
+对移动导弹发射车的紧急定位）要求网络动态重构
+信道资源，而传统预分配模式难以兼顾效率与公平
+性. 多智能体强化学习通过分布式部分可观测马尔
+可夫决策过程建模，使各智能体基于局部观测学习
+频谱共享策略. 例如在美军“扩散型作战空间架构”
+的监管层中，200余颗卫星需在VHF/L/S/C/Ku多频段
+实 现 协 同 侦 收 ， 多 智 能 体 强 化 学 习 可 构 建 竞 争 性
+Q网 络 优 化 信 道 争 用 机 制 ， 将 控 制 信 令 开 销 降 低
+40%以上. 同时，针对低信噪比环境下的信息衰减问
+题，门控循环单元与注意力机制的结合能筛选高价
+值 信 号 特 征 （ 如 雷 达 脉 冲 重 复 间 隔 或 通 信 跳 频 模
+式），实现稀疏通信下的关键情报聚合. 俄乌冲突中
+“鹰眼360”星座遭遇的全球定位系统（global position-
+ing system，GPS）干扰事件进一步凸显了抗干扰路由
+的迫切性——基于多智能体强化学习的路径优化算
+法可通过学习历史干扰模式构建冗余多跳中继网
+络，维持战术数据的端到端传输可靠性. 值得注意的
+是，该方向仍需解决非稳态环境下的策略收敛性问
+题，尤其当敌方实施自适应电子对抗时，需引入元学
+习框架提升智能体的环境迁移能力.
+星上算力约束与天地传输延迟催生了“星群边
+缘智能”新范式，多智能体强化学习与分布式计算的
+深度融合成为破局关键. 深空探测任务中甚长基线
+干涉测量（very long baseline interferometry，VLBI）数据
+处理、近实时目标识别等计算密集型负载对星载处
+理器提出严峻挑战. 在“黑杰克”项目的Pit Boss自主
+管理系统中，多智能体强化学习可构建计算卸载决
+策模型：智能体依据星间链路延迟、邻星空闲算力和
+任务优先级动态迁移计算任务. 例如当某卫星侦获
+高价值信号需快速解调时，通过近邻节点的联邦学
+习协同训练轻量化卷积神经网络，在5 s内完成信号
+调制识别，较传统地面回传模式提速20倍. “天载计
+算机-2”的实践表明，此类架构需攻克星上学习的内
+存瓶颈——可采用蒸馏学习将地面预训练模型压缩
+为微型策略网络，功耗控制在15W以内. 而对于大规
+模星座的长期自主运行，异步优势行动者-评论员算
+法支持智能体在通信中断期间继续本地策略优化，
+待链路恢复后同步梯度更新. Starlink星座的实测数
+据验证了该模式在10%丢包率下仍能维持90%的协
+同定位精度. 未来需探索神经架构搜索技术自动生
+成适配不同轨道特性的计算拓扑，实现“星群算力
+池”的动态重构.
+在轨强干扰环境下的集群控制是多智能体强化
+学习最具突破潜力的领域. 空间电磁干扰、微重力扰
+动和非合作目标机动等因素使传统预设轨迹控制失
+效. 多智能体强化学习通过多智能体协同策略优化，
+在对抗场景下仍维持亚米级控制精度. 在电子侦察
+卫星编队中，针对反辐射导弹的威胁，基于集中训练
+分散执行框架的MADDPG算法可驱动卫星集群动
+态调整空间构型. 当探测到飞行器导引头开机信号
+时，智能体在3 s内重构TDOA（time difference of arrival）/
+FDOA（frequency difference of arrival）定位基线，将定
+位误差控制在500 m内（如“小马快递 2”双星系统的
+实战验证）. 对于非合作目标捕获任务，可将嫦娥五
+号交会对接技术扩展至多体协同场景：采用层次化
+多智能体强化学习架构，高层智能体规划包围策略，
+底层智能体执行逼近机动，在火星轨道试验中成功
+实现直径10 m碎片的协同抓捕. 超低轨编队的抗扰
+控制更具挑战——TerraSAR-X/TanDEM-X双星系统
+需在200 km高度维持毫米级基线精度. 结合演员-批
+评家框架与扰动观测器设计的多智能体强化学习控
+制器，可在线辨识大气阻力矩并生成补偿力矩，在太
+阳活动高峰季仍将相对位置漂移抑制在±1.5 mm. 值
+得关注的是，该领域面临策略安全验证的瓶颈：需发
+展形式化验证方法（如概率模型检测）确保规避指令
+不会引发碰撞连锁反应，同时构建数字孪生平台在
+轨验证高风险策略.
+跨域协同智能与系统韧性是未来研究的制高点.
+随着天-空-地多域协同体系发展，多智能体强化学习
+需突破异构平台协同的认知鸿沟. F-35A战机与电子
+侦察卫星的跨域协同案例表明，可通过图神经网络
+统一编码多模态观测数据，构建跨域共享态势图. 在
+2028年北约“太空旗帜”演习中，该架构使战术决策
+周期从小时级缩短至分钟级. 而在系统韧性层面，需
+借鉴生物群体免疫机制设计自愈架构：当某卫星遭
+动能反卫武器摧毁时，幸存智能体通过迁移学习快
+速重构通信拓扑，24 h内恢复70%的侦察覆盖率. 最
+终目标是形成“自主协同-弹性抗扰-持续进化”三位
+·24· 空间控制技术与应用 第 51 卷
+一体的空间智能网络，为月球科研站物资调度、小行
+星防御集群拦截等战略任务提供核心支撑. 当前亟
+需建立空间多智能体强化学习的基准测试环境，整
+合高保真动力学模型与干扰数据库，加速算法向工
+程化落地转化. 
+4    总　结
+近年来，随着空间任务复杂性和自主性需求的
+持续提升，空间控制技术正从传统的姿轨控制向多
+源融合、自主决策和智能协同等方向演进. 本文系统
+回顾了空间控制领域的关键研究进展，涵盖在轨服
+务、多机器人协同控制、任务规划与路径生成、姿态
+与轨道控制方法和控制执行机构设计等多个方面，
+体现出“多体系统、高动态环境、非合作目标和智能
+控制”的技术趋势，特别是在在轨捕获、服务与组装
+等典型任务中，控制系统需同时应对非结构化目标、
+高耦合动力学和多约束优化等挑战，对路径规划的
+安全性、控制律的鲁棒性和任务调度的智能性提出
+了更高要求. 多机器人协同控制展现出显著优势，通
+过任务分解、反作用抑制和编队重构等机制，提升了
+任务执行的灵活性与系统整体性能；而基于模型预
+测、反作用零空间和强化学习等方法的引入，则推动
+了控制策略从“响应型”向“预判型”“智能型”转变.
+尽管已有广泛研究，但面对未来空间系统自主
+化、任务不确定性增强和星群智能涌现等新挑战，空
+间控制仍亟待解决诸多关键问题：如何在通信受限
+下实现多体系统的高效协同，如何构建更具泛化能
+力的路径规划与控制算法，如何设计高性能和轻量
+化的控制执行机构等. 对此，未来研究可从“建模 +
+计算 + 决策”的一体化融合、“数据驱动 + 物理模
+型”的双重约束和“智能规划 + 实时调控”的协同框
+架等方向展开，推动空间控制技术迈向更加高效、自
+主和鲁棒的智能体系.
+参考文献 
+OBILANADE  D.  Vision  2040： evolving  the  successful
+international  space  university  decades  into  the  future[C]//
+2015 International Astronautical Congress. Paris：IAF，2015.
+[1]
+LE MOIGNE J，ADAMS J C，NAG S. A new taxonomy for
+distributed spacecraft missions[J]. IEEE Journal of Selected
+Topics in Applied Earth Observations and Remote Sensing，
+2020，13（1）：872-883.
+[2]
+BRANDT P C，PROVORNIKOVA E，COCOROS A，et al.
+Interstellar  probe： humanity’s  exploration  of  the  galaxy
+begins  [C]//The  72nd  Astronautical  Congress.  Paris： IAF，
+2021.
+[3]
+GARCÍA-PARDO  K  A， MORENO-RANGEL  D，
+DOMÍNGUEZ-AMARILLO S，et al. Remote sensing for the
+assessment  of  ecosystem  services  provided  by  urban
+vegetation： a  review  of  the  methods  applied[J].  Urban
+Forestry & Urban Greening，2022，74（1）：127636.
+[4]
+DEL PORTILLO I， CAMERON B G， CRAWLEY E F. A
+technical  comparison  of  three  low  Earth  orbit  satellite
+constellation systems to provide global broadband[J]. Acta
+Astronautica，2019，159（1）：123-135.
+[5]
+BANDYOPADHYAY  S， FOUST  R， SUBRAMANIANG
+P， et  al.  Review  of  formation  flying  and  constellation
+missions using nanosatellites[J]. Journal of Spacecraft and
+Rockets，2016，53（3）：567-578.
+[6]
+XU G， ZHANG B， YU H， et al. Sparse synthetic aperture
+radar  imaging  from  compressed  sensing  and  machine
+learning： theories， applications， and  trends[J].  IEEE
+Geoscience and Remote Sensing Magazine， 2022， 10（ 4） ：
+32-69.
+[7]
+LI X T， XU S， ZHAO Z P， et al. A survey on computing
+offloading in satellite-terrestrial integrated edge computing
+networks[C]//The  15th  International  Conference  on
+Communication Software and Networks （ IC-CSN） . New
+York：IEEE，2023.
+[8]
+KRISTIANSEN  R， NICKLASSON  P  J.  Spacecraft
+formation flying：a review and new results on state feedback
+control[J]. Acta Astronautica，2009，65（11-12）：1537-1552.
+[9]
+GLAESSGEN E， STARGEL D. The digital twin paradigm
+for  future  NASA  and  US  air  force  vehicles[C]//The  53rd
+AIAA/ASME/ASCE/AHS/ASC  Structures， Structural
+Dynamics and Materials Conference. Washington D. C. ：
+AIAA，2012.
+[10]
+李军予，闫国瑞，李志刚，等. 智能遥感星群技术发展
+研究[J]. 航天返回与遥感，2020，41（6）：34-44.
+LI J Y， YAN G R， LI Z G， et al. Research on technology
+development  of  the  intelligent  remote  sensing  satellites
+system[J]. Spacecraft Recovery & Remote Sensing， 2020，
+41（6）：34-44.
+[11]
+SUTTON R S， BARTO A G. Reinforcement learning： an
+introduction[M]. Cambridge：MIT Press，1998：23-58.
+[12]
+ZHANG  W， WANG  G， SUN  J， et  al.  Storm： efficient
+stochastic transformer based world models for reinforcement
+learning[J].  Advances  in  Neural  Information  Processing
+Systems，2023，36（1）：27147-27166.
+[13]
+HUANG J，XU Y，WANG Q，et al. Foundation models and[14]
+第 4 期 李勐等 ：多智能体强化学习赋能空间无人系统 ：方法 、挑战与机遇 ·25·
+intelligent  decision-making： progress， challenges， and
+perspectives[J]. The Innovation，2025，6（5）：13-22.
+FENG Z， XUE R， YUAN L， et al. Multi-agent embodied
+AI： advances  and  future  directions[J].  ArXiv  Preprint
+ArXiv：2505，05108：2025.
+[15]
+MNIH V， KAVUKCUOGLU K， SILVER D， et al. Playing
+Atari with deep reinforcement learning[J]. ArXiv Preprint
+ArXiv：1312，5602：2013.
+[16]
+RASHID  T， SAMVELYAN  M， DE  WITT  C  S， et  al.
+Monotonic value function factorisation for deep multi-agent
+reinforcement  learning[J].  Journal  of  Machine  Learning
+Research，2020，21（178）：1-51.
+[17]
+RASHID  T， FARQUHAR  G， PENG  B， et  al.  Weighted
+QMIX：expanding monotonic value function factorisation for
+deep  multi-agent  reinforcement  learning[J].  Advances  in
+Neural  Information  Processing  Systems， 2020， 33（ 1） ：
+10199-10210.
+[18]
+WANG J， REN Z， LIU T， et al. QPLEX： duplex dueling
+multi-agent  Q-learning[C]//International  Conference  on
+Learning Representations. Online：ICLR，2021.
+[19]
+LILLICRAP T P，HUNT J J，PRITZEL A，et al. Continuous
+control with deep reinforcement learning[J]. ArXiv Preprint
+ArXiv：1509，02971：2015.
+[20]
+SCHULMAN  J， WOLSKI  F， DHARIWAL  P， et  al.
+Proximal policy optimization algorithms[J]. ArXiv Preprint
+ArXiv：1707，06347：2017.
+[21]
+LOWE R，WU Y，TAMAR A，et al. Multi-agent actor- critic
+for  mixed  cooperative-competitive  environments[C]//
+Proceedings of the 31st International Conference on Neural
+Information  Processing  Systems.  Long  Beach： NIPS
+Foundation，2017.
+[22]
+YU  C， VELU  A， VINITSKY  E， et  al.  The  surprising
+effectiveness  of  PPO  in  cooperative  multi-agent
+games[C]//Proceedings of the 36th International Conference
+on Neural Information Processing Systems. New Orleans：
+NIPS Foundation，2022.
+[23]
+尚希杰，林晓勇，安阳. 多星任务下航天测运控与卫星
+规 划 的 协 同 机 制 探 析 [J]. 数 字 技 术 与 应 用 ， 2024，
+42（12）：53-55.
+[24]
+刘晓路，陈盈果，吕济民，等. 大型卫星系统自适应调
+度与评估优化理论与方法[J]. 中国科技成果，2022，
+23（23）：59-60.
+[25]
+胡雪君，王建江，孙清，等. 基于极大团模型的多星多
+站测控资源调度方法研究[J]. 中国管理科学，2023，
+31（2）：73-83.
+HU X J， WANG J J， SUN Q， et al. Research on TT&C
+scheduling  methods  of  multi-satellites  and  multi-stations
+based  on  maximal  cliques[J].  Chinese  Journal  of
+[26]
+Management Science，2023，31（2）：73-83.
+王雪宾，冯兆祎，张晓俊，等. 利用中继卫星的航天器
+入 轨 段 天 基 测 控 技 术 研 究 [J]. 航 天 器 工 程 ， 2024，
+33（1）：56-61.
+WANG X B， FENG Z Y， ZHANG X J， et al. Research on
+space-based  TT&C  for  orbit  insertion  phase  using  relay
+satellites[J]. Spacecraft Engineering，2024，33（1）：56-61.
+[27]
+董光亮，郝万宏，张国亭，等. 低轨大规模星座的航天
+测控随遇接入技术[J]. 电子与信息学报，2025，47（7）：
+2172-2182.
+DONG G L， HAO W H， ZHANG G T， et al. Aerospace
+tracking  telemetry  and  command  on-the-spot  access
+technology  for  low-orbit  and  high-density  satellite
+constellation[J].  Journal  of  Electronics  &  Information
+Technology，2025，47（7）：2172-2182.
+[28]
+丁纪昕，白雪，姜军，等. 航天测运指控系统关键技术
+研究进展[J]. 航空学报，2025，46（14）：31-50.
+DING  J  X， BAI  X， JIANG  J， et  al.  Advances  in  key
+technologies of space TOCC system[J]. Acta Aeronautica et
+Astronautica Sinica，2025，46（14）：31-50.
+[29]
+EKICI E， AKYILDIZ I F， BENDER M D. A distributed
+routing  algorithm  for  datagram  traffic  in  LEO  satellite
+networks[J]. IEEE/ACM Transactions on networking， 2002，
+9（2）：137-147.
+[30]
+李勇军，吴继礼，赵尚弘，等. 中低轨卫星跨层激光链
+路二次同步切换方法[J]. 电子学报，2017，45（3）：762-
+768.
+LI Y J，WU J L，ZHAO S H，et al. A two-step synchronous
+handover  scheme  of  optical  inter-orbit  links  in  LEO  and
+MEO  satellite  network[J].  Acta  Electronica  Sinica， 2017，
+45（3）：762-768.
+[31]
+SUZUKI R，YASUDA Y. Study on ISL network structure in
+LEO satellite communication systems[J]. Acta Astronautica，
+2007，61（7-8）：648-658.
+[32]
+GU X，BAI J，ZHANG C，et al. Study on TT&C resources
+scheduling  technique  based  on  inter-satellite  link[J].  Acta
+Astronautica，2014，104（1）：26-32.
+[33]
+虞志刚，冯旭，戴天，等. 空间边缘计算：需求、架构及
+关 键 技 术 [J]. 电 子 与 信 息 学 报 ， 2022， 44（ 12） ： 4416-
+4425.
+YU Z G， FENG X， DAI T， et al. Space edge computing：
+requirement， architecture and key technique[J]. Journal of
+Electronics  &  Information  Technology， 2022， 44（ 12） ：
+4416-4425.
+[34]
+新华网. 我国成功发射遥感三十九号卫星[EB/OL].
+（ 2023-09-17）  [2025-07-08]. http： //www.news.cn/politics/
+2024-05/17/c_1127176211.htm.
+[35]
+DUGGAN  A， ANDRADE  B， AFLI  H.  Advancing  Earth[36]
+·26· 空间控制技术与应用 第 51 卷
+observation： a survey on AI-powered image processing in
+satellites[J]. ArXiv Preprint ArXiv：2501，12030：2025.
+ZHANG B，WU Y，ZHAO B，et al. Progress and challenges
+in  intelligent  remote  sensing  satellite  systems[J].  IEEE
+Journal of Selected Topics in Applied Earth Observations and
+Remote Sensing，2022，15（1）：1814-1822.
+[37]
+孙倩，郑琳铄，贾英民. 面向在轨捕获的空间机器人路
+径规划与控制综述[J]. 工程科学学报，2025，47（4）：
+753-767.
+SUN Q，ZHENG L S，JIA Y M. A review on planning and
+control  of  space  robots  for  on-orbit  capture[J].  Chinese
+Journal of Engineering，2025，47（4）：753-767.
+[38]
+詹博文，郭瑞科，龚宇莲，等. 面向轴孔装配任务的双
+臂机器人控制策略[J]. 空间控制技术与应用，2025，
+51（1）：85-95.
+ZHAN B W，GUO R K，GONG Y L，et al. Control strategy
+of  dual-arm  robot  for  peg-in-hole  assembly  tasks[J].
+Aerospace Control and Application，2025，51（1）：85-95.
+[39]
+夏新会，贾英宏，张军. 双臂空间机器人球形外包络抓
+捕控制[J]. 北京航空航天大学学报，2025，51（5）：1673-
+1683.
+XIA X H，JIA Y H，ZHANG J. Spherical envelope capture
+control  for  dual-arm  space  robots[J].  Journal  of  Beijing
+University of Aeronautics and Astronautics， 2025， 51（ 5） ：
+1673-1683.
+[40]
+ZHANG  Y， JIA  Y.  Coordinated  motion  planning  of
+redundant  dual-arm  robots  with  self-collision
+avoidance[C]//Chinese  Intelligent  Systems  Conference.
+Singapore City：Springer Nature Singapore，2022.
+[41]
+HONG M，WANG L，LIU L，et al. Trajectory planning of a
+free-floating  dual-arm  space  robot  with  minimal  base
+disturbance in obstacle environments[J]. Advances in Space
+Research，2024，74（3）：1410-1423.
+[42]
+YOSHIDA K， HASHIZUME K， ABIKO S. Zero reaction
+maneuver： flight validation with ETS-VII space robot and
+extension to kinematically redundant arm[C]//Proceedings of
+[43]
+2001  IEEE  International  Conference  on  Robotics  and
+Automation. New York：IEEE，2001.
+ZHOU C，JIN M H，LIU Y C，et al. Singularity robust path
+planning  for  real  time  base  attitude  adjustment  of  free-
+floating space robot[J]. International Journal of Automation
+and Computing，2017，14（2）：169-178.
+[44]
+LU  X， JIA  Y.  Trajectory  planning  of  free-floating  space
+manipulators  with  spacecraft  attitude  stabilization  and
+manipulability  optimization[J].  IEEE  Transactions  on
+Systems， Man， and Cybernetics： Systems， 2020， 51（ 12） ：
+7346-7362.
+[45]
+SANTOS R R，RADE D A，DA FONSECA I M. A machine
+learning strategy for optimal path planning of space robotic
+manipulator  in  on-orbit  servicing[J].  Acta  Astronautica，
+2022，191（1）：41-54.
+[46]
+WANG  S， CAO  Y， ZHENG  X， et  al.  Collision-free
+trajectory planning for a 6-DOF free-floating space robot via
+hierarchical decoupling optimization[J]. IEEE Robotics and
+Automation Letters，2022，7（2）：4953-4960.
+[47]
+WANG S，CAO Y，ZHENG X，et al. A learning system for
+motion  planning  of  free-float  dual-arm  space  manipulator
+towards non-cooperative object[J]. Aerospace Science and
+Technology，2022，131：107980.
+[48]
+CAO  Y， WANG  S， ZHENG  X， et  al.  Reinforcement
+learning with prior policy guidance for motion planning of
+dual-arm free-floating space robot[J]. Aerospace Science and
+Technology，2023，136：108098.
+[49]
+作者简介：李勐（1989—），男，高级工程师，研究方
+向为控制工程；冯肇晗（1996—），男，博士研究生，研
+究方向为多智能体强化学习；梅云鹏（1998—），男，
+博士研究生，研究方向为计算机视觉与模仿学习；曹
+宏杰（1998—），男，博士研究生，研究方向为计算机
+视觉与模仿学习；张博（1990—），男，高级工程师，研
+究方向为控制工程；王钢（1988—），男，教授，研究方
+向为人工智能.
+Multi-Agent Reinforcement Learning Empower Space Unmanned Systems: Methods,
+Challenges and Opportunities
+LI Meng2 ，FENG Zhaohan1 * ，MEI Yunpeng1 ，CAO Hongjie1 ，ZHANG Bo2 ，WANG Gang1
+1.   Beijing Institute of Technology，Beijing 100081，China
+2.   China Academy of Electronics and Information Technology, China Electronics Technology Group Corporation, Beijing 100041, China
+Abstract： With the advancement of space technology towards intelligence and clusterisation， unmanned space systems
+第 4 期 李勐等 ：多智能体强化学习赋能空间无人系统 ：方法 、挑战与机遇 ·27·
+demonstrate  immense  potential  in  strategic  areas  such  as  deep  space  exploration  and  Earth  observation.  However，
+traditional centralized control paradigms face significant challenges in adressing highly dynamic environments，distributed
+tasks， and  strict  resource  constraints.  Leveraging  its  distributed  decision-making  architecture  and  co-evolutionary
+mechanisms， multi-agent reinforcement learning (MARL) offers a breakthrough solution for building autonomous and
+resilient intelligent space systems. This paper systematically explores MARL’s technological empowerment pathways，
+methodologies，engineering challenges，and opportunities in unmanned space systems. It analyzes the technical bottlenecks
+in core scenarios (e.g.，collaborative communication for satellite clusters， multi-spacecraft control). Moreover，It reveals
+the  application  mechanisms  of  MARL  in  critical  domains， including  dynamic  spectrum  allocation， on-board  edge
+computing， and  robust  collaborative  control.  Finally， the  paper  proposes  an  integrated  collaborative  intelligence
+architecture that incorporates space-dynamics constraints with innovative MARL algorithms. This framework aims to drive
+the  evolution  of  space  systems  toward  a  new  paradigm  of  autonomous  decision-making， resilient  anti-jamming
+capabilities，and efficient collaboration. This research seeks to provide theoretical support and a technological roadmap for
+the next-generation space-based intelligent networks.
+Keywords： multi-agent  reinforcement  learning  (MARL)； unmanned  space  systems； collaborative  control； edge
+computing；autonomous decision-making
+ 
+Received：2025-07-26; Accepted：2025-08-26
+Foundation item： National Natural Science Foundation of China(U23B2059)
+ *  Corresponding author. E-mail: zhfeng@bit.edu.cn 
+·28· 空间控制技术与应用 第 51 卷

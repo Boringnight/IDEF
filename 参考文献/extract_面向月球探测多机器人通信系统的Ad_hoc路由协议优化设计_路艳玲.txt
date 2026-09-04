@@ -1,0 +1,1871 @@
+A
+b
+s
+t
+r
+a
+c
+t
+Mobile ad hoc networks are a kind of self -organizing
+and self -reconfiguring networks. They can be established anytime
+and anywhere without the presence of stationary radio stations or
+fixed infrastructures. Thus they are regarded as an effective support
+tool for the communication of a lunar exploration multi -robots
+system. Generally speaking, there are two issues, the efficient
+energy conservation and the real -time communication, that are
+important for the lunar exploration multi -robots system. However,
+these two issues do not have a satisfactory answer with concurrently
+existing Ad hoc routing algorithms. Hence, an optimization design of
+the routing protocol is the key for the Ad hoc networks with the
+objective of the energy conservation and the constraint of the real-
+time communication. For that purpose, a node's energy consumption
+model is built based on the analysis of the network topology of the
+communication system. Then, a mathematical model is proposed to
+carry out the optimization for the optimal path. Moreover, a new
+power -aware routing scheme is presented based on the Dynamic
+Source Routing (DSR) according to the engineering requirements of
+the lunar exploration multi -robots communication system. With
+constraints of hops, total transmission power, and node's remaining
+energy, the modified distributed Bellman -Ford algorithm is
+employed to find the optimal path. Simulation results show that the
+routing protocol designed in this paper performs better for the lunar
+exploration multi-robots system than others.
+K
+e
+y
+w
+o
+r
+d
+s
+mobile Ad hoc networks; lunar exploration multi-robots
+system; energy consumption model; routing protocol
+0
+引言
+随着计算机通信技术
+、
+人工智能以及传感器技术的发展
+，
+面向月球探测多机器人通信系统的
+A
+d
+h
+o
+c
+路由协议优化设计
+摘要
+Ad hoc
+网络作为一种不依赖于任何固定设施的临时性多跳自治系统
+，
+是解决月球探测过程中多机器人通信问题的可行选
+择
+。
+由于月球探测多机器人通信系统对节能和实时性等方面的特殊要求
+，
+现有的
+Ad hoc
+网络路由协议还难以满足工程设计和实际
+应用的需求
+。
+因而
+，
+结合月球探测环境下的实际工程需要
+，
+对现有的
+Ad hoc
+网络路由协议进行优化设计就成为关键
+。
+在分析月球探
+测多机器人通信系统拓扑结构的基础上
+，
+给出了系统中各节点的能量消耗模型
+；
+进而
+，
+建立了路径寻优的数学模型
+，
+在动态 源 路 由
+协议
+DSR
+的基础上设计了一种基于能量约束的
+Ad hoc
+网络路由协议
+。
+该协议综合考虑了通信系统对于节能和实时性两方面的
+需求
+，
+将路由跳数
+、
+路由传送功率
+、
+节点剩余电池能量作为路由度量
+，
+采用改进的离散
+Bellman-Ford
+算法进行最优路径的求解
+。
+仿
+真实验结果表明
+，
+该协议在保证通信系统实时性的前提下
+，
+可延长网络生存时间
+，
+能为月球探测多机器人系统提供更可靠的通信保
+障
+。
+关键词
+Ad hoc
+网络
+；
+月球探测多机器人系统
+；
+能量消耗模型
+；
+路由协议
+中图分类号
+TP393.04
+文献标识码
+A
+文章编号
+1000-7857
+（
+2009
+）
+19-0042-05
+路艳玲
+，
+秦世引
+北京航空航天大学自动化科学与电气工程学院
+，
+北京
+100191
+Optimization Design of Ad hoc
+Routing Protocol for the
+Communication of Lunar
+Exploration Multi-robots System
+收稿日期
+：
+2009-08-10
+基金项目
+：
+中国高技术研究发展计划
+（
+863
+计划
+）
+项目
+（
+2006AA04Z207
+）；
+国家自然科学基金项目
+（
+60875072
+）；
+国际科技合作项目
+（
+2007DFA11530
+）；
+教 育
+部高等学校博士学科点专项科研基金项目
+（
+20060006018
+）
+作者简介
+：
+路艳玲
+，
+研究方向为
+Ad Hoc
+网络路由协议优化设计
+，
+电子信箱
+：
+yulu102@asee.buaa.edu.cn
+；
+秦世引
+（
+通信作者
+），
+教授
+，
+研究方向为图像处理与
+模式识别
+、
+大规模复杂系统
+、
+多机器人混杂系统
+，
+电子信箱
+：
+qsy@buaa.edu.cn
+LU Yanling, QIN Shiyin
+School of Automation Science and Electrical Engineering,
+Beihang University, Beijing 100191, China
+研究论文
+（
+Articles
+）
+42
+科技导报
+2009
+，
+27
+（
+19
+）
+机器人学研究进 入了一个崭新的阶段 。 从 工 业 制 造、基 因 工
+程到军事侦察 、核工业 、航空航天等诸多领域 ，机 器 人 都 扮 演
+着 不 可 取 代 的 重 要 角 色， 极大地促进了现代科学技术的发
+展。 月球探测作为 深空探测领域的研究热点 ，备 受 世界 各 国
+的广泛关注 。 从 20 世纪 60 年代起 ， 各种应用目标 的月球探
+测多机器人系 统的研究和开发就受到 了各国的重视 [1]。
+1 月球探测多机器人通信系统特点及拓扑结构分析
+1.1 月球探测多机器人通信
+对于月球探测多机器人系统而言 ，由于其特殊的现场环
+境 ，执 行 任 务 时，多机器人之间的通信并没有基站等固定基
+础通信设施的支持 。 因此 ，迫切需要一种不依赖基础设施 、能
+够快速灵活配置的移动通信网络技术 。 Ad hoc 网络通信模块
+便是为满足这种特殊应用需求而设计的 。 Ad hoc 网络是一种
+由带有无线收发 装置的移动终端组成的一个无中心自组织
+的临时性多跳自治系 统 。 由于采用无线通信技术 ，不 依 赖 于
+任何固定设施 ，就能随时随地组建 临时性网络 [2]。 网络中的移
+动终端具有路由功能 ，即网络中的节点互相作为其邻居节点
+（在其直接通信范围内的 节 点 ）的 路 由 器，通过节点转发实现
+节点间的通信 ，如图 1 所示 。
+由于月球探测多机器人系统具有动态组网 、 移 动 通信、
+数据传输量比较大以及能量有限等特点 ，现有的 Ad hoc 网络
+路由协议并不能 很好地适用于月球探测多机器人通信系统 。
+因而 ，我们在现有协议 的 基 础 上 ，结合多机器人系统的特点 ，
+提出了一种适用于月球探测多机器人系统 Ad hoc 网 络 通 信
+的 路 由 协 议DLER（Dynamic Lunar Exploration Robots Routing  
+Protocol）。 仿真实验表明 ，该协议在保证通信系统实时性的前
+提下 ，增强了整个通信系统的稳定性 ，同 时，由 于 节 能策 略 的
+引 入，也在更大程度上延长了整个网络的生存时间 ，为 月 球
+探测多机器人系统提供了更可靠的通信保障 。
+系统特点分析
+在月球探测这种特定的 应用背景下 ，多 机 器 人 系 统需 要
+完 成 环 境 数 据、土壤成分的采集与分析等任务 ，这 也 就 要 求
+相应的通信系统 要为所有数据指令的传输提供 可靠的保证 。
+概括来讲 ，整个通信系统有以下特点 ：
+1） 通信过程中没有基站等 固定基础设施的支持 ；
+2） 本身包含的机器人数量 有限 ；
+3） 机器人间通信的数据包 通常是大小适中的指令 数据
+包，传输频率比较高 ；
+4） 对大部分指令而言 ，如 急 停 指 令、转 向 指 令 等，对 实
+时性的要求比较高 ；
+5） 电池能量有限 ，但通信任务耗时 比 较 长 ，需 要 较 长 的
+网络生存时间 。
+为了满足月球探测多机 器人通信系统的上述特 殊应用
+需求 ，从网络选型到 路由协议设计都应根据 约束条件和具体
+的指标函数进 行 优 化 决 策，才 能 收到 良 好 的 效 果。 本 文 选 用
+Ad hoc 网络作为月球探测多机 器人通信系统的支持工具 ，进
+而研究在节能 和保障实时通信要求前提下的 路由协议的优
+化设计问题 。
+1.2 Ad hoc 网络通信的拓扑结构分析
+Ad hoc 无线网络的拓扑 结构可分为两种 ：平 面 结 构 和 分
+级结构 [3]。 在平 面 结 构 中，所有网络节点的地位平等 ，网 络结
+构 简 单，源节点与目的节点通信时存在多条 路径 ，不 存 在 网
+络 瓶 颈，而且网络相对比较安全 ，适 用 于节 点 数 量 有 限 的Ad
+hoc 网络通信系统 ；而在分级结构中 ，整个网络由以簇为单位
+的 各 个 子 网 组 成， 其中每个簇由一个簇头和多个 簇成员组
+成 ，簇 头 形 成 高 一 级 网 络，网络规模不受限制 ，可 扩 充 性 好，
+但也需要复杂的簇头选择算法 [4-6]。 而在月球探测多机器人系
+统中 ，由于机器人 数 量 有 限，对网络的安全性 、稳 定 性要 求 比
+较高 ，因此 ，选择平面结构较为妥当 。
+在每次收发数 据 包 的过 程 中 ，每个节点所消 耗的电池能
+量 由 以 下3 个 指 标 决 定：节点当前的接收 功率 、发 射 功 率 及
+该数据包的大 小 。 同 时，为了满足尽可能延长网络生存时间
+的优化指标 ，引入节点的剩余电池能量这个属性值 。 对 于 图
+G=(V, E )而言 ，每一条边便代表了数据包的一次转 发过程 ，
+对于对等式平面结构的 Ad hoc 网络通信系统 ，可以用图
+G=(V, E)表示 [7]，如图 2 所示 。 图中 V 为所有节点的集合 ，E 为
+可以直接通信的节点间 链路的集合 。 对于网络中的每一个节
+点 ni，都有唯一的 IP 地址作为其身份标识 。
+也
+图 1 Ad hoc 网络环境下的多机器人移动通信系统
+Fig. 1 Multi-r obots communication system with
+Ad hoc networks
+图 2 Ad hoc 对等式平面机构网络拓扑
+Fig. 2 Ad hoc topology of planar mechanism
+研究论文 （Articles）
+科技导报 2009，27（19） 43
+就是 说
+，
+每条边均对应了一个能耗值作为其权值
+，
+从 而 构 成
+了整个网络
+。
+基于节能机制的
+Ad hoc
+网络路由协议设计
+，
+主要考虑在
+源 节 点
+S
+到 目 的 节 点
+D
+的所有可行路径中寻找一条总的能
+耗值最小的路径传输数据
+，
+从而尽可能地延长网络的生存时
+间
+。
+事实上
+，
+这种寻找最优路径的过程
+，
+也就等同于网络优化
+中的
+“
+最 短 路 问 题
+”。
+但 不 同 的是
+，
+由于多机器人系统中节点
+的 移 动 性
+，
+每条边的权值都在随时发生变化
+，
+而 这 种 变 化 的
+随机性表明
+，
+追求能耗最小的最优通信路径的求解并不能按
+照常规的
+“
+最短路问 题
+”
+的 寻优 方 法 来 进 行
+，
+而 是 需 要在 原 有
+最短路径算法的基础上进行改进
+，
+比 如 文 献
+[8]
+提 出 的改 进 的
+Dijkstra
+最 短 路 径 算 法
+，
+文 献
+[9]
+提出的改进的离散
+Bellman-
+Ford
+算法等
+。
+2
+月球探测多机器人通信系统的能量消耗模型分析
+移动
+Ad Hoc
+网络中的移动终端能量消耗主要由通信相
+关的能量消耗和与通信无关的能量消耗两部分构成
+。
+其 中
+，
+通信相关的能量消耗主要体现在无线收发装置收发数据包
+时所消耗的能量
+[10]
+。
+下面从无线网卡的能耗和无线节点的能
+量消耗两个角度分析整个网络的能耗模型
+。
+2.1
+无线网卡的能量消耗模型
+无线网卡
+NIC
+（
+Network Interface Card
+）
+的工作模式共 有
+4
+种
+，
+分别为睡眠模式
+、
+空闲模式
+、
+接收模式和发送模式
+[11-12]
+。
+令
+P
+doze
+、
+P
+idle
+、
+P
+rcvd
+、
+P
+tx
+分别表示无线网卡在睡眠
+、
+空 闲
+、
+接 收 和 发 送
+4
+种工作模式下所需功率
+，
+T
+doze
+、
+T
+idle
+、
+T
+rcvd
+、
+T
+tx
+分别表示时间
+T
+内
+无线网卡分别处于睡眠
+、
+空闲
+、
+接收和发送模式下的时间
+。
+不
+考虑无线网卡各模式之间转换所消耗的额外能量
+，
+那 么
+，
+在
+时间
+T
+内
+，
+无线网卡所消耗的能量为
+E
+NIC
+=
+P
+doze
+·
+T
+doze
++
+P
+idle
+·
+T
+idle
++
+P
+rcvd
+·
+T
+rcvd
++
+P
+tx
+·
+T
+tx
+（
+1
+）
+式中
+，
+T
+tx
+由无线网卡所发送的数据包的大小
+、
+数 据 发 送频 率
+及个数决定
+；
+相应地
+，
+T
+rcvd
+由无线网卡所接收到的数据包的大
+小
+、
+数据接收频率和个数决定
+。
+假设在时间
+T
+内
+，
+该无线网卡
+所发送的数据包的个数为
+M
+，
+第
+i
+个数据包的大小为
+S
+tx
+(
+i
+)
+，
+数
+据发送率为
+D
+tx
+；
+接收到的数据包的个数为
+N
+，
+第
+i
+个数据包的
+大小为
+S
+rcvd
+(
+i
+)
+，
+数据接收率为
+D
+rcvd
+，
+无线网卡消耗的能量为
+E
+NIC
+=
+P
+doze
+·
+T
+doze
++
+P
+idle
+·
+T
+idle
++
+P
+rcvd
+·
+T
+rcvd
++
+P
+tx
+·
+T
+tx
+=
+P
+doze
+·
+T
+doze
++
+P
+idle
+·
+T
+idle
++
+P
+rcvd
+·
+N
+i
+=1
+Σ
+S
+rcvd
+(
+i
+)
+D
+rcvd
++
+P
+tx
+·
+M
+i
+=1
+Σ
+S
+tx
+(
+i
+)
+D
+tx
+（
+2
+）
+接收功率是有效的数据包到达目的机器人接收器所需
+的有效功率
+。
+仿真时
+，
+接收功率的计算模型
+[13]
+为
+P
+rcvd
+=
+P
+tx
+·
+B
+tx
+·
+G
+tx
+·
+L
+path
+·
+G
+rcvd
+（
+3
+）
+其中
+，
+B
+tx
+为无线网卡的发送带宽
+，
+G
+tx
+、
+G
+rcvd
+分别为无线网卡的
+发射电线增益和接收天线增益
+，
+L
+path
+为传播 损 耗
+，
+计 算 模 型采
+用自由空间模型
+。
+2.2
+移动节点的能量消耗模型
+用
+E
+CR
+、
+E
+NCR
+分别表示月球探测多机器人通信系统中通信
+相关的能量消耗
+、
+通信无关的能量消耗
+，
+并且假设
+E
+NCR
+E
+CR
+=
+λ
+（
+4
+）
+仿真时
+，
+通信相关的能量消耗主要为无线网卡收发数据
+包所消耗的能量
+，
+同 时
+，
+由于无线网卡处于空闲
+、
+睡 眠 状 态 时
+所消耗的能量远小于无线节点整体的能量消耗
+，
+可 以 忽略 不
+计
+，
+那么对于节点
+n
+i
+，
+它的能量消耗模型为
+E
+node
+=
+E
+CR
++
+E
+NCR
+=
+E
+NIC
++
+λ
+E
+NIC
+=(1+
+λ
+)
+E
+NIC
+=(1+
+λ
+)
+P
+rcvd
+·
+N
+i
+=1
+Σ
+S
+rcvd
+(
+i
+)
+D
+rcvd
++
+P
+tx
+·
+M
+i
+=1
+Σ
+S
+tx
+(
+i
+)
+D
+tx
+Σ Σ
+（
+5
+）
+3
+面向月球探测多机器人通信系统的
+Ad hoc
+路由协
+议设计策略
+3.1
+设计指标与约束条件
+对于月球探测多机器人通信系统而言
+，
+整 个 路由 协 议 的
+设计主要考虑如何保证通信系统的实时性和节能性
+，
+希 望 所
+有指令数据能够及时传递给目的节点
+，
+并 且 能 够 在 最大 程 度
+上延长整个网络的生存时间
+。
+考虑到月球探测任务对多机器
+人系统整体性 需 求
+，
+将网络的生存时间定义为第一台机器人
+因能量消耗殆尽而瘫痪的时间
+。
+整个通信系统寻找最优路径
+的问题可以用如下的数学模型表示
+：
+min
+d
+－
+1
+i
+=1
+Σ
+E
+(
+n
+i
+,
+n
+i
++1
+)
+（
+6
+）
+st
+d
+<
+c
+E
+rest
+>
+E
+min
+式中
+，
+对 于 路 径
+P
+∶
+(
+n
+1
+,
+n
+2
+,
+…
+,
+n
+i
+,
+…
+,
+n
+d
+－
+1
+,
+n
+d
+)
+，
+E
+(
+n
+i
+,
+n
+i
++1
+)
+为 数 据
+包 从 节 点
+n
+i
+传 递 到 节 点
+n
+i
++1
+所 消 耗 的 能 量
+，
+d
+为 路 径
+P
+的 跳
+数
+，
+E
+rest
+为整条路径上所有节点剩余电池能量的最小值
+。
+c
+为
+常数
+，
+c
+越小
+，
+对网络实时性的要求越高
+。
+为了尽可能 延 长 网
+络 的 生 存 时 间
+，
+避免个别节点的提前瘫痪
+，
+所选择的最优路
+径 上 所 有 节 点 的 剩 余 电 池 能 量 值 大 于 阈 值
+E
+min
+，
+E
+min
+越 大
+，
+对
+能量偏低节点的保护程度越高
+。
+3.2 DLER
+路由协议的设计策略
+由于月球探测多机器人系统对于网络实时性的要求比
+较 高
+，
+本 文 借 鉴 了
+DSR
+（
+Dynamic Source Routing
+）
+协 议 的 源 路
+由思想
+，
+每个数据包的包头里均包含了从源节点到目的节点
+的路径信息
+[14]
+。
+另外
+，
+考虑节能性的要求
+，
+将整条路径的总的
+传送功率
+、
+路径上所有节点的剩余电池能量的最小值以及跳
+数作为路由度量寻找最优路径
+。
+当网络中所有节点有充足剩
+余能量时
+，
+将跳数和总传送功率作为衡量路由优劣的度量
+；
+当节点处于 低 能状 态 时
+，
+为了避免低能量节点的过度使用
+，
+将选用路径上所有节点剩余电池能量的最小值作为路由度
+量
+。
+定义变量
+X
+为路径
+P
+∶
+(
+n
+1
+,
+n
+2
+,
+…
+,
+n
+i
+,
+n
+j
+,
+…
+,
+n
+d
+)
+的总传送功
+率
+：
+研究论文
+（
+Articles
+）
+44
+科技导报
+2009
+，
+27
+（
+19
+）
+X
+=
+d
+－
+1
+i
+=1
+Σ
+P
+(
+n
+i
+,
+n
+i
++1
+)
+（
+7
+）
+设
+Ω
+为源节点到目的节点的所有可选路径的集合
+，
+E
+min
+为能量阈值
+。
+令
+θ
+为可行路径的集合
+，
+这些路径上所有节点
+的剩余电池能量最小值大于
+E
+min
+。
+那么
+，
+可以得到如下节能路
+由策略
+：
+define
+X
+=
+d
+－
+1
+i
+=1
+Σ
+P
+(
+n
+i
+,
+n
+i
++1
+)
+define
+θ
+={
+p
+|
+p
+∈
+Ω
+and min
+n
+i
+∈
+P
+E
+n
+i
+≥
+E
+min
+}
+if
+θ
+≠
+覫
+, then
+R
+energy_aware
+=arg min
+P
+∈
+θ
+{
+X+
+α
+d
+}
+if
+θ
+=
+覫
+, then
+R
+energy_aware
+=arg max
+P
+∈
+θ
+{min
+n
+i
+∈
+P
+{
+E
+n
+i
+}}
+（
+8
+）
+其 中
+，
+d
+为 路 径
+P
+的 跳 数
+，
+E
+n
+i
+为 路 径
+P
+上 节 点
+n
+i
+的 剩 余 电 池
+能量
+，
+覫
+为空集
+。
+能量阈值
+E
+min
+越大
+，
+对低能量节点的保护级
+越高
+；
+α
+为调节系数
+，
+α
+越高
+，
+则更希望选择跳数少的路径传
+输数据
+。
+下面采用改进的
+Bellman-Ford
+最 短 路 径 算 法 求 解 最 优
+路径
+。
+对于路径
+P
+∶
+(
+n
+1
+,
+n
+2
+,
+…
+,
+n
+i
+,
+n
+j
+,
+…
+,
+n
+d
+)
+上的节点
+n
+i
+，
+其传送
+功率的计算公式为
+C
+i, j
+=cost(
+n
+i
+)+
+P
+transceiver
+(
+n
+i
+)+
+P
+transmit
+(
+n
+i
+,
+n
+j
+)
+（
+9
+）
+其中
+，
+n
+j
+为
+n
+i
+的邻居节点
+，
+P
+transceiver
+(
+n
+i
+)
+为节点
+n
+i
+接收该数据包的
+无 线 收 发 装 置 的 接 收 功 率
+，
+P
+transmit
+(
+n
+i
+,
+n
+j
+)
+为 节 点
+n
+i
+将 该 数 据 包
+发送给节点
+n
+j
+的发射 功 率
+，
+C
+(
+n
+i
+)
+为 从源 节 点 到 节 点
+n
+i
+的 总 的
+传送功率
+。
+C
+i, j
+被写入路由请求包
+，
+并发送给邻居节点
+n
+j
+[2]
+。
+对 路 径
+P
+∶
+(
+n
+1
+,
+n
+2
+,
+…
+,
+n
+i
+,
+n
+j
+,
+…
+,
+n
+d
+)
+上 的 节 点
+n
+j
+，
+令
+cost(
+n
+j
+)
+为从源节点到节点
+n
+j
+的最小传送功率
+，
+那么
+cost(
+n
+j
+)=min
+n
+i
+∈
+φ
+(
+C
+i, j
++
+α
+j
+)
+（
+10
+）
+其中
+，
+φ
+为节点
+n
+j
+的邻居节点的集合
+，
+j
+为路径的跳数
+，
+α
+为小
+于
+1
+的常数
+。
+以此获得从源节点到节点
+n
+j
+的 最 优 路 径
+，
+如此
+反复
+，
+直至到达目的节点
+。
+4
+仿真实验结果分析
+4.1
+实验环境与平台
+网络模拟是进行网络技术研究的一种基本手段
+。
+本文采
+用
+OPNET 14.5
+软件测试
+、
+评估和验证所提出的路由协议
+[15- 16]
+。
+通过与其他节能路由协议的性能比较
+，
+验 证 所提 出 的 改 进 协
+议是更适合用于月球探测多机器人系统
+Ad hoc
+通 信 网 络 的
+路由协议
+。
+为了评估协议 的 性 能
+，
+需要考虑不同的定量度量
+。
+实 验
+中
+，
+考虑选取以下两种统计量分析协议在节能和实时性两方
+面的性能
+。
+1
+）
+端对端平均延时
+：
+所有数据包从源节点出发到正确到
+达目的节点所用时间的均值
+。
+2
+）
+网络生存时间
+：
+Ad hoc
+网络从开始运行到网络出现分
+离所经过的时间
+[17]
+。
+本文选用首个节点的死亡时间作为网络
+的生存时间
+，
+它反映了网络性能出现恶化的开始时间
+。
+4.2
+仿真结果分析
+1
+）
+端对端平均延时
+该统计量用于表示数据包从源节点出发到正确到达目
+的节点所用时间的分布 情 况
+，
+反映了路由有效性以及通信的
+实时性
+。
+由图
+3
+可以看出
+，
+3
+种协议的端对端时延都最终趋向
+于一个较小的稳定值
+，
+因而其路由有效性和通信的实时性都
+是比较高的
+。
+由于在最优路径的寻找过程中加入了对路径跳
+数 的 限 制
+，
+DLER
+协议所选择的路径的跳数低于
+MMBCR
+（
+Min-Max Battery Cost Routing
+）
+协 议
+，
+因 此
+，
+端对端平均延时
+也明显小于
+MMBCR
+协议
+。
+另一方面
+，
+由于加入了总传送功率
+的 路 由 度 量
+，
+DLER
+协议所选择的路径的跳数高于
+DSR
+协
+议
+，
+其端对端时延要高一些
+。
+2
+）
+网络生存时间
+仿 真 时
+，
+设 定 节 点 的 初 始 电 池 能 量 为
+10 J
+，
+DLER
+协 议
+中
+，
+能量阈值
+E
+min
+取
+4 J
+。
+同时
+，
+为了更充分地反应不同路由选
+择机制对网络生存时间的影响
+，
+假设通信相关的能量消耗值
+远大于通信无关的能量消耗值
+（
+λ
+=0.1
+）。
+在不同节点运动速度
+情况下
+，
+统计不同路由选择机制对于网络生存时间的影响
+。
+节点的平均运动速度越快
+，
+网络拓扑结构变化也越快
+，
+相 应
+地
+，
+通信相关的能量消耗越大
+，
+网络的生存时间也越短
+。
+由 图
+4
+可 以 看 出
+，
+MMBCR
+协议的网络生存时间是最长
+图
+3
+端对端平均延时
+Fig. 3 Average end-to-end delay vs time
+图
+4
+网络生存时间
+Fig. 4 Network's lifetime vs velocity
+研究论文
+（
+Articles
+）
+科技导报
+2009
+，
+27
+（
+19
+）
+45
+的
+，
+但这是以牺牲网络实时性为代价的
+。
+而
+DSR
+协议为了充
+分保障网络实时性
+，
+总是选择跳数最小的路径传输数据
+，
+使
+得个别节点的能量过度消耗
+，
+因而网络生存时间最短
+。
+DLER
+协议综合了两种协议的优点
+，
+在保证网络通信实时性的情况
+下
+，
+延 长 了 网 络 的 生 存 时 间
+，
+是一种更适合于月球探测多机
+器人系统的路由协议
+。
+5
+结论
+本文根据月球探测多机器人系统动态组网
+、
+移动 通 信
+、
+数据传输量比较大以及能量有限的特点
+，
+提出了一种基于能
+量约束的新型路由协议
+DLER
+。
+该协议满足了月球探测多机
+器人系统对于通信实时性的要求
+，
+延长了整个通信网络的生
+存 时 间
+，
+为月球探测多机器人系统提供了更可靠的通信保
+障
+。
+进一步的工作主要是根据实际工程应用的性能指标要
+求
+，
+实现一种智能化的路由机制
+：
+按照传输数据的类型
+，
+选 择
+不同的路由机制去寻找路径
+。
+比如
+，
+对于急停
+、
+转向等对实时
+性要求比较高的控制指令
+，
+协议能够自动寻找跳数少的路径
+进行传输
+；
+而对于采集所得的环境数据等数据包的传输
+，
+则
+寻找总的能耗最小的路径进行传输
+，
+从而真正地均衡月球探
+测多机器人系统对于节能和通信实时性两方面的指标要求
+。
+参考文献
+（
+References
+）
+[1]
+朱森元
+.
+月球探测在
+21
+世纪初将成为航天热点之一
+[J].
+世 界 科 技 研
+究与发展
+, 2000(2): 9-10.
+Zhu Senyuan.
+World Sci-Tech R & D
+, 2000(2): 9-10.
+[2] Toh C K, Cobb H, Scott D A. Performance evaluation of battery -life -
+aware routing scheme for wireless Ad hoc networks[J].
+IEEE International
+Conference on Communications
+, 2001(9): 2824-2829.
+[3]
+王成
+,
+刘金刚
+. Ad Hoc
+无线网络及其路由协议分析
+[J].
+计算机应用与
+软件
+, 2006, 23(8): 87-89.
+Wang Cheng, Liu Jingang.
+Computer Applications and Software
+, 2006,
+23(8): 87-89.
+[4] Wei R, Wu M, Yu T. LSMR: A Label Switching Multipath Routing
+Protocol for Ad Hoc Networks [C]//Proceedings of Eighth ACIS
+International Conference on Software Engineering, Artificial Intelligence,
+Networking, and Parallel/Distributed Computing. 2007(2): 546-551.
+[5]
+李 铭
+,
+卢 锡 城
+,
+彭 伟
+.
+面 向 无 线
+Ad Hoc
+网络的一种平面
+t-
+支 撑 图
+[J].
+通信学报
+, 2005(6): 62-69.
+Li Ming, Lu Xicheng, Peng Wei.
+Journal on Communications
+, 2005 (6):
+62-69.
+[6] Wu Y-C, Tuan C-C. Triangular energy saving route protocol by energy
+sieving in wireless Ad hoc networks [C]//Proceedings of MDM 2009:
+Tenth International Conference on Mobile Data Management: Systems,
+Services and Middleware. 2009: 474-477.
+[7]
+应玉梅
+,
+刘卫
+.
+多跳无线
+Ad Hoc
+网络的分布式公平调度算法
+[J].
+计算
+机工程
+, 2009, 35(9): 98-100.
+Ying Yumei, Liu Wei.
+Computer Engineering
+, 2009, 35(9): 98-100.
+[8] Singh S, Raghavendra C S. PAMAS-power aware multi-access protocol
+with signalling for ad hoc networks [C]//Proceedings of MobiCom
+’
+98.
+Dallas, 1998.
+[9] Keith Scott, Nicholas Bambos. Routing and Channel Assignment for Low
+Power Transmission in PCS[C]//Proceedings of the 5th IEEE International
+Conference on Universal Personal Communications. 1996(2): 498-502.
+[10] Toh C K. Maximum battery life routing to support ubiquitous mobile
+computing in wireless Ad hoc networks [J].
+Mobile Ad Hoc Networking
+,
+2001, 39(6): 138-147.
+[11]
+俞京津
+.
+基于节能机制的移动
+Ad hoc
+网络路由协议的研究
+[D].
+北京
+交通大学计算机与信息技术学院
+, 2007.
+Yu Jingjin. Research on routing protoeol of Ad hoc network based on
+energy efficient mechanism [D]. Beijing: School of Computer and
+Information Technology, Beijing Jiaotong University, 2007.
+[12]
+黎 宁
+,
+王 小 伟
+,
+郑 少 仁
+.
+无 线 网 卡 能 耗 建 模 及 在
+GloMoSim
+中 的 实 现
+[J].
+系统仿真学报
+, 2003, 15(5): 696-699.
+Li Ning, Wang Xiaowei, Zheng Shaoren.
+Journal of System Simulation
+,
+2003, 15(5): 696-699.
+[13]
+陈敏
+. OPNET
+网络仿真
+[M].
+北京
+:
+清华大学出版社
+, 2004.
+Chen Min. OPNET network simulation[M]. Beijing: Tsinghua University
+Press, 2004.
+[14] Johnson D B, Maltz D A. Dynamic source routing in Ad hoc wireless
+networks[M]. New York: Kluwer Academic Publishers, 1996: 153-181.
+[15]
+徐 磊
+,
+李 晓 辉
+,
+方 红 雨
+.
+基 于
+OPNET
+的
+Ad hoc
+网 络 建 模 与 仿 真
+[J].
+计算机工程
+, 2009(1): 123-125.
+Xu Lei, Li Xiaohui, Fang Hongyu.
+Computer Engineering
+, 2009 (1):
+123-125.
+[16] Wu Y -C, Tuant C -C. Energy saving cache -based routing protocol in
+wireless ad hoc networks [J]//Proceedings of the IET Communications
+Conference on Wireless, Mobile and Sensor Networks. 2007: 466-469.
+[17] Vassileva N, Barcelo-Arroyo F. A survey of routing protocols for energy
+constrained ad hoc wireless networks [C]//Proceedings of the International
+Conference on Future Generation Communication and Networking.
+2007(1): 522-527.
+（
+责任编辑 杨书卷
+）
+!!!!!!!!!!!!!!!!!!!!!!
+"
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+!!!!!!!!!!!!!!!!!!!!!!
+"
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+·
+学术动态
+·
+“
+第
+4
+次全国中毒与危重症
+救治学术会议
+”
+征文
+中国毒理学会
+“
+第
+4
+次全国中毒与危重症救治学术会
+议
+”
+定于
+2010
+年
+3
+月在广东省深圳市召开
+，
+届 时 将 有 我 国
+中毒与危重症救治方面的专家做专题报告介绍最新进展
+，
+并聘请相关学科专家做精彩的专题报告
+。
+会议征文内容包括
+：
+各 种
+（
+农 药
+、
+药 物
+、
+重 金 属
+、
+有 害 气
+体等
+）
+中毒救治的基础和临床研究
+，
+多脏器功能不全
+、
+心衰
+、
+肝
+、
+肾
+、
+呼吸衰竭救治
+，
+人工气道管理与呼吸机的应用
+；
+危重
+病的各种监测技术和经验交流
+，
+急危重病救治的新技术
+、
+新
+药物及新方法
+，
+中毒与危重症救治中的组织管理及体会
+，
+中
+毒与危重症的院前急救
+、
+现场救治及转运
+，
+中毒性疾病的检
+测 与 监 控
+，
+中 毒
+、
+急危重病救治护理经验介绍
+，
+血 液 净 化 在
+中毒及危重症中的应用
+，
+中毒及危重症患者的早期营养支
+持等
+。
+稿件截止日期
+：
+2010
+年
+1
+月
+28
+日
+。
+联系方式
+：
+广东省深圳市宝安区宝城
+4
+区龙井二路
+118
+号深圳市宝安区人民医院急诊科
+（
+518101
+）
+张文武
+；
+电话
+：
+0755-27880712
+，
+13923453969
+；
+电 子 信 箱
+：
+zww-5@163.
+com
+。
+研究论文
+（
+Articles
+）
+46
+科技导报
+2009
+，
+27
+（
+19
+）
