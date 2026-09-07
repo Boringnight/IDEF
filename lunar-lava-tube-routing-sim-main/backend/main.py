@@ -66,7 +66,8 @@ if DIST_DIR.is_dir():
 
     @app.get("/")
     async def serve_index():
-        return FileResponse(DIST_DIR / "index.html")
+        return FileResponse(DIST_DIR / "index.html",
+                            headers={"Cache-Control": "no-cache"})
 
 
 @app.websocket("/ws")
@@ -83,12 +84,22 @@ async def ws_endpoint(ws: WebSocket):
             cmd = msg.get("cmd")
             if cmd == "set_param":
                 # 上帝模式: {"cmd":"set_param","node":"NODE-05","params":{"temp_c":80}}
+                # 只改参数+回 ack —— 不做即时 compute/broadcast: 滑块拖动可达
+                # 60+ msg/s, 每条全量重算(~10ms)+全量广播(127KB)会打满事件循环
+                # 把引擎拖到近停; 引擎每 0.25s 重算/每 0.2s 广播, 下个周期自然生效
                 resp = ENGINE.apply_override(msg["node"], msg.get("params", {}))
-                await broadcast(ENGINE.snapshot())
                 await ws.send_text(json.dumps({"cmd": "ack", "req_id": msg.get("req_id"), **resp}))
             elif cmd == "disaster":
                 ENGINE.inject_disaster(msg.get("kind"))
                 await broadcast(ENGINE.snapshot())
+            elif cmd == "send_msg":
+                # 任意两节点间发送真实报文:
+                # {"cmd":"send_msg","src":"NODE-38","dst":"NODE-07","bytes":2048}
+                resp = ENGINE.send_user_message(msg.get("src"), msg.get("dst"),
+                                                msg.get("bytes", 1024))
+                await broadcast(ENGINE.snapshot())
+                await ws.send_text(json.dumps(
+                    {"cmd": "ack", "req_id": msg.get("req_id"), **resp}))
             elif cmd == "add_wall":
                 # 2D 俯视图画墙: {"cmd":"add_wall","x1":..,"z1":..,"x2":..,"z2":..}
                 ENGINE.add_wall(msg["x1"], msg["z1"], msg["x2"], msg["z2"])
@@ -104,7 +115,8 @@ async def ws_endpoint(ws: WebSocket):
                 ENGINE.clear_walls()
                 await broadcast(ENGINE.snapshot())
             elif cmd == "reset":
-                raise NotImplementedError
+                ENGINE.reset()
+                await broadcast(ENGINE.snapshot())
     except WebSocketDisconnect:
         CLIENTS.discard(ws)
     except Exception as e:

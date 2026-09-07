@@ -1,5 +1,5 @@
 // 全局 HUD: 网络统计 + 网络模式 + 灾害注入 + 放墙模式 + 帮助
-export default function GlobalHUD({ stats, mode, connected, onDisaster, wallMode, onToggleWall, onHelp, logOpen, onToggleLog }) {
+export default function GlobalHUD({ stats, mode, connected, onDisaster, wallMode, onToggleWall, onHelp, logOpen, onToggleLog, chainOpen, onToggleChain, chainFlow, onToggleChainFlow, resetArmed, onArmReset }) {
   const box = (label, v, color = '#cfe9ff') => (
     <div style={{ marginRight: 16 }}>
       <span style={{ color: '#5d7ea3' }}>{label} </span>
@@ -53,6 +53,22 @@ export default function GlobalHUD({ stats, mode, connected, onDisaster, wallMode
             color: wallMode ? '#ffd76e' : '#9fb8d0',
             border: wallMode ? '1px solid #8a6a1e' : '1px solid #1d3a5f', borderRadius: 4,
           }}>🧱 放墙模式{wallMode ? ' ●' : ''}</button>
+        <button id="guide-chain-flow" onClick={onToggleChainFlow}
+          title="链上报文流量可视化: 金点=遥测交易, 青白大点=新块广播, 紫点=追块请求/响应 (画墙拆墙时可见同步风暴)"
+          style={{
+            padding: '5px 10px', cursor: 'pointer', fontSize: 12,
+            background: chainFlow ? '#2a1a4a' : '#12203a',
+            color: chainFlow ? '#c9b0ff' : '#9fb8d0',
+            border: chainFlow ? '1px solid #5a3a9a' : '1px solid #1d3a5f', borderRadius: 4,
+          }}>⛓ 链流量{chainFlow ? ' ●' : ''}</button>
+        <button id="guide-chain-btn" onClick={onToggleChain}
+          title="区块链账本侧边栏: 每个节点存储的全网状态、链高度与同步进度 (画墙分区可见分叉, 拆墙后自动愈合)"
+          style={{
+            padding: '5px 10px', cursor: 'pointer', fontSize: 12,
+            background: chainOpen ? '#0e2a4a' : '#12203a',
+            color: chainOpen ? '#7fd8ff' : '#9fb8d0',
+            border: chainOpen ? '1px solid #1d5a8a' : '1px solid #1d3a5f', borderRadius: 4,
+          }}>⛓ 账本{chainOpen ? ' ●' : ''}</button>
         {disasters.map(([k, label, tip]) => (
           <button key={k} onClick={() => onDisaster(k)} title={tip}
             style={{
@@ -60,6 +76,13 @@ export default function GlobalHUD({ stats, mode, connected, onDisaster, wallMode
               background: '#20101a', color: '#ffb8c8', border: '1px solid #5c2030', borderRadius: 4,
             }}>{label}</button>
         ))}
+        <button onClick={onArmReset}
+          title="以初始种子重建整个世界: 节点电量/位置/区块链/机器人/巨石/墙体全部复原 (点两次确认)"
+          style={{
+            padding: '5px 10px', cursor: 'pointer', fontSize: 12,
+            background: resetArmed ? '#5c1420' : '#20101a',
+            color: '#ffb8c8', border: '1px solid #7a2030', borderRadius: 4,
+          }}>{resetArmed ? '!! 再点确认' : '↺ 重置'}</button>
         <button id="guide-help" onClick={onHelp} title="灾害按钮/巨石/堵路机制 说明"
           style={{
             padding: '5px 10px', cursor: 'pointer', fontSize: 12,

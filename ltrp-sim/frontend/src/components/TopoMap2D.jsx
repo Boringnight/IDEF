@@ -473,22 +473,36 @@ export default function TopoMap2D({ world, snap, selected, onSelect, onMoveObsta
     v.scale = ns;
   }, []);
 
+  // React 合成 MouseEvent 不暴露 offsetX/offsetY(恒为 undefined),会导致坐标算出 NaN、命中永远落空。
+  // 统一改用 clientX/clientY 减去 canvas 边界矩形,得到 canvas 本地坐标(与 onWheel 一致,兼顾悬停/选中/拖拽)。
+  const local = useCallback((e) => {
+    let ox = e.clientX, oy = e.clientY;
+    const t = e.currentTarget;
+    if (t && t.getBoundingClientRect) {
+      const r = t.getBoundingClientRect();
+      ox -= r.left; oy -= r.top;
+    }
+    return [ox, oy];
+  }, []);
+
   const onDown = useCallback((e) => {
     const m = mouse.current;
+    const [ox, oy] = local(e);
     m.down = true; m.moved = false;
-    m.sx = e.offsetX; m.sy = e.offsetY;
-    const [wx, wy] = toWorld(e.offsetX, e.offsetY);
+    m.sx = ox; m.sy = oy;
+    const [wx, wy] = toWorld(ox, oy);
     const bi = hitBoulder(wx, wy);
     if (bi >= 0) { m.mode = "boulder"; m.dragIdx = bi; }
     else m.mode = "pan";
-  }, [toWorld, hitBoulder]);
+  }, [toWorld, hitBoulder, local]);
 
   const onMove = useCallback((e) => {
     const m = mouse.current;
-    m.x = e.offsetX; m.y = e.offsetY;
-    const [wx, wy] = toWorld(e.offsetX, e.offsetY);
+    const [ox, oy] = local(e);
+    m.x = ox; m.y = oy;
+    const [wx, wy] = toWorld(ox, oy);
     if (m.down) {
-      if (Math.abs(e.offsetX - m.sx) + Math.abs(e.offsetY - m.sy) > 4) m.moved = true;
+      if (Math.abs(ox - m.sx) + Math.abs(oy - m.sy) > 4) m.moved = true;
       if (m.mode === "pan") {
         const v = view.current;
         v.ox += e.movementX; v.oy += e.movementY;
@@ -497,22 +511,36 @@ export default function TopoMap2D({ world, snap, selected, onSelect, onMoveObsta
     }
     const n = hitNode(wx, wy);
     setHover(n ? n.id : null);
-  }, [toWorld, hitNode]);
+  }, [toWorld, hitNode, local]);
 
   const onUp = useCallback((e) => {
     const m = mouse.current;
+    const [ox, oy] = local(e);
+    const [wx, wy] = toWorld(ox, oy);
     if (m.down && m.mode === "boulder" && m.moved) {
-      const [wx, wy] = toWorld(e.offsetX, e.offsetY);
       onMoveObstacle(m.dragIdx, Math.round(wx), Math.round(wy));
     } else if (!m.moved) {
-      const [wx, wy] = toWorld(e.offsetX, e.offsetY);
       const n = hitNode(wx, wy);
       onSelect(n ? n.id : null);
     }
     m.down = false; m.mode = null; m.dragIdx = -1;
-  }, [toWorld, hitNode, onSelect, onMoveObstacle]);
+  }, [toWorld, hitNode, onSelect, onMoveObstacle, local]);
 
   const hoverNode = hover && snap ? snap.nodes.find((n) => n.id === hover) : null;
+  // 邻居富信息:把 nbrs[[id, snr]] 与 snap.nodes 交叉引用,取出 角色/电量/状态/位置
+  const hoverNbrs = (() => {
+    if (!hoverNode || !snap) return [];
+    const byId = {};
+    snap.nodes.forEach((n) => { byId[n.id] = n; });
+    return (hoverNode.nbrs || []).map(([id, snr]) => {
+      const n = byId[id];
+      return n ? { ...n, snr: snr ?? 0 } : { id, snr: snr ?? 0, role: "?", state: "UNKNOWN", sleeping: false, soc: null };
+    });
+  })();
+  // 工具提示几何:靠近右/下边缘时向内收缩,避免溢出画布
+  const ttW = 320, ttH = 300;
+  const ttLeft = Math.min(mouse.current.x + 16, (wrapRef.current?.clientWidth || 800) - ttW - 8);
+  const ttTop = Math.min(mouse.current.y + 14, (wrapRef.current?.clientHeight || 600) - ttH - 8);
 
   return (
     <div className="topo-wrap" ref={wrapRef}>
@@ -524,19 +552,76 @@ export default function TopoMap2D({ world, snap, selected, onSelect, onMoveObsta
         onMouseUp={onUp}
         onMouseLeave={() => { setHover(null); mouse.current.down = false; }}
       />
-      {hoverNode && (
-        <div className="tooltip"
-             style={{ left: Math.min(mouse.current.x + 16, (wrapRef.current?.clientWidth || 800) - 250), top: mouse.current.y + 14 }}>
-          <div className="tt-title">{hoverNode.id} · {ROLE_ZH[hoverNode.role]}</div>
-          <div>SoC {hoverNode.soc}% · {stateZh(hoverNode.state)}{hoverNode.sleeping ? " · 休眠" : ""}</div>
-          {hoverNode.nh
-            ? <div>→ 基站经 {hoverNode.nh} · 代价 {hoverNode.cost}</div>
-            : <div className="tt-bad">✕ 无实时路由(束模式)</div>}
-          {hoverNode.bundles > 0 && <div className="tt-warn">滞留束 {hoverNode.bundles}</div>}
-          {hoverNode.crit && <div className="tt-bad">⚠ 关键割点(2 跳自识别)</div>}
-          {hoverNode.border && <div className="tt-info">◇ 喉道边界节点</div>}
-        </div>
-      )}
+      {hoverNode && (() => {
+        const soc = Math.max(0, Math.min(100, hoverNode.soc ?? 0));
+        const socColor = soc < 20 ? "#FF5252" : soc < 40 ? "#FF9E42" : "#2EFF9E";
+        const stColor = STATE_COLOR[hoverNode.state] || "#9FD8FF";
+        return (
+          <div className="tooltip" style={{ left: ttLeft, top: ttTop }}>
+            <div className="tt-title">{hoverNode.id} · {ROLE_ZH[hoverNode.role]}</div>
+
+            <div className="tt-row">
+              <span className="k">电量 (SoC)</span>
+              <span className="v" style={{ color: socColor }}>{soc.toFixed(1)}%</span>
+            </div>
+            <div className="tt-soc"><i style={{ width: soc + "%", background: socColor }} /></div>
+
+            <div className="tt-row">
+              <span className="k">运行状态</span>
+              <span className="v" style={{ color: stColor }}>
+                {stateZh(hoverNode.state)}
+                {hoverNode.sleeping ? " · 休眠" : ""}
+                {hoverNode.moving ? " · 移动" : ""}
+                {hoverNode.sos ? " · 求救" : ""}
+              </span>
+            </div>
+            <div className="tt-row">
+              <span className="k">位置信息</span>
+              <span className="v tt-pos">({hoverNode.x} , {hoverNode.y})</span>
+            </div>
+            <div className="tt-row">
+              <span className="k">所属腔室</span>
+              <span className="v">腔室 {chamberName(hoverNode.domain)}{hoverNode.border ? " · 喉道边界" : ""}</span>
+            </div>
+
+            {hoverNode.role !== "base" && (
+              hoverNode.nh
+                ? <div className="tt-row">
+                    <span className="k">→ 基站路由</span>
+                    <span className="v">经 {hoverNode.nh} · 代价 {hoverNode.cost} · 最弱SoC {hoverNode.ms}%</span>
+                  </div>
+                : <div className="tt-row"><span className="k">→ 基站路由</span><span className="v tt-bad">✕ 无实时路由(束模式)</span></div>
+            )}
+
+            <div className="tt-row">
+              <span className="k">载荷</span>
+              <span className="v">{hoverNode.bundles > 0 ? `⬒ 束 ${hoverNode.bundles} · 待发 ${hoverNode.pkts}` : `待发包 ${hoverNode.pkts}`}</span>
+            </div>
+            {hoverNode.crit && <div className="tt-bad tt-note">⚠ 关键割点 · 2 跳视图自识别(锁定常开)</div>}
+            {hoverNode.anchor && <div className="tt-info tt-note">◆ 域锚节点</div>}
+
+            <div className="tt-sec">邻居节点 ({hoverNbrs.length})</div>
+            {hoverNbrs.length === 0 && <div className="dim">无(等待信标)</div>}
+            <div className="tt-nbr-grid">
+              {hoverNbrs.map((nb) => {
+                const cls = [];
+                if (nb.state === "DEAD") cls.push("dead");
+                if (nb.sleeping) cls.push("sleeping");
+                if (nb.soc != null && nb.soc < 25) cls.push("lowbat");
+                const lowSoc = nb.soc != null && nb.soc < 25;
+                return (
+                  <span key={nb.id} className={`tt-nbr ${cls.join(" ")}`}>
+                    <span className="nid">{nb.id}</span>
+                    <span className="nrole">{ROLE_ZH[nb.role] || nb.role}</span>
+                    <span className="nsnr">{nb.snr.toFixed(1)}dB</span>
+                    {nb.soc != null && <span className={`nsoc ${lowSoc ? "low" : ""}`}>{nb.soc.toFixed(0)}%</span>}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

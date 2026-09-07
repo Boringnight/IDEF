@@ -39,13 +39,14 @@ class Node:
         # ---- 移动(自愈重连) ----
         self.sos = False          # 孤立求救:已无法与任何人联络
         self.sos_since = None     # 开始孤立的时间
-        self.rejoin_target = None # (x,y) 孤岛尝试重连的目标
         self.move_target = None   # (x,y) 移动目标
         self._last_gone = None    # 最近一个消失的邻居 id(用于追回)
         self._last_gone_at = 0.0  # 该邻居消失的时间(用于判定"近期断裂")
         self.bridge = False       # 是否正充当桥接移动前锋
         self.seek_target = None   # (x,y) 本地自愈:断开时朝它移动,直到重新连上
         self.relay_at = 0.0       # rover 注入网络方向锚点的时刻(作为目标有效窗口)
+        self.rejoin_target = None # rover 同步的"断裂对端"节点 id(朝它实时移动以重连)
+        self.contact_at = -99.0   # 上次 rover 同步对端的时刻(有效窗口用)
         self._last_anchor = None  # (x,y) 最近一次"到基站下一跳"的位置(断链后立即朝它桥接)
         self._last_gone_nbrs = 0  # 最近消失邻居的邻居数(>1 => 它是连接两端的桥,断=分裂)
         self._since_nobase = None  # 持续"无基站实时路由"的起始时刻(分区失联判据,None=有路由)

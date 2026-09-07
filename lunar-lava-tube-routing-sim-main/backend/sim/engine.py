@@ -15,12 +15,19 @@ from collections import deque
 
 from .node import Node
 from . import physics
-from .routing import routing_step, rscspa
+from .routing import routing_step
+from .robot import PatrolRobot, ROBOT_ID
 
-ROBOT_ENABLED = False     # 巡检机器人暂时关闭 (置 True 即恢复)
+ROBOT_ENABLED = True      # 巡检机器人 (SOS 听测 + 道钉投放, 逻辑全在 sim/robot.py)
 TICK_PHYS_S = 0.25
 TICK_BROADCAST_S = 0.2
 HEALING_HOLD_TICKS = 4
+
+# 渲染总线: 任意层在收发点调 vis_packet() 上报, 前端自动绘制
+VIS_MAX = 260                 # 单 tick 快照最多下发的包跳数 (防爆量)
+VIS_PRIORITY = ("BLOCK", "SYNC_RESP", "SYNC_REQ", "TX")   # 截断时保留优先级
+VIS_RESERVE = 40              # 为未登记类型保留的名额 (零注册兜底, 风暴时也不被挤光)
+CHAIN_QUEUE_CAP = 4096        # 链上报文计入 queue_pct 的字节上限 (控制平面配额, 50%)
 
 SEED = 42
 UWB_RANGE = 30.0
@@ -30,11 +37,11 @@ UWB_RANGE = 30.0
 # 拓扑: C0(洞口)→C1→C2→C3 主干; C1↔C4↔C0 右环; C2↔C6↔C1 左环;
 #       C2→C5 死胡同; C3→C7 死胡同; C3→C8 深腔 → C9 死胡同尖
 # ---------------------------------------------------------------------------
-# 2D 溶洞模板: (x, z, 半径) —— 俯视平面地质 (算法层与 3D 版完全一致)
-# 纯 2D 沙盘: 一张大画布 (单一大腔室), 无隧道/无巨柱 ——
+# 2D 溶洞模板: (x, z, 长半轴 rx, 短半轴 rz) —— 扁椭圆腔室 = 熔岩管平面示意图
+# 纯 2D 沙盘: 一张横向扁长的大画布 (单一大腔室), 无隧道/无巨柱 ——
 # 遮挡只来自散布的大石头 (互不重叠, 挡了就是挡了)
 _CHAMBERS = [
-    (650, -500, 880),     # 唯一大腔室: 圆心 (x,z) 半径 r, 覆盖整个战场
+    (650, -500, 1300, 600),   # 唯一大腔室: 横向扁长 (~2.2:1), 似熔岩管俯视轮廓
 ]
 _TUNNELS = []
 _PILLARS = []
@@ -47,11 +54,13 @@ def _cross(ox, oz, ax, az, bx, bz):
 
 
 def _seg2d_intersect(p1, p2, w1, w2) -> bool:
-    """2D 线段相交判定 (叉积法): 节点连线 vs 墙体"""
-    d1 = _cross(w1[0], w1[1], p2[0], p2[1], p1[0], p1[1])
-    d2 = _cross(w1[0], w1[1], w2[0], w2[1], p1[0], p1[1])
-    d3 = _cross(p1[0], p1[1], w2[0], w2[1], w1[0], w1[1])
-    d4 = _cross(p1[0], p1[1], p2[0], p2[1], w1[0], w1[1])
+    """2D 线段相交判定 (严格叉积法): 节点连线 vs 墙体
+    d1/d2: 墙两端点分别在连线 p1->p2 两侧; d3/d4: 线两端点分别在墙 w1->w2 两侧;
+    双侧同时成立 = 真穿越。端点恰触墙 (d=0) 或共线不算相交 (严格判定)。"""
+    d1 = _cross(p1[0], p1[1], p2[0], p2[1], w1[0], w1[1])
+    d2 = _cross(p1[0], p1[1], p2[0], p2[1], w2[0], w2[1])
+    d3 = _cross(w1[0], w1[1], w2[0], w2[1], p1[0], p1[1])
+    d4 = _cross(w1[0], w1[1], w2[0], w2[1], p2[0], p2[1])
     return ((d1 > 0) != (d2 > 0)) and ((d3 > 0) != (d4 > 0))
 
 
@@ -98,6 +107,13 @@ class SimulationEngine:
         self.heal_started_tick = 0
         self._pre_collapse_routes: dict = {}
 
+        # 传输层: 真实报文 store-and-forward (握手/重传/超时/字节计数)
+        from .transport import TransportLayer
+        self.transport = TransportLayer(self)
+        # 渲染总线: 收发点调 vis_packet() 即自动上屏, 新报文类型零注册
+        self.packets_vis: list[dict] = []
+        self._vis_at = 0.0
+
         # 地质生成 (失败自动换种子重试, 保证覆盖率)
         for attempt in range(8):
             self._seed = SEED + attempt * 1000
@@ -107,6 +123,11 @@ class SimulationEngine:
             self.compute_network(quiet=True)
             if self._coverage() >= 96.0:
                 break
+        # 区块链网络: 全节点世界状态同步 (须在节点生成之后挂载)
+        from .blockchain import BlockchainNetwork
+        self.chain_net = BlockchainNetwork(self)
+        # 巡检机器人: SOS 听测 + 道钉投放 (独立模块, 引擎只挂两个挂点)
+        self.robot = PatrolRobot(self) if ROBOT_ENABLED else None
 
     # ==================================================================
     # 地质: 腔室 / 隧道 / 巨柱 / 散布节点
@@ -114,13 +135,14 @@ class SimulationEngine:
     def _build_geology(self):
         rng = self._rng
         self.chambers = []
-        for i, (x, z, r) in enumerate(_CHAMBERS):
+        for i, (x, z, rx, rz) in enumerate(_CHAMBERS):
             self.chambers.append({
                 "id": i,
                 "x": x + rng.uniform(-30, 30),
                 "y": 0.0,
                 "z": z + rng.uniform(-30, 30),
-                "r": r + rng.uniform(-15, 25),
+                "r": rx + rng.uniform(-15, 25),    # x 半轴 (长轴)
+                "rz": rz + rng.uniform(-15, 25),   # z 半轴 (短轴, 压扁)
             })
         # 隧道: 两腔室间二次贝塞尔, 控制点带随机垂向摆动
         self.tunnels = []
@@ -170,24 +192,29 @@ class SimulationEngine:
         return (c[0] + nx * off_r * s, 0.0, c[2] + nz * off_r * s)
 
     def _spawn_nodes(self):
-        """60 根通信桩: 大画布内随机散布 (最小间距, 避开石头), sink 在左上"""
+        """60 根通信桩: 扁椭圆大画布内随机散布 (最小间距, 避开石头), sink 在左端"""
         rng = self._rng
         self.nodes.clear()
         c = self.chambers[0]
-        R = c["r"] * 0.92
-        # 先放石头 (互不重叠的大块, 挡了就是挡了)
+        RX, RZ = c["r"] * 0.92, c["rz"] * 0.92   # 长轴/短轴撒布范围 (扁椭圆)
+        sink_xy = (c["x"] - RX * 0.72, c["z"] - RZ * 0.55)
+        # 先放石头 (互不重叠的大块, 挡了就是挡了, 且整体留在椭圆腔室内)
         self.obstacles = []
         placed_rocks = []
         tries = 0
         while len(placed_rocks) < 26 and tries < 900:
             tries += 1
             ang = rng.uniform(0, math.pi * 2)
-            rr = math.sqrt(rng.uniform(0.05, 0.72)) * R
-            x, z = c["x"] + math.cos(ang) * rr, c["z"] + math.sin(ang) * rr
+            rr = math.sqrt(rng.uniform(0.05, 0.72))
+            x = c["x"] + math.cos(ang) * rr * RX
+            z = c["z"] + math.sin(ang) * rr * RZ
             r = rng.uniform(55, 130)
+            if ((abs(x - c["x"]) + r) / c["r"] > 0.96
+                    or (abs(z - c["z"]) + r) / c["rz"] > 0.96):
+                continue                       # 石头不得戳出椭圆腔壁
             if any(math.dist((x, z), (q[0], q[1])) < r + q[2] + 110 for q in placed_rocks):
                 continue
-            if math.dist((x, z), (c["x"] - R * 0.72, c["z"] - R * 0.55)) < r + 160:
+            if math.dist((x, z), sink_xy) < r + 160:
                 continue                       # 让出 sink 区域
             placed_rocks.append((x, z, r))
             self.obstacles.append({
@@ -198,7 +225,7 @@ class SimulationEngine:
             })
 
         def add(id_, x, z, role):
-            depth = min(1.0, math.hypot(x - c["x"], z - c["z"]) / R)
+            depth = min(1.0, math.hypot((x - c["x"]) / RX, (z - c["z"]) / RZ))
             n = Node(
                 id=id_, x=round(x, 1), y=0.0, z=round(z, 1), role=role,
                 temp_c=round(rng.uniform(-55, 8) - depth * 15, 1),
@@ -209,18 +236,18 @@ class SimulationEngine:
             )
             self.nodes[n.id] = n
 
-        # sink: 左上开阔处
+        # sink: 左端开阔处
         self.sink_id = "NODE-00"
-        add("NODE-00", c["x"] - R * 0.72, c["z"] - R * 0.55, "sink")
+        add("NODE-00", sink_xy[0], sink_xy[1], "sink")
 
         # 其余节点: 随机撒点 (最小间距 + 避石头)
         count, tries = 0, 0
         while count < 59 and tries < 4000:
             tries += 1
             ang = rng.uniform(0, math.pi * 2)
-            rr = math.sqrt(rng.uniform(0.02, 0.94)) * R
-            x = c["x"] + math.cos(ang) * rr
-            z = c["z"] + math.sin(ang) * rr
+            rr = math.sqrt(rng.uniform(0.02, 0.94))
+            x = c["x"] + math.cos(ang) * rr * RX
+            z = c["z"] + math.sin(ang) * rr * RZ
             if any(math.dist((x, z), (o["x"], o["z"])) < o["r"] + 70 for o in self.obstacles):
                 continue
             if any(math.dist((x, z), (n.x, n.z)) < 105 for n in self.nodes.values()):
@@ -234,9 +261,11 @@ class SimulationEngine:
         pass
 
     def _in_tube(self, p) -> bool:
-        """纯 2D 沙盘: 点在唯一大腔室圆内即合法 (边界外=岩壁)"""
+        """纯 2D 沙盘: 点在唯一大腔室(扁椭圆)内即合法 (椭圆外=岩壁)"""
         for c in self.chambers:
-            if math.dist(p, (c["x"], c["y"], c["z"])) < c["r"] * 0.99:
+            nx = (p[0] - c["x"]) / c["r"]
+            nz = (p[2] - c["z"]) / c["rz"]
+            if nx * nx + nz * nz < 0.99 ** 2:
                 return True
         return False
 
@@ -285,7 +314,8 @@ class SimulationEngine:
     def export_geology(self) -> dict:
         """地质数据一次性下发前端渲染 (隧道曲线/腔室/巨柱)"""
         return {
-            "chambers": [{k: c[k] for k in ("id", "x", "y", "z", "r")} for c in self.chambers],
+            "chambers": [{k: c[k] for k in ("id", "x", "y", "z", "r", "rz")}
+                         for c in self.chambers],
             "tunnels": self.tunnels,
             "pillars": self.pillars,
             "obstacles": self.obstacles,
@@ -319,18 +349,26 @@ class SimulationEngine:
         for i in range(len(nodes)):
             for j in range(i + 1, len(nodes)):
                 a, b = nodes[i], nodes[j]
-                key = (a.id, b.id)
-                if key in self.blocked_pairs:      # LOS 遮挡 (巨石/石柱)
-                    continue
+                # 键一律排序 (id 字母序): 道钉 BEACON-xx < NODE-xx < ROBOT,
+                # 传输层/统计全部按 sorted 元组查键, 两边必须同一约定
+                key = tuple(sorted((a.id, b.id)))
+                if (a.id, b.id) in self.blocked_pairs or \
+                        (b.id, a.id) in self.blocked_pairs:
+                    continue                  # LOS 遮挡 (巨石/石柱)
                 lab = physics.link_budget(a, b)
                 lba = physics.link_budget(b, a)
                 if lab is None or lba is None:
                     continue
                 load = self.link_load.get(key, 0.0)
+                if key[0] == a.id:            # 键方向与循环方向一致
+                    c_ab, c_ba = (physics.link_cost(a, b, lab, load),
+                                  physics.link_cost(b, a, lba, load))
+                else:                         # 反序 (如 BEACON 在前): 按键方向定价
+                    c_ab, c_ba = (physics.link_cost(b, a, lba, load),
+                                  physics.link_cost(a, b, lab, load))
                 links[key] = {
                     **lab,
-                    "cost_ab": physics.link_cost(a, b, lab, load),
-                    "cost_ba": physics.link_cost(b, a, lba, load),
+                    "cost_ab": c_ab, "cost_ba": c_ba,
                     "load": round(load, 2),
                 }
                 a.snr_db, b.snr_db = lab["snr_db"], lba["snr_db"]
@@ -353,6 +391,8 @@ class SimulationEngine:
                                f"✔ 链路恢复 {key[0]} ↔ {key[1]} (SNR={l['snr_db']}dB)",
                                a=key[0], b=key[1])
 
+        if self.robot:
+            self.robot.inject_links(links)   # 挂点①: 机器人链路 (事件比对后: 边翻动不产事件)
         self.links = links
         self.routes, self.wave = routing_step(nodes, links, self.sink_id)
 
@@ -390,49 +430,34 @@ class SimulationEngine:
             n.neighbors = sum(1 for (a, b), l in links.items()
                               if n.id in (a, b) and l["up"])
             n.hop_count = self.routes.get(n.id, {}).get("hop_count", -1)
+        # 队列真化: 积压率 = 传输层缓冲字节 + 链上待发字节 (区块链报文真实计账,
+        # 上限 CHAIN_QUEUE_CAP 作为"控制平面配额" —— 足额会计会令全网常态饱和:
+        # 链的追块流量(心跳×多持有者响应×逐跳转发 8~15KB 批)实测均值 91% 积压)
+        chain_net = getattr(self, "chain_net", None)
+        chain_load = ({nid: min(b, CHAIN_QUEUE_CAP)
+                       for nid, b in chain_net.tx_load.items()}
+                      if chain_net else {})
         for n in self.nodes.values():
-            on_path = any(n.id in key for key in usage)
-            if on_path:
-                bad_link = any(
-                    n.id in (a, b) and (l["snr_db"] < 10 or not l["up"])
-                    for (a, b), l in links.items())
-                n.queue_pct = min(100.0, n.queue_pct + (8.0 if bad_link else 1.5))
-                if n.queue_pct > 85 and not quiet and random.random() < 0.3:
-                    self._emit("congestion", "warn",
-                               f"⚠ {n.id} 队列积压 {n.queue_pct:.0f}% (吞吐瓶颈)",
-                               narration=f"⚠️ {self._zh(n.id)} 的数据包排队越来越长(积压 "
-                                         f"{n.queue_pct:.0f}%),算法正在考虑分流。", node=n.id)
+            n.queue_pct = self.transport.queue_pct(n.id, chain_load.get(n.id, 0))
+            if n.queue_pct > 85 and not quiet and random.random() < 0.3:
+                total_b = self.transport.node_bytes(n.id) + chain_load.get(n.id, 0)
+                self._emit("congestion", "warn",
+                           f"⚠ {n.id} 队列积压 {n.queue_pct:.0f}% ({total_b}B 待发)",
+                           narration=f"⚠️ {self._zh(n.id)} 的数据包排队越来越长(积压 "
+                                     f"{n.queue_pct:.0f}%),算法正在考虑分流。", node=n.id)
             if n.state not in ("DEAD", "SEU_RESET"):
                 n.state = "DEGRADED" if (n.queue_pct > 70 or n.snr_db < 8) else "ACTIVE"
 
-        # 活跃呼叫接纳: 传感器以占空比轮流发起呼叫 (模拟 RCSPA 的"新呼叫接纳"),
-        # 静默周期内的节点不在任何路径上 -> PAMAS 判定其休眠省电
-        sensors = [nid for nid, n in self.nodes.items()
-                   if n.role == "sensor" and n.state != "DEAD"
-                   and self.routes.get(nid, {}).get("hop_count", -1) > 0]
-        if self.tick % 6 == 0 or not getattr(self, "_active_calls", None):
-            random.shuffle(sensors)
-            self._active_calls = set(sensors[:max(4, len(sensors) // 2)])
-        else:  # 剔除失联/死亡
-            self._active_calls &= set(sensors)
-        self.traffic = [
-            {"src": nid, "path": self.routes[nid]["path"]}
-            for nid in sorted(self._active_calls)
-        ]
+        # 活跃流量 = 传输层在途报文 (真实路径与字节)
+        self.traffic = self.transport.active_traffic()
 
         # ---- PAMAS 独立关机判定: 激活路径外的节点若邻居正在收发 -> 休眠省电 ----
-        active_nodes = {self.sink_id}
-        active_edges = set()
-        for tr in self.traffic:
-            path = tr.get("path") or []
-            for k in range(len(path) - 1):
-                active_edges.add(tuple(sorted((path[k], path[k + 1]))))
-            active_nodes.update(path)
-        if self.robot and self.robot.get("route"):
-            rp = self.robot["route"].get("path") or []
-            active_nodes.update(rp)
-            for k in range(len(rp) - 1):
-                active_edges.add(tuple(sorted((rp[k], rp[k + 1]))))
+        # 活跃集 = 传输层缓冲里真正有报文要收发的节点 + 链上有待发报文的节点
+        active_nodes, active_edges = self.transport.active_nodes_edges()
+        active_nodes.add(self.sink_id)
+        for nid, b in chain_load.items():
+            if b > 0:
+                active_nodes.add(nid)      # 链上待发 = 电台真实收发 (TXRX)
         # 物理邻接表 (载波监听用)
         phys_adj = {}
         for (a, b) in self.links:
@@ -478,6 +503,10 @@ class SimulationEngine:
                 elif any(_seg_blocked_by_sphere(pa, pb, (s[0], s[1], s[2]), s[3])
                          for s in self.pillar_spheres):
                     cause = "巨柱遮挡"
+                elif any(_seg2d_intersect((pa[0], pa[2]), (pb[0], pb[2]),
+                                          (w["x1"], w["z1"]), (w["x2"], w["z2"]))
+                         for w in self.walls):
+                    cause = "墙体遮挡"
                 elif not self._seg_in_tube(pa, pb):
                     cause = "岩壁阻隔"
                 else:
@@ -485,12 +514,14 @@ class SimulationEngine:
                 info.append({"id": oid, "d": round(d, 1), "via": nxt, "cause": cause})
             self.blocked_info[n.id] = info
 
-        self._robot_step()
-        self._robot_plan()
+        if self.robot:
+            self.robot.tick(self.tick)   # 挂点②: 状态机/SOS/道钉投放 (路由算完后)
 
         # 收敛判定: 只有"结构性变化"(链路生死/节点失联)才触发或重置自愈;
-        # ACO 信息素引起的等价路径微调不算新灾害, 保证收敛解说能落地
-        all_keys = set(links) | set(self.prev_links)
+        # ACO 信息素引起的等价路径微调不算新灾害, 保证收敛解说能落地;
+        # 机器人随移动的边翻动也不算 (它是移动资产, 不是拓扑事故)
+        all_keys = {k for k in set(links) | set(self.prev_links)
+                    if ROBOT_ID not in k}
         structural = (not quiet and any(
             links.get(k, {}).get("up", False)
             != self.prev_links.get(k, {}).get("up", False)
@@ -536,91 +567,20 @@ class SimulationEngine:
         self.prev_routes = {k: dict(v) for k, v in self.routes.items()}
 
     def _coverage(self) -> float:
-        reach = sum(1 for r in self.routes.values() if r.get("hop_count", -1) >= 0)
-        return round(reach / len(self.nodes) * 100, 1)
-
-    # ==================================================================
-    # 巡检机器人: 动态移动信源, 沿拓扑边插值游走 + RCSPA 实时重规划
-    # ==================================================================
-    def _init_robot(self):
-        succ = [p for r in self.routes.values() if (p := r.get("path")) and len(p) > 1]
-        u, v = (succ[0][0], succ[0][1]) if succ else (self.sink_id, self.sink_id)
-        self.robot = {
-            "u": u, "v": v, "t": 0.0, "speed": 14.0,
-            "pos": [self.nodes[u].x, self.nodes[u].y, self.nodes[u].z],
-            "route": None, "visited": {u},
-        }
-
-    def _robot_adj(self):
-        adj = {}
-        for (a, b), l in self.links.items():
-            if not l["up"]:
-                continue
-            adj.setdefault(a, []).append((b, l["cost_ab"]))
-            adj.setdefault(b, []).append((a, l["cost_ba"]))
-        return adj
-
-    def _busy_channels(self):
-        """当前主干流量占用的信道 (供 RCSPA 干扰惩罚/排斥绕行)"""
-        busy = {}
-        for r in self.routes.values():
-            path = r.get("path") or []
-            if r.get("hop_count", -1) <= 0 or not path:
-                continue
-            for k in range(len(path) - 1):
-                key = frozenset((path[k], path[k + 1]))
-                i = int(path[k].split("-")[1]); j = int(path[k + 1].split("-")[1])
-                busy.setdefault(key, set()).add((i + j) % 3)
-        return busy
-
-    def _robot_plan(self):
-        """RCSPA: 以机器人前方节点为源, 重规划至洞口的资源约束最短路径"""
-        if not ROBOT_ENABLED or not self.robot:
-            return
-        ahead = self.robot["v"]
-        if ahead not in self.nodes or self.nodes[ahead].state == "DEAD":
-            ahead = self.robot["u"]
-        adj = self._robot_adj()
-        res = rscspa(adj, ahead, self.sink_id, n_channels=3, K=3,
-                     busy_edge=self._busy_channels())
-        self.robot["route"] = res
-
-    def _robot_step(self, dt: float = 2.5):
-        if not ROBOT_ENABLED:
-            return
-        if not self.robot:
-            self._init_robot()
-        rb = self.robot
-        u, v = self.nodes.get(rb["u"]), self.nodes.get(rb["v"])
-        if not u or not v or u.state == "DEAD" or v.state == "DEAD" or u is v:
-            live = [n.id for n in self.nodes.values() if n.state != "DEAD"]
-            rb["u"] = rb["v"] = live[0] if live else self.sink_id
-            rb["t"] = 0.0
-            return
-        dist_uv = math.dist((u.x, u.y, u.z), (v.x, v.y, v.z)) or 1.0
-        rb["t"] += rb["speed"] * dt / dist_uv
-        if rb["t"] >= 1.0:
-            # 抵达节点: 记录 + 事件解说 + 选择下一条边 (优先未访问, 探索岔路)
-            rb["t"] = 0.0
-            rb["u"] = rb["v"]
-            rb["visited"].add(rb["u"])
-            adj = self._robot_adj().get(rb["u"], [])
-            cands = [b for b, _w in adj if self.nodes[b].state != "DEAD"]
-            fresh = [b for b in cands if b not in rb["visited"]]
-            pool = fresh or cands or [rb["u"]]
-            rb["v"] = random.choice(pool)
-            self._emit("robot_arrive", "info",
-                       f"🤖 机器人抵达 {rb['u']}, 重规划至洞口 (RCSPA)",
-                       narration=f"🤖 巡检机器人抵达 {self._zh(rb['u'])} 节点,正在实时重新规划回洞口的"
-                                 f"中继路线——资源约束最短路径算法会避开繁忙信道,选择总发射功率最低的路径。",
-                       node=rb["u"])
-        uu, vv = self.nodes[rb["u"]], self.nodes[rb["v"]]
-        t = rb["t"]
-        rb["pos"] = [uu.x + (vv.x - uu.x) * t, uu.y + (vv.y - uu.y) * t, uu.z + (vv.z - uu.z) * t]
+        # 道钉是基础设施资产, 不计入覆盖率分子分母 (否则投放后永远到不了 100%)
+        real = [nid for nid, n in self.nodes.items() if n.role != "beacon"]
+        reach = sum(1 for nid in real
+                    if self.routes.get(nid, {}).get("hop_count", -1) >= 0)
+        return round(reach / max(1, len(real)) * 100, 1)
 
     # ==================================================================
     # 上帝模式 / 灾害
     # ==================================================================
+    def send_user_message(self, src: str, dst: str, nbytes: int = 1024):
+        """对外: 任意两节点间发送真实报文 (WS send_msg 指令入口)
+        返回受理结果; 最终送达/超时信号走 events 与 transport.results"""
+        return self.transport.send_message(src, dst, int(nbytes), kind="user")
+
     def apply_override(self, node_id: str, params: dict):
         node = self.nodes.get(node_id)
         if node is None:
@@ -641,7 +601,8 @@ class SimulationEngine:
         elif params:
             self._emit("override", "info",
                        f"⚑ 上帝模式: {node_id} 参数覆写 {params}")
-        self.compute_network()
+        # 不做即时 compute_network: 引擎每 0.25s 全量重算, 滑块拖动风暴下
+        # 每条消息重算是把事件循环打满的元凶 (参数最迟下一拍生效)
         return {"ok": True}
 
     def add_wall(self, x1: float, z1: float, x2: float, z2: float):
@@ -664,6 +625,9 @@ class SimulationEngine:
         if not self._in_tube((x, 0.0, z)):
             return {"ok": False, "error": "outside cave"}
         o = self.obstacles[idx]
+        if any(math.dist((x, 0.0, z), (n.x, n.y, n.z)) < o["r"] + 20
+               for n in self.nodes.values() if n.state != "DEAD"):
+            return {"ok": False, "error": "node overlap"}   # 不许把石头压在节点上
         before = set(self.blocked_pairs)
         o["x"], o["y"], o["z"] = round(x, 1), 0.0, round(z, 1)
         self._recompute_los()
@@ -731,6 +695,8 @@ class SimulationEngine:
         load_of = {}
         for r in self.routes.values():
             for nid in (r.get("path") or [])[1:-1]:
+                if nid == ROBOT_ID:
+                    continue             # 机器人是移动资产, 不作打击候选
                 load_of[nid] = load_of.get(nid, 0) + 1
         if not load_of:
             return
@@ -748,7 +714,8 @@ class SimulationEngine:
     def _collapse(self):
         """洞顶塌方: 在最繁忙主干链路中点砸落巨石"""
         self._pre_collapse_routes = {k: dict(v) for k, v in self.routes.items()}
-        live = [(k, l) for k, l in self.links.items() if l["up"]]
+        live = [(k, l) for k, l in self.links.items()
+                if l["up"] and ROBOT_ID not in k]   # 机器人边不作为塌方目标
         if not live:
             return
         key, _lk = max(live, key=lambda kv: self.link_load.get(kv[0], 0.0))
@@ -773,6 +740,38 @@ class SimulationEngine:
         self.compute_network()
 
     # ==================================================================
+    def vis_packet(self, a: str, b: str, kind: str, relayed: bool = True):
+        """渲染总线固定注册函数: 一个报文从 a 飞到 b 的单跳。
+        任何层在任何收发点调用它即可上屏; 前端按 kind 自动配色绘制
+        (样式表只是美化覆盖, 未登记的类型按名称哈希取色) —— 零注册。
+        (列表每 tick 清空, 控量靠 _vis_export 截断; 此处仅留病态保险丝)"""
+        if len(self.packets_vis) >= 5000:       # 保险丝: 正常 tick 量级 <1k
+            return
+        self.packets_vis.append({"a": a, "b": b, "kind": kind, "r": relayed})
+
+    def _vis_export(self) -> list:
+        """总线快照导出: 标注 tick 内进度 t (0..1), 按类型优先级截断;
+        未登记类型走保留名额, 保证零注册上报在风暴中也不丢。"""
+        if not self.packets_vis:
+            return []
+        frac = (min(1.0, max(0.0, (time.monotonic() - self._vis_at) / TICK_PHYS_S))
+                if self._vis_at else 0.0)
+        order = {k: i for i, k in enumerate(VIS_PRIORITY)}
+        known = sorted((p for p in self.packets_vis if p["kind"] in order),
+                       key=lambda p: order[p["kind"]])
+        others = [p for p in self.packets_vis if p["kind"] not in order]
+        items = known[:VIS_MAX - VIS_RESERVE] + others[:VIS_RESERVE]
+        return [{**p, "t": round(frac, 3)} for p in items]
+
+    def _npos(self, nid):
+        """快照用坐标: 普通节点/道钉在 nodes 表, ROBOT 用机器人伪节点"""
+        n = self.nodes.get(nid)
+        if n is not None:
+            return n
+        if self.robot is not None and nid == ROBOT_ID:
+            return self.robot.node
+        return self.robot.node if self.robot else n
+
     def snapshot(self) -> dict:
         alive = [n for n in self.nodes.values() if n.state != "DEAD"]
         avg_snr = (sum(n.snr_db for n in alive) / len(alive)) if alive else 0
@@ -792,21 +791,21 @@ class SimulationEngine:
                     "snr_db": l["snr_db"], "up": l["up"],
                     "margin_db": l["margin_db"], "ber": l["ber"],
                     "cost": l["cost_ab"], "band": l["band"], "load": l["load"],
+                    "tr": self.transport.link_summary((a, b)),
                 }
                 for (a, b), l in self.links.items()
-                if physics.distance(self.nodes[a], self.nodes[b]) < 70 * physics.WORLD_SCALE
+                if physics.distance(self._npos(a), self._npos(b)) < 70 * physics.WORLD_SCALE
             ],
-            "nodes": {nid: {**n.to_dict(), "blocked_nbrs": self.blocked_info.get(nid, [])}
+            "nodes": {nid: {**n.to_dict(),
+                            "blocked_nbrs": self.blocked_info.get(nid, []),
+                            "sos": bool(self.robot and nid in self.robot.sos_active)}
                       for nid, n in self.nodes.items()},
             "routes": self.routes,
             "traffic": self.traffic,
-            "robot": ({
-                "x": round(self.robot["pos"][0], 1),
-                "y": round(self.robot["pos"][1], 1),
-                "z": round(self.robot["pos"][2], 1),
-                "u": self.robot["u"], "v": self.robot["v"], "t": round(self.robot["t"], 3),
-                "route": self.robot.get("route"),
-            } if self.robot else None),
+            "robot": (self.robot.export() if self.robot else None),
+            "transport": self.transport.summary(),
+            "packets": self.transport.active_packets() + self._vis_export(),
+            "chain": self.chain_net.export_info(),
             "stats": {
                 "alive": len(alive), "total": len(self.nodes),
                 "reachable": sum(1 for r in self.routes.values() if r.get("hop_count", -1) >= 0),
@@ -822,16 +821,25 @@ class SimulationEngine:
         self.history.append({"t": self.tick, **snap["stats"]})
         return snap
 
+    def reset(self):
+        """上帝重置: 以同一种子原地重建整个世界 (节点/巨石/链/机器人/账本
+        全部回到初始, 墙体/灾害痕迹清空)。同步执行, 主循环无需重启。"""
+        self.__init__()
+
     async def run_forever(self, broadcaster):
         next_phys, next_bcast = 0.0, 0.0
         while True:
             now = time.monotonic()
             if now >= next_phys:
                 self.tick += 1
+                self.packets_vis.clear()        # 渲染总线: 每 tick 重建
+                self._vis_at = time.monotonic()
                 try:
                     for n in self.nodes.values():
                         n.step(dt_hours=0.004)
                     self.compute_network()
+                    self.transport.step()   # 报文逐跳推进 (握手/重传/超时)
+                    self.chain_net.step(self.tick)  # 区块链泛洪/出块/追块
                 except Exception as e:      # 单 tick 异常不杀死引擎
                     import traceback
                     print("[engine] tick error (ignored):", repr(e))

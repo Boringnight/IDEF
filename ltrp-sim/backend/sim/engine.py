@@ -6,14 +6,21 @@ import random
 import time
 
 from . import protocol as P
-from .nodes import INF, Node, RANGE, STATE_DEAD, STATE_PROTECTED
+from .nodes import INF, Node, RANGE, STATE_DEAD, STATE_DYING, STATE_PROTECTED
 from .world import World, letter
 
 DT = 0.3                # tick 周期(秒,实时)
 BEACON_EVERY = 1        # 每 tick 都发信标(0.3s,加速初始收敛)
 RELAX_ROUNDS = 3        # 每 tick 的 DSDV 松弛轮数
 SLEEP_PERIOD = 16.0     # 轮值休眠窗口(长窗口降低拓扑抖动)
-# 注:月球被潮汐锁定,地球始终在月面同一侧,不存在升降/遮挡,故无地球窗口周期。
+
+# ---- 流量自适应休眠(duty cycling):苏醒比例随负载升降 ----
+SLEEP_DUTY_MIN = 0.25   # 最低苏醒比例(低负载:保住连通主干即可,其余省电)
+SLEEP_DUTY_MAX = 0.80   # 最高苏醒比例(高负载:多节点转发换取吞吐,并均摊能耗)
+LOAD_TARGET = 3.0       # 每存活节点的目标积压(bundles+packets)个
+LOAD_HYST = 1.2         # 目标附近死区(避免频繁升降档)
+DUTY_STEP = 0.05        # 每次调节苏醒比例的步长
+
 
 # ---- 月球车物理(实体碰撞) ----
 ROVER_R = 14.0        # 物理半径(与巨石/岩壁判定用)
@@ -66,7 +73,8 @@ class Engine:
         self.events: list[dict] = []
         self.ev_sent = 0
         self.heat_until = -1.0
-        self.sleep_on = False      # 默认关闭(按钮开启后:腔室冗余道钉轮值休眠)
+        self.sleep_on = False      # 默认关闭(按钮开启后:冗余道钉流量自适应休眠)
+        self.sleep_duty = SLEEP_DUTY_MIN   # 目标苏醒比例(引擎按流量负载调控)
         self.delivered = 0
         self.hops_sum = 0
         self.earth_queue = 0
@@ -564,6 +572,24 @@ class Engine:
         t = self._nearest_alive(n)
         return self._tube_pt((t.x, t.y)) if t else None
 
+    def _counterpart(self, n: Node, comps: dict) -> Node | None:
+        """返回与 n 处于不同连通分量的最近存活节点(断裂对端)。
+        rover 把它同步给 n,让两端朝彼此移动接合(弯曲喉道也能靠拢)。"""
+        c = comps.get(n.id)
+        if c is None:
+            return None
+        best, bd = None, 1e9
+        for i in self.order:
+            m = self.nodes[i]
+            if not m.alive or m.role == "rover" or m.id == n.id:
+                continue
+            if comps.get(i) == c:
+                continue
+            d = math.hypot(m.x - n.x, m.y - n.y)
+            if d < bd:
+                bd, best = d, m
+        return best
+
     def _step_movement(self, dt: float):
         """节点即本地 agent(无上帝视角):只凭'自身到基站的实时路由 + 是否刚断关键邻居/是否孤立'
         判断失联。节点通过连接彼此知道位置:失联后'前沿'(比所有邻居都更靠近锚点)的节点
@@ -580,15 +606,17 @@ class Engine:
                 if nh and nh.role != "rover" and nh.alive:
                     n._last_anchor = (nh.x, nh.y)
 
-        # B) Rover 中继: 连到基站的巡检车,向邻近失联节点注入"朝网方向"锚点
+        # B) Rover 中继: ① 有骨干路由的巡检车向邻近失联节点注入"朝网方向"锚点;
+        #    ② 无论 rover 有无路由,都把"断裂对端"位置同步给失联节点(双向接合,
+        #       解决弯曲喉道里节点不知道对端在哪、不知该往哪挪的问题)。
+        comps = self._components()
         for i in self.order:
             r = self.nodes[i]
             if r.role != "rover" or not r.alive or r.sleeping:
                 continue
             rr = r.routing.get("BASE-00")
-            if rr is None or rr["cost"] >= INF:
-                continue
-            anch = self.nodes.get(rr.get("nh")) if rr.get("nh") else r
+            have_route = rr is not None and rr["cost"] < INF
+            anch = self.nodes.get(rr.get("nh")) if have_route else None
             for j in self.order:
                 n = self.nodes[j]
                 if not n.alive or n.role in ("rover", "base") or n.sleeping:
@@ -596,9 +624,17 @@ class Engine:
                 if math.hypot(n.x - r.x, n.y - r.y) <= RANGE \
                         and self.world.los((n.x, n.y), (r.x, r.y)):
                     nrt = n.routing.get("BASE-00")
-                    if nrt is None or nrt["cost"] >= INF:
+                    no_base = nrt is None or nrt["cost"] >= INF
+                    # ① 朝网方向锚点(仅当 rover 有骨干路由可提供有效指向)
+                    if no_base and anch is not None:
                         n._last_anchor = (anch.x, anch.y)
                         n.relay_at = self.t
+                    # ② 断裂对端接合点(rover 充当"信使",把对端位置带过来)
+                    if no_base:
+                        ct = self._counterpart(n, comps)
+                        if ct is not None:
+                            n.rejoin_target = ct.id   # 存对端 id,移动时实时解析其坐标(对端也在动)
+                            n.contact_at = self.t
 
         # C) 本地 agent 判定与移动
         moved_any = False
@@ -645,12 +681,19 @@ class Engine:
             if not disconnected:
                 n.sos = False
                 n.seek_target = None
+                n.rejoin_target = None
                 continue
             n.sos = True
             # 去中心化: 锚点 = 断口(刚死掉/刚失去的那个邻居)的位置 —— 断链后朝断口靠拢,把两个分组重新合并,
             # 而不是追着某个"中心(Base0)"。若没有可追的断口,再退回最近记忆/最近节点。
             # 对"持续分区"而言,优先用"上次到基站下一跳"的记忆锚点(指向网络方向),避免朝簇内同伴聚团。
-            if partition_sos and not recent_bridge:
+            # 若 rover 刚同步过"断裂对端",则优先朝对端实时位置移动(双向接合,弯曲喉道更易靠拢)。
+            rj = self.nodes.get(getattr(n, "rejoin_target", "")) \
+                if getattr(n, "rejoin_target", None) else None
+            if rj is not None and rj.alive \
+                    and (self.t - getattr(n, "contact_at", -99)) < RELAY_HOLD:
+                anchor = (rj.x, rj.y)
+            elif partition_sos and not recent_bridge:
                 anchor = n._last_anchor
             else:
                 anchor = self._seek_target(n) or n._last_anchor
@@ -684,6 +727,7 @@ class Engine:
             if has_base:
                 n.sos = False
                 n.seek_target = None
+                n.rejoin_target = None
             elif math.hypot(n.x - tgt[0], n.y - tgt[1]) <= NODE_STOP:
                 n.seek_target = None
         # 移动节点防聚(不与任何节点重叠)
@@ -693,6 +737,68 @@ class Engine:
         if moved_any:
             self._recompute_static()
             self._update_adj()
+
+    # ------------------------------------------------------------------ 流量自适应休眠
+    def _load_factor(self) -> float:
+        """当前负载信号:每存活非基站节点平均积压的束+包数。
+        数值越高说明转发能力跟不上(拥塞),需要更多节点苏醒。"""
+        alive = [n for n in self.nodes.values() if n.alive and n.role != "base"]
+        if not alive:
+            return 0.0
+        backlog = sum(len(n.bundles) + len(n.packets) for n in alive)
+        return backlog / len(alive)
+
+    def _update_sleep_duty(self):
+        """比例控制器(带死区):积压高于目标→提高苏醒比例(多转发/均摊),
+        低于目标→降低苏醒比例(省电,只保连通主干)。"""
+        load = self._load_factor()
+        duty = self.sleep_duty
+        if load > LOAD_TARGET + LOAD_HYST:
+            duty += DUTY_STEP
+        elif load < LOAD_TARGET - LOAD_HYST:
+            duty -= DUTY_STEP
+        self.sleep_duty = min(SLEEP_DUTY_MAX, max(SLEEP_DUTY_MIN, duty))
+
+    def _nbr_independent(self, n) -> bool:
+        """n 的每个清醒邻居,是否都有一条'不经 n'通往基站的路径。
+        只要还有邻居只能靠 n 上行,睡 n 就会断其余节点的路由 → 返回 False。
+        (对应'唯一桥'否决:给依赖 n 的邻居留好后路 n 才准睡。)"""
+        for j in n.neighbors:
+            nj = self.nodes.get(j)
+            if nj is None or not nj.alive or nj.sleeping or nj.role in ("base", "rover"):
+                continue
+            has_alt = False
+            for k in nj.neighbors:
+                if k == n.id:
+                    continue
+                nk = self.nodes.get(k)
+                if nk is not None and nk.alive and not nk.sleeping and nk.role != "rover":
+                    r = nk.routing.get("BASE-00")
+                    if r and r["cost"] < INF:
+                        has_alt = True
+                        break
+            if not has_alt:
+                return False
+        return True
+
+    def _can_sleep(self, n) -> bool:
+        """本地睡眠安全判据(逐 tick 重算,自适应):仅当同时满足才允许 n 睡——
+        非边界道钉、状态正常、不是割点(用 2 跳现算,不走延迟的 is_critical)、
+        且每个清醒邻居都存在不依赖 n 的到基站路径。孤立节点也不睡(要发信标自愈)。"""
+        if not self.sleep_on or n.role != "spike" or n.border or not n.alive:
+            return False
+        if n.state in (STATE_PROTECTED, STATE_DYING, STATE_DEAD):
+            return False
+        awake = [j for j in n.neighbors
+                 if self.nodes.get(j) and self.nodes[j].alive
+                 and not self.nodes[j].sleeping and self.nodes[j].role != "rover"]
+        if not awake:
+            return False
+        if P.cut_vertex(n):
+            return False
+        if not self._nbr_independent(n):
+            return False
+        return True
 
     # ------------------------------------------------------------------ tick
     def step(self, dt: float = DT):
@@ -774,16 +880,25 @@ class Engine:
                 if n.alive and not n.sleeping:
                     P.dsdv_relax(n, self.nodes)
 
-        # 5. 休眠调度(非关键腔室道钉轮值休眠;唤醒表即接触计划)
+        # 5. 流量自适应休眠:苏醒比例随负载升降;'睡谁'由本地安全判据决定
+        #    (非割点/非唯一桥/非孤立才准睡,避免把通信路睡断)
         if self.sleep_on:
+            self._update_sleep_duty()
             phase = int(self.t // SLEEP_PERIOD)
-            for i, n in self.nodes.items():
-                if n.role != "spike" or n.border or not n.alive:
-                    continue
+            sleep_ratio = 1.0 - self.sleep_duty        # 允许睡眠的比例
+            ids = sorted(i for i, n in self.nodes.items()
+                         if n.alive and n.role == "spike" and not n.border)
+            for i in ids:                              # 按 id 串行决策(确定性)
+                n = self.nodes[i]
+                if n.state in (STATE_DYING, STATE_PROTECTED, STATE_DEAD):
+                    continue                           # 保护/垂死/已死:交给能量状态机
                 idx = int(i.split("-")[1])
-                should_sleep = (phase + idx) % 2 == 0 and not n.is_critical \
-                    and n.state != STATE_PROTECTED
-                if should_sleep != n.sleeping and n.state != STATE_DEAD:
+                # 同 tick 内已把前面的节点改为沉睡 → 后续 _can_sleep/_nbr_independent
+                # 会把它视为不可用,从而避免"两个互为备用路径的节点同时睡"的多米诺。
+                can = self._can_sleep(n)              # 割点/唯一桥/孤立 → False
+                slot = (idx * 0.6180339887 + phase) % 1.0
+                should_sleep = can and slot < sleep_ratio
+                if should_sleep != n.sleeping:
                     n.sleeping = should_sleep
 
         # 6. 能量与状态机
@@ -857,6 +972,12 @@ class Engine:
                            or nh not in self.adj[i]
                            or pkt["prev"] == nh)
                 if blocked:
+                    # 下一跳已宕机(非休眠):立即作废该路由,促上游节点下轮 DSDV 改道;
+                    # 数据本身交给束缓存兜底(配合月球车摆渡)——即"信号回传上游"。
+                    if nh is not None and nh in self.nodes and not self.nodes[nh].alive:
+                        rr = n.routing.get(pkt["dst"])
+                        if rr:
+                            rr["cost"] = INF
                     # 无路由/环路风险:先等待 T_WAIT(过滤瞬态抖动),超时才进入束存储
                     if pkt.get("wait_since") is None:
                         pkt["wait_since"] = self.t
@@ -1012,6 +1133,7 @@ class Engine:
             ch = self.world.chambers[ci]
             self.world.boulders.append({
                 "x": ch["cx"], "y": self.world.yc(ch["cx"]), "r": 70})
+            self._crush_nodes("塌方巨石")
             self._recompute_static()
             self._build_patrol(False)
             self.emit("disaster", "bad", f"腔室{letter(ci)}发生塌方:2 枚道钉被掩埋,巨石堆积,全网视距重算", True)
@@ -1035,10 +1157,35 @@ class Engine:
                 n._death_logged = True
             self.emit("disaster", "bad",
                       f"定向摧毁 {throat+1} 号喉道两枚边界道钉:网络分区,失联区数据转入束存储,等待自愈/摆渡", True)
+    def _crush_nodes(self, reason: str = "巨石"):
+        """巨石落到/拖放到节点上:直接把它压坏(宕机),而不是被 SOS 一步步顶出巨石边缘。
+        被压节点立即 alive=False / state=DEAD,既不休眠、也不触发自愈移动。"""
+        killed = []
+        for i in self.order:
+            n = self.nodes[i]
+            if not n.alive or n.role in ("base", "rover"):
+                continue
+            for b in self.world.boulders:
+                if math.hypot(n.x - b["x"], n.y - b["y"]) <= b["r"]:
+                    n.alive = False
+                    n.state = STATE_DEAD
+                    n.sleeping = False
+                    n.sos = False
+                    n.seek_target = None
+                    n.move_target = None
+                    n._death_logged = True
+                    killed.append(i)
+                    break
+        if killed:
+            names = "、".join(f"{zh(i)}({i})" for i in killed)
+            self.emit("dead", "warn",
+                      f"{reason}砸中 {len(killed)} 个节点:{names} 被压坏宕机", True)
+
     def move_obstacle(self, idx: int, x: float, y: float):
         if 0 <= idx < len(self.world.boulders):
             b = self.world.boulders[idx]
             b["x"], b["y"] = x, y
+            self._crush_nodes("巨石")
             self._recompute_static()
             self._build_patrol(False)
             cut = sum(1 for a, bb in self.static_links)
@@ -1051,7 +1198,8 @@ class Engine:
             for n in self.nodes.values():
                 if n.state != STATE_DYING:
                     n.sleeping = False
-        self.emit("sleep", "info", f"轮值休眠调度已{'开启(腔室冗余道钉轮换休眠,唤醒表即接触计划)' if on else '关闭'}", True)
+        self.emit("sleep", "info", f"轮值休眠调度已{'开启(苏醒比例随流量负载自适应:高负载多醒/低负载省电,'
+                                 f'配本地安全判据避免睡断路由)' if on else '关闭'}", True)
 
     # ------------------------------------------------------------------ snap
     def snapshot(self) -> dict:
@@ -1111,6 +1259,7 @@ class Engine:
                 "earth_queue": self.earth_queue,
                 "earth_flushed": self.earth_flushed,
                 "sleep_on": self.sleep_on,
+                "sleep_duty": round(self.sleep_duty, 2),
                 "heat": self.t < self.heat_until,
                 "avg_hops": round(self._avg_hops(), 1),
             },

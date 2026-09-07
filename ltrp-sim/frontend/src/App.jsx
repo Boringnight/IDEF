@@ -67,7 +67,7 @@ export default function App() {
             <span>▮ 月球车</span><span className="lg-cyan">━ 数据流</span>
             <span className="lg-gold">╌ 摆渡(存储-携带-转发)</span>
             <span className="lg-red">◯ 关键割点</span><span className="lg-orange">⬒ 滞留束</span>
-            <span className="dim">拖巨石可改变视距 · 滚轮缩放 · 拖拽平移</span>
+            <span className="dim">拖巨石可改变视距(压到节点会使其直接宕机) · 滚轮缩放 · 拖拽平移</span>
           </div>
           {narration && (
             <div className="narration">

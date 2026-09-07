@@ -57,6 +57,24 @@ html, body, #root { height: 100%; background: #0A0F1A; overflow: hidden; }
 .tt-bad { color: #FF6B6B; }
 .tt-warn { color: #FF9E42; }
 .tt-info { color: #9FD8FF; }
+.tt-note { font-size: 10.5px; margin-top: 3px; }
+.tt-row { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; padding: 1.5px 0; align-items: baseline; }
+.tt-row .k { color: #7FA0CC; flex-shrink: 0; }
+.tt-row .v { color: #E8F4FF; text-align: right; max-width: 210px; }
+.tt-pos { font-family: Consolas, monospace; color: #9FD8FF; }
+.tt-soc { height: 6px; background: rgba(30,50,80,0.6); border-radius: 3px; overflow: hidden; margin: 2px 0 5px; }
+.tt-soc i { display: block; height: 100%; border-radius: 3px; }
+.tt-sec { margin-top: 6px; padding-top: 5px; border-top: 1px dashed rgba(0,229,255,0.2); font-size: 10px; color: #7FB2FF; letter-spacing: 0.5px; }
+.tt-nbr-grid { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.tt-nbr { font-family: Consolas, monospace; font-size: 10px; padding: 2px 5px; border-radius: 4px; background: rgba(40,60,100,0.35); border: 1px solid rgba(80,120,200,0.25); color: #9FD8FF; line-height: 1.4; }
+.tt-nbr .nid { color: #E8F4FF; }
+.tt-nbr .nrole { color: #7F9BB8; margin-left: 3px; }
+.tt-nbr .nsnr { color: #00FFFF; margin-left: 3px; }
+.tt-nbr .nsoc { color: #2EFF9E; margin-left: 3px; }
+.tt-nbr .nsoc.low { color: #FF9E42; }
+.tt-nbr.dead { color: #6A7480; border-color: rgba(90,98,112,0.4); opacity: 0.75; }
+.tt-nbr.sleeping { opacity: 0.6; }
+.tt-nbr.lowbat { border-color: rgba(255,158,66,0.6); }
 
 /* ---------- legend & narration ---------- */
 .legend {
