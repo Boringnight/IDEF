@@ -532,9 +532,9 @@ export default function TopoMap2D({ world, snap, selected, onSelect, onMoveObsta
     if (!hoverNode || !snap) return [];
     const byId = {};
     snap.nodes.forEach((n) => { byId[n.id] = n; });
-    return (hoverNode.nbrs || []).map(([id, snr, ber]) => {
+    return (hoverNode.nbrs || []).map(([id, snr]) => {
       const n = byId[id];
-      return { ...n, snr: snr ?? 0, ber: ber ?? null };
+      return n ? { ...n, snr: snr ?? 0 } : { id, snr: snr ?? 0, role: "?", state: "UNKNOWN", sleeping: false, soc: null };
     });
   })();
   // 工具提示几何:靠近右/下边缘时向内收缩,避免溢出画布
@@ -580,12 +580,6 @@ export default function TopoMap2D({ world, snap, selected, onSelect, onMoveObsta
               <span className="v tt-pos">({hoverNode.x} , {hoverNode.y})</span>
             </div>
             <div className="tt-row">
-              <span className="k">温度 / 辐射</span>
-              <span className="v tt-pos">
-                {(hoverNode.temp ?? 0).toFixed(0)}°C · SEU {hoverNode.seu ?? 0} 次
-              </span>
-            </div>
-            <div className="tt-row">
               <span className="k">所属腔室</span>
               <span className="v">腔室 {chamberName(hoverNode.domain)}{hoverNode.border ? " · 喉道边界" : ""}</span>
             </div>
@@ -620,9 +614,6 @@ export default function TopoMap2D({ world, snap, selected, onSelect, onMoveObsta
                     <span className="nid">{nb.id}</span>
                     <span className="nrole">{ROLE_ZH[nb.role] || nb.role}</span>
                     <span className="nsnr">{nb.snr.toFixed(1)}dB</span>
-                    {nb.ber != null && nb.ber > 1e-9 && (
-                      <span className="nber">e{nb.ber.toExponential(0).replace("e-", "-")}</span>
-                    )}
                     {nb.soc != null && <span className={`nsoc ${lowSoc ? "low" : ""}`}>{nb.soc.toFixed(0)}%</span>}
                   </span>
                 );

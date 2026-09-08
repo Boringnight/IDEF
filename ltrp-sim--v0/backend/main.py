@@ -1,19 +1,15 @@
 # -*- coding: utf-8 -*-
-"""LTRP 仿真后端:Presentation/API 层(Rule 2.1)。
+"""LTRP 仿真后端:WebSocket 实时推送 + REST 交互"""
+import asyncio
+import contextlib
+import json
 
-仅负责协议转换(WS/REST)、参数格式校验与路由分发,不包含业务逻辑;
-业务全部委托给 sim.engine(仿真实体层)。所有请求体用 pydantic 强类型校验。
-"""
-import asyncio                        # 异步任务:每客户端独立广播任务
-import contextlib                      # 优雅关闭:屏蔽 asyncio.CancelledError
-import json                            # 消息 JSON 序列化
+import uvicorn
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
-import uvicorn                         # ASGI 服务器启动
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect  # REST+WS 框架
-from fastapi.middleware.cors import CORSMiddleware           # 跨域(前端 :5174)
-from pydantic import BaseModel         # 请求体强类型校验
-
-from sim.engine import ENGINE, run_forever   # 仿真引擎单例与主循环
+from sim.engine import ENGINE, run_forever
 
 app = FastAPI(title="LTRP 熔岩管去中心化路由保持协议仿真")
 app.add_middleware(
@@ -76,25 +72,10 @@ class MapBody(BaseModel):
     seed: int | None = None
 
 
-class ParamBody(BaseModel):
-    """上帝模式:带 node 字段 → 节点物理参数覆写;不带 → 全局协议参数调整"""
-    node: str | None = None
-    params: dict
-
-
 @app.post("/action/disaster")
 async def disaster(body: DisasterBody):
     ENGINE.inject_disaster(body.kind)
     return {"ok": True}
-
-
-@app.post("/action/param")
-async def param(body: ParamBody):
-    # 滑块拖动可达 60+ msg/s: 只写参数,不触发即时重算/广播;
-    # 引擎 0.3s 周期自然生效,参数最迟下一拍起作用
-    if body.node:
-        return ENGINE.apply_override(body.node, body.params)
-    return ENGINE.set_global_param(body.params)
 
 
 @app.post("/action/obstacle")

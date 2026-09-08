@@ -4,7 +4,6 @@ import TopoMap2D from "./components/TopoMap2D.jsx";
 import HUD from "./components/HUD.jsx";
 import EventLog from "./components/EventLog.jsx";
 import Inspector from "./components/Inspector.jsx";
-import ParamsPanel from "./components/ParamsPanel.jsx";
 
 export default function App() {
   const [world, setWorld] = useState(null);
@@ -12,7 +11,6 @@ export default function App() {
   const [events, setEvents] = useState([]);
   const [connected, setConnected] = useState(false);
   const [selected, setSelected] = useState(null);
-  const [paramsOpen, setParamsOpen] = useState(false);
 
   useEffect(() => {
     const handle = connectWS({
@@ -54,8 +52,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <HUD stats={snap.stats} connected={connected}
-           onParams={() => setParamsOpen((v) => !v)} />
+      <HUD stats={snap.stats} connected={connected} />
       <div className="main">
         <div className="canvas-col">
           <TopoMap2D
@@ -80,7 +77,6 @@ export default function App() {
           )}
         </div>
         <div className="side-col">
-          {paramsOpen && <ParamsPanel params={snap.params} onClose={() => setParamsOpen(false)} />}
           <Inspector node={selNode} onClose={() => setSelected(null)} />
           <EventLog events={events} />
         </div>

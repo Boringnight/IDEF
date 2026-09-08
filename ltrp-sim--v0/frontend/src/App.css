@@ -145,44 +145,6 @@ html, body, #root { height: 100%; background: #0A0F1A; overflow: hidden; }
 }
 .nbr.bad { color: #FF8A8A; border: 1px solid rgba(255,100,100,0.4); }
 
-/* ---------- 上帝模式滑块(节点检查器/参数面板) ---------- */
-.insp-god { margin-top: 6px; border-top: 1px dashed rgba(0,229,255,0.2); padding-top: 2px; }
-.insp-gtitle { font-size: 10.5px; color: #7F9BB8; margin: 6px 0 2px; letter-spacing: 0.5px; }
-.insp-slider { display: block; margin: 5px 0 2px; }
-.insp-slider .sl-label {
-  display: flex; justify-content: space-between; font-size: 11px;
-  color: #9FD8FF; margin-bottom: 1px;
-}
-.insp-slider .sl-val {
-  font-family: Consolas, monospace; color: #00E5FF; font-weight: 600;
-}
-.insp-slider input[type="range"] {
-  width: 100%; height: 4px; -webkit-appearance: none; appearance: none;
-  background: rgba(40,60,100,0.7); border-radius: 2px; outline: none; cursor: pointer;
-}
-.insp-slider input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none; appearance: none;
-  width: 12px; height: 12px; border-radius: 50%;
-  background: #00E5FF; box-shadow: 0 0 6px rgba(0,229,255,0.6); cursor: pointer;
-}
-.insp-slider input[type="range"]::-moz-range-thumb {
-  width: 12px; height: 12px; border-radius: 50%; border: none;
-  background: #00E5FF; box-shadow: 0 0 6px rgba(0,229,255,0.6); cursor: pointer;
-}
-.sl-hint { display: block; font-size: 9.5px; color: rgba(127,155,184,0.6); margin-top: 1px; }
-
-/* ---------- 协议参数面板 ---------- */
-.params-panel {
-  background: rgba(13,20,36,0.85); border: 1px solid rgba(255,200,87,0.35);
-  border-radius: 8px; padding: 8px 10px; flex-shrink: 0;
-  max-height: 46vh; overflow-y: auto;
-}
-.params-panel .insp-head { color: #FFC857; font-size: 12.5px; }
-.pp-reset { width: 100%; margin-top: 6px; }
-
-/* ---------- tooltip 邻居 BER ---------- */
-.tt-nbr .nber { color: #FF9E42; margin-left: 3px; font-size: 9px; }
-
 /* ---------- boot ---------- */
 .boot-screen {
   height: 100vh; display: flex; flex-direction: column;

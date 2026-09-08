@@ -1,7 +1,7 @@
 import React from "react";
 import { api } from "../ws.js";
 
-export default function HUD({ stats, connected, onParams }) {
+export default function HUD({ stats, connected }) {
   if (!stats) return null;
   return (
     <div className="hud">
@@ -16,14 +16,12 @@ export default function HUD({ stats, connected, onParams }) {
         <Chip label="平均SoC" v={`${stats.avg_soc}%`} warn={stats.avg_soc < 40} />
         <Chip label="地月链路(潮汐锁定)" v="▲ 始终可见 · 实时回传" />
         <Chip label="已交付" v={stats.delivered} />
-        {stats.retries > 0 && <Chip label="误码重传" v={stats.retries} warn={stats.damaged_drops > 0} />}
-        {stats.heat && <Chip label="温度浪潮" v={`${stats.avg_temp}°C`} warn />}
+        {stats.heat && <Chip label="热浪" v="进行中" warn />}
         {stats.sleeping > 0 && <Chip label="轮值休眠中" v={stats.sleeping} />}
       </div>
       <div className="hud-right">
-        <Btn onClick={onParams}>⚑ 协议参数</Btn>
         <Btn onClick={() => api("/action/disaster", { kind: "collapse" })}>🪨 塌方</Btn>
-        <Btn onClick={() => api("/action/disaster", { kind: "heat" })}>🔥 温度浪潮</Btn>
+        <Btn onClick={() => api("/action/disaster", { kind: "heat" })}>🔥 热浪</Btn>
         <Btn onClick={() => api("/action/disaster", { kind: "critical" })}>⚔ 摧毁一条喉道</Btn>
         <Btn active={stats.sleep_on}
              onClick={() => api("/action/sleep", { on: !stats.sleep_on })}>

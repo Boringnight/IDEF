@@ -29,6 +29,5 @@ function tagZh(t) {
   return {
     boot: "[启动]", crit: "[割点]", ferry: "[摆渡]", earth: "[地月]",
     disaster: "[灾害]", heal: "[自愈]", dead: "[宕机]", sleep: "[休眠]", geo: "[几何]",
-    seu: "[翻转]", msg: "[误码]", override: "[调参]",
   }[t] || "[事件]";
 }
