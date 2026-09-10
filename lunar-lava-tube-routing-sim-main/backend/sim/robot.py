@@ -579,3 +579,140 @@ class PatrolRobot:
                 "target": self.target[0] if self.target else None,
                 "stock": self.stock, "sos": sorted(self.sos_active),
                 "trail": self.trail[::2]}
+
+
+# ============================================================================
+# 3D 建模勘察探头 (Probe) —— 探明洞内地形, 照亮战争迷雾
+# ----------------------------------------------------------------------------
+# 两台携带 3D 建模载荷的勘察机器人: 从 base 00(最左端)出发向右推进。
+# 它们不参与组网(不是中继), 只负责\"探明\"—— 前端依据其位置把灰色地图
+# 逐片点亮(点亮半径 = range)。与巡检机器人(PatrolRobot)职责分离。
+# ============================================================================
+PROBE_RANGE = 240.0          # 探测/照亮半径 (世界单位)
+PROBE_SPEED = 105.0          # 推进速度 (世界单位/tick) —— 装载撒布时快于部署, 保证探针先行、地图渐亮
+PROBE_DEPLOY_GAP = 100.0     # 面包屑间距 (世界单位): 距上一颗撒布点≥此值才撒下一颗 (< 通信半径, 保连接)
+PROBE_NAMES = ("勘察-A", "勘察-B")
+
+
+def _point_in_chamber(c, x, z, margin=1.0) -> bool:
+    """点是否落在腔室 (扁椭圆) 内, margin 越小越收窄 (避贴壁)。"""
+    nx = (x - c["x"]) / c["r"]
+    nz = (z - c["z"]) / c["rz"]
+    return nx * nx + nz * nz < (0.99 * margin) ** 2
+
+
+class ProbeRobot:
+    """3D 建模勘察探头: 巡逻推进, 不参与组网, 只负责探明地形(前端据此点亮迷雾)。"""
+
+    def __init__(self, engine, index: int):
+        self.eng = engine
+        self.index = index
+        self.name = PROBE_NAMES[index % len(PROBE_NAMES)]
+        self.id = f"PROBE-{index:02d}"
+        # 起始于 base 00(最左端 sink)附近, 两机上下(前后)错开
+        sink = engine.nodes.get(engine.sink_id) if engine.sink_id else None
+        c = engine.chambers[0]
+        sx = sink.x if sink else c["x"] - c["r"] * 0.75
+        sz = sink.z if sink else c["z"]
+        self.x = sx + index * 20
+        self.z = sz + (index - 0.5) * 95
+        self.waypoint = None
+        self.slide = 0
+        self.max_x = self.x            # 已推进到的最右端 (进度/叙事参考)
+        self.state = "SURVEY"
+        # 面包屑勘载: 探针携带的通信桩 (未撒布), 与 last_drop 一起实现"按距离撒布"
+        self.onboard: list = []        # 仍在载体上的 Node 列表
+        self.dropped = 0               # 已撒布数
+        self.last_drop = (self.x, self.z)   # 最近一次撒布位置 (初始 = 出发点/base)
+
+    # ---- 移动 (避障: 巨石 / 墙体 / 腔壁) ----
+    def _walk_blocked(self, p1, p2) -> bool:
+        eng = self.eng
+        for o in eng.obstacles:
+            if _seg_circle_hit(p1, p2, (o["x"], o["z"]), o["r"] + 16):
+                return True
+        for w in eng.walls:
+            if _seg2d_hit(p1, p2, (w["x1"], w["z1"]), (w["x2"], w["z2"])):
+                return True
+        return not _point_in_chamber(eng.chambers[0], p2[0], p2[1])
+
+    def _pick_waypoint(self):
+        c = self.eng.chambers[0]
+        for _ in range(40):
+            # 主要向右(+x)推进, 带随机偏航, 沿管腔中央带前进
+            ang = random.uniform(-1.15, 1.15)
+            rr = random.uniform(90, 230)
+            px = self.x + math.cos(ang) * rr
+            pz = self.z + math.sin(ang) * rr * (c["rz"] / c["r"])
+            if not _point_in_chamber(c, px, pz, 0.97):
+                continue
+            if any(math.hypot(px - o["x"], pz - o["z"]) < o["r"] + 26
+                   for o in self.eng.obstacles):
+                continue
+            self.waypoint = (px, pz)
+            return
+        self.waypoint = (c["x"] + c["r"] * 0.1, c["z"])
+
+    def _move_toward(self, dest):
+        cur = (self.x, self.z)
+        d = math.hypot(dest[0] - cur[0], dest[1] - cur[1])
+        if d < 2.0:
+            self.waypoint = None
+            return
+        step = min(PROBE_SPEED, d)
+        base = math.atan2(dest[1] - cur[1], dest[0] - cur[0])
+        nxt = (cur[0] + math.cos(base) * step, cur[1] + math.sin(base) * step)
+        if not self._walk_blocked(cur, nxt):
+            self.slide = 0
+            self.x, self.z = nxt
+            return
+        if self.slide == 0:
+            self.slide = 1            # 首次被挡: 默认向左绕
+        for sign in (self.slide, -self.slide):
+            for k in (1, 2, 3, 4):
+                ang = base + sign * 0.42 * k
+                nxt = (cur[0] + math.cos(ang) * step, cur[1] + math.sin(ang) * step)
+                if not self._walk_blocked(cur, nxt):
+                    self.slide = sign
+                    self.x, self.z = nxt
+                    return
+        self.slide = 0
+        self.waypoint = None           # 四面受阻: 换路点
+
+    def tick(self):
+        if self.waypoint is None:
+            self._pick_waypoint()
+        self._move_toward(self.waypoint)
+        self.max_x = max(self.max_x, self.x)
+
+    # ---- 面包屑载货 ---- 
+    def clear_cargo(self):
+        self.onboard = []
+
+    def load(self, nodes):
+        """装载一批通信桩 (用于面包屑部署)。"""
+        self.onboard = list(nodes)
+        self.dropped = 0
+        self.last_drop = (self.x, self.z)   # 撒布起点 = 基地
+
+    def onboard_empty(self) -> bool:
+        return len(self.onboard) == 0
+
+    def can_drop(self) -> bool:
+        """距上一颗撒布点 ≥ PROBE_DEPLOY_GAP 才撒下一颗 (保连接 + 像面包屑一样间距均匀)。"""
+        if not self.onboard:
+            return False
+        return math.hypot(self.x - self.last_drop[0],
+                          self.z - self.last_drop[1]) >= PROBE_DEPLOY_GAP
+
+    def record_drop(self, pos):
+        self.last_drop = pos
+        self.dropped += 1
+
+    def export(self) -> dict:
+        return {"id": self.id, "index": self.index, "name": self.name,
+                "x": round(self.x, 1), "z": round(self.z, 1),
+                "state": self.state, "range": PROBE_RANGE,
+                "max_x": round(self.max_x, 1),
+                "cargo": len(self.onboard), "dropped": self.dropped,
+                "gap": PROBE_DEPLOY_GAP, "carrier": True}

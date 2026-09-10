@@ -17,6 +17,7 @@ const TYPE_LABEL = {
   robot_rescue: '机器人出动', robot_patrol: '机器人巡逻', robot_giveup: '救援放弃',
   robot_investigate: '链上核查', robot_checked: '核查完毕', robot_fallback: '回撤搭桥',
   beacon_deploy: '道钉投放', chain_block: '链出块', chain_heal: '分叉愈合',
+  node_deploy: '撒布节点', deploy_start: '部署启动', deploy_done: '部署完成',
   msg_sent: '报文发出', msg_delivered: '报文送达', msg_timeout: '报文超时',
   msg_fail: '报文失败', msg_reroute: '报文绕行', msg_no_path: '无路可拒',
 }

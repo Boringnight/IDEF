@@ -1,18 +1,27 @@
 # -*- coding: utf-8 -*-
-"""引擎职责模块:世界构建与节点布点(WorldBuilderMixin)."""
+"""引擎职责模块:世界构建与链路真值(WorldBuilderMixin)。
 
-import math
+职责范围:世界生成 / 重置编排 / 静态链路与邻接表 / 事件流 / 链路预算(SNR+阴影衰落)。
+节点布点已拆到 spawn.py(SpawnMixin),探针撒布在 deploy.py(DeployMixin)。
+依赖:读 Engine 的 nodes/order/world;写 static_links/adj/events/_fade。
+Calls: World/reseed/P.PARAMS.reset, physics.link_budget, Event。
+"""
+from collections import OrderedDict   # 交付去重表:有序字典充当"先进先出"的组 id 集合
 
-from ..nodes import Node, RANGE, INF
+from ..contracts import Event
+from ..nodes import RANGE, INF, reseed
 from .. import physics
-from ..world import World, letter
+from ..world import World
 from .constants import *
 from .engine_imports import P, random
 
 
-
 class WorldBuilderMixin:
-    """世界构建与节点布点 mixin,由 Engine 继承,self 即引擎实例。"""
+    """世界构建与链路 mixin,由 Engine 继承,self 即引擎实例。
+
+    Globals Used: SLEEP_DUTY_MIN, TIME_SCALE_DEFAULT, RANGE, INF, P, random。
+    Lifecycle: Engine() → reset(seed) → step() 循环(信标投递靠 adj,链路质量靠 _snr)。
+    """
 
     def __init__(self):
         self.reset()
@@ -20,48 +29,74 @@ class WorldBuilderMixin:
     # ------------------------------------------------------------------ setup
 
     def reset(self, seed: int = 7):
+        """重置仿真:重建世界与节点、恢复参数与统计、重算链路与巡逻走廊,并播报上电。
+
+        Globals Used: TIME_SCALE_DEFAULT。
+        Calls: _reset_state/_spawn/_recompute_static/_build_patrol/emit。
+        Args: seed=地图种子(几何/引擎/节点物理共用,保证实验可复现)。Returns: None。
+        """
+        self._reset_state(seed)
+        self._spawn()
+        # 首次部署 / 面包屑撒布:从基站(最左)向右推进的探索前沿(每次重置都要清空)
+        self.deploy_front = self.nodes["BASE-00"].x
+        self.deploy_done = False
+        self._deploy_gap = None
+        self.time_scale = TIME_SCALE_DEFAULT
+        self._recompute_static()
+        self._build_patrol()
+        self.emit("boot", "info", "系统上电:节点仅凭本地信标开始邻居发现(无全局视图)", True)
+
+    def _reset_state(self, seed: int):
+        """清空并初始化全部引擎状态(世界/统计/随机源/协议参数),不布点。
+
+        Globals Used: SLEEP_DUTY_MIN。Calls: World/reseed/P.PARAMS.reset。
+        Args: seed=地图种子。Returns: None。
+        """
         self._need_init = False
         self.world = World(seed)
+        self._cover_pts = None          # 洞穴覆盖采样点缓存(随地图失效)
+        reseed(seed)                    # 节点物理层随机源按地图种子播种 → 实验可复现
         self.t = 0.0
         self.tick = 0
-        self.nodes: dict[str, Node] = {}
+        self.nodes: dict = {}
         self.order: list[str] = []
         self.static_links: list[tuple] = []
         self.adj: dict[str, set] = {}
         self.flows: dict[tuple, float] = {}       # (a,b) -> 最近数据时刻
         self.ferry_marks: dict[tuple, float] = {}
         self.ferry_log_t: dict[tuple, float] = {}
-        self.events: list[dict] = []
+        self.events: list[Event] = []
         self.ev_sent = 0
         self.heat_until = -1.0
-        self._fade: dict[tuple, float] = {}   # 每对链路的慢变阴影衰落(OU 过程)
+        self._fade: dict[tuple, float] = {}       # 每对链路的慢变阴影衰落(OU 过程)
         self.sleep_on = False      # 默认关闭(按钮开启后:冗余道钉流量自适应休眠)
         self.sleep_duty = SLEEP_DUTY_MIN   # 目标苏醒比例(引擎按流量负载调控)
+        self._reset_counters()
+        P.PARAMS.reset()            # 协议参数恢复默认(上帝模式调参随重置失效)
+        self._earth_up = True          # 潮汐锁定:地球始终可见,无升降/遮挡
+        self.rng = random.Random(seed)  # 引擎随机源:与地图同种子 → 同一 seed 全流程可复现
+        self._pkt_seq = 0
+
+    def _reset_counters(self):
+        """清零交付/丢失/误码等统计量。Args: None。Returns: None。"""
         self.delivered = 0
         self.hops_sum = 0
-        self.earth_queue = 0
         self.earth_flushed = 0
         self.lost = 0
         self.retries = 0            # 逐跳误码重传总数
         self.damaged_drops = 0      # 连续误码丢弃的报文数
         self._dmg_log_t: dict[str, float] = {}   # 误码丢弃事件限流(每节点 3s 一条)
         self._heal_moved_any = False        # 本 tick 是否有节点自愈移动(刷静态链路用)
-        P.PARAMS.reset()            # 协议参数恢复默认(上帝模式调参随重置失效)
-        self.dupe_seen: set = set()
-        self.prev_coverage = 1.0
+        self.dupe_seen = OrderedDict()      # 交付去重(组 id):有序 → 超限按最旧淘汰,确定性
         self.was_healing = False
         self.partitions = 0
         self.coverage = 1.0
-        self._earth_up = True          # 潮汐锁定:地球始终可见,无升降/遮挡
-        self.rng = random.Random(11)
-        self._pkt_seq = 0
-        self._spawn()
-        self._recompute_static()
-        self._build_patrol()
-        self.emit("boot", "info", "系统上电:节点仅凭本地信标开始邻居发现(无全局视图)", True)
 
     def new_map(self, seed: int | None = None):
-        """重新生成一张随机几何地图(seed=None 时随机取),并让所有客户端重绘"""
+        """重新生成一张随机几何地图(seed=None 时随机取),并让所有客户端重绘。
+
+        Args: seed=地图种子。Returns: None。
+        """
         if seed is None:
             seed = self.rng.randrange(1, 10 ** 6)
         self.reset(seed)
@@ -70,125 +105,12 @@ class WorldBuilderMixin:
                   f"已生成随机地图(seed={seed}):{len(self.world.chambers)} 个腔室 · "
                   f"{len(self.world.boulders)} 块巨石,全网视距重算,期待自组织", True)
 
-    def _place_node(self, x: float, prefer_y: float, margin: float = 16.0) -> float:
-        """把节点落点放到'岩壁内且不落进巨石'的最邻近位置(避免节点刷新在石头里)"""
-        w = self.world
-        yc = w.yc(x)
-        half = max(6.0, w.r_at(x) - margin)
-        y_lo, y_hi = yc - half, yc + half
-
-        def clear(yy: float) -> bool:
-            for b in w.boulders:
-                if math.hypot(x - b["x"], yy - b["y"]) < b["r"] + margin:
-                    return False
-            return True
-
-        y = min(max(prefer_y, y_lo), y_hi)
-        if clear(y):
-            return y
-        for dy in (0, 8, -8, 16, -16, 24, -24, 34, -34, 46, -46, 60, -60, 80, -80):
-            yy = min(max(prefer_y + dy, y_lo), y_hi)
-            if clear(yy):
-                return yy
-        return (y_lo + y_hi) / 2
-
-    def _spawn(self):
-        w = self.world
-
-        def add(n: Node):
-            self.nodes[n.id] = n
-            self.order.append(n.id)
-
-        bx = int(0.06 * w.W)
-        add(Node("BASE-00", "base", bx, self._place_node(bx, w.yc(bx)), 0, False))
-        spike_i = 0
-        for ci, ch in enumerate(w.chambers):
-            # 上下壁成对的"梯子型"布点,腔室内高冗余(偏移按腔室半长缩放,适配变长腔室)
-            for k in (-0.7, -0.35, 0.0, 0.35, 0.7):
-                off = ch["hl"] * k
-                x = ch["cx"] + off
-                if k == 0:
-                    spike_i += 1
-                    y = self._place_node(x, w.yc(x))
-                    add(Node(f"SPIKE-{spike_i:02d}", "spike",
-                             round(x, 1), round(y, 1), ci, False))
-                    continue
-                for side in (1, -1):
-                    y = self._place_node(x, w.yc(x) + side * max(6.0, w.r_at(x) - 25))
-                    spike_i += 1
-                    add(Node(f"SPIKE-{spike_i:02d}", "spike",
-                             round(x, 1), round(y, 1), ci, False))
-        for ti, (a, b) in enumerate(w.throats()):
-            dom, _ = w.domain_of((a + b) / 2)
-            for kk, fx in enumerate([0.22, 0.62]):
-                x = a + (b - a) * fx
-                spike_i += 1
-                y = self._place_node(x, w.yc(x) + (18 if kk == 0 else -18), 14)
-                add(Node(f"SPIKE-{spike_i:02d}", "spike", round(x, 1), round(y, 1), dom, True))
-        last_dom = len(w.chambers) - 1
-        # 探测器:从右往左找"能与道钉有视距"的落点,保证与网络保持连接(不特殊化成孤岛)
-        for pi in range(2):
-            base_off = (45 if pi == 0 else -25)
-            cand_x = [int(w.W * 0.955 - k * 0.02 * w.W) for k in range(10)]
-            cand_x += [int(w.chambers[-1]["cx"] + w.chambers[-1]["hl"] * f)
-                       for f in (0.9, 0.7, 0.5, 0.3)]
-            px, e_y = None, None
-            for x in cand_x:
-                base_y = w.yc(x) + base_off
-                for dy in ([0, -20, 20, -40, 40, 60, -60] if pi == 0
-                           else [0, 20, -20, 40, -40, 60, -60]):
-                    yy = base_y + dy
-                    if not w.inside(x, yy, 10):
-                        continue
-                    links = sum(1 for m in self.nodes.values()
-                                if m.role == "spike" and m.alive
-                                and math.hypot(m.x - x, m.y - yy) <= RANGE
-                                and w.los((x, yy), (m.x, m.y)))
-                    if links >= 1:
-                        px, e_y = x, yy
-                        break
-                if px is not None:
-                    break
-            if px is None:
-                px = int(w.chambers[-1]["cx"] + w.chambers[-1]["hl"] * 0.3)
-                e_y = w.yc(px)
-            e_y = self._place_node(px, e_y, 16)
-            add(Node(f"PROBE-{pi+1}", "probe", round(px, 1), round(e_y, 1), last_dom, False))
-        for ri, (x0, d) in enumerate([(int(w.W * 0.16), 1), (int(w.W * 0.72), -1)]):
-            r = Node(f"ROVER-{ri+1}", "rover", x0, w.yc(x0), 0, False)
-            r.dir = d
-            r.speed = 55.0
-            r.y = w.yc(x0) + (ROVER_PREF if ri == 0 else -ROVER_PREF)
-            add(r)
-        self._fix_base_position()
-        self._fix_node_positions()
-
-    def _fix_node_positions(self):
-        """最终兜底:把仍落进巨石/出岩壁的节点,沿管道截面就近挪到最近安全落点"""
-        w = self.world
-        N = 14.0
-        for n in self.nodes.values():
-            yc = w.yc(n.x)
-            half = max(6.0, w.r_at(n.x) - N)
-            lo, hi = yc - half, yc + half
-
-            def clear(yy):
-                return all(math.hypot(n.x - b["x"], yy - b["y"]) >= b["r"] + N
-                           for b in w.boulders)
-
-            y = min(max(n.y, lo), hi)
-            if clear(y):
-                n.y = y
-                continue
-            best = None
-            yy = lo
-            while yy <= hi:
-                if clear(yy) and (best is None or abs(yy - y) < abs(best - y)):
-                    best = yy
-                yy += 3
-            n.y = float(best) if best is not None else (lo + hi) / 2
-
     def _recompute_static(self):
+        """重算全部静态链路(视距+距离),供引擎投递与能量树使用。
+
+        复杂度 O(n²)·LOS;仅在布点/撒布/拖巨石/自愈移动后调用。
+        Args: None。Returns: None。
+        """
         ids = [i for i, n in self.nodes.items()
                if n.alive and n.role != "rover"]
         self.static_links = []
@@ -199,6 +121,10 @@ class WorldBuilderMixin:
                     self.static_links.append((a.id, b.id))
 
     def _update_adj(self):
+        """刷新邻接表(只含清醒节点)+ 月球车的动态可达邻居。
+
+        Args: None。Returns: None(写 self.adj)。
+        """
         adj = {i: set() for i in self.nodes}
         live = lambda n: n.alive and not n.sleeping
         for a, b in self.static_links:
@@ -218,16 +144,24 @@ class WorldBuilderMixin:
         self.adj = adj
 
     def emit(self, type_: str, sev: str, msg: str, narr: bool = False):
-        self.events.append({"i": len(self.events), "t": round(self.t, 1),
-                            "type": type_, "sev": sev, "msg": msg, "narr": narr})
+        """记录一条协议过程事件(供前端时间线/顶部解说条)。
+
+        Args: type_=事件类型; sev=严重度(good/warn/bad/info); msg=文案;
+              narr=是否作为解说条展示。Returns: None。
+        """
+        self.events.append(Event(i=len(self.events), t=round(self.t, 1),
+                                 type=type_, sev=sev, msg=msg, narr=narr))
 
     # ------------------------------------------------------------------ 物理
 
-    def _snr(self, a: Node, b: Node) -> dict | None:
+    def _snr(self, a, b) -> dict | None:
         """链路预算物理模型(FSPL+热噪声+倾角惩罚+温度耦合) + 慢变阴影衰落:
         熔岩管壁多径/局部遮挡用每对链路的 OU 过程近似(均值 0,稳态 σ≈2.5dB,
         相关时间 ≈5s),再叠加 ±2.5dB 测量抖动。衰落同时作用于 SNR/BER/余量,
-        让边缘链路偶发跌入高 BER 区间 —— 逐跳损伤/重传因此真实可见。"""
+        让边缘链路偶发跌入高 BER 区间 —— 逐跳损伤/重传因此真实可见。
+
+        Args: a=发送节点; b=接收节点。Returns: {"snr_db","ber","up"} 或 None(物理不通)。
+        """
         lb = physics.link_budget(a, b)
         if lb is None:
             return None

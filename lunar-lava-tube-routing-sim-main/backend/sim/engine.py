@@ -16,9 +16,12 @@ from collections import deque
 from .node import Node
 from . import physics
 from .routing import routing_step
-from .robot import PatrolRobot, ROBOT_ID
+from .robot import PatrolRobot, ROBOT_ID, ProbeRobot
 
 ROBOT_ENABLED = True      # 巡检机器人 (SOS 听测 + 道钉投放, 逻辑全在 sim/robot.py)
+PROBE_ENABLED = True      # 两台 3D 建模勘察探头: 从 base 00 向右推进, 照亮战争迷雾(前端点亮地图)
+DEPLOY_ENABLED = True     # 部署过程: 面包屑 —— 探针携带通信桩, 按通信距离向右逐颗撒布成保底主干
+DEPLOY_MAX_TICKS = 600    # 部署兜底 tick: 超时则把剩余通信桩就近一次性撒完 (防个别探针卡死)
 TICK_PHYS_S = 0.25
 TICK_BROADCAST_S = 0.2
 HEALING_HOLD_TICKS = 4
@@ -128,6 +131,14 @@ class SimulationEngine:
         self.chain_net = BlockchainNetwork(self)
         # 巡检机器人: SOS 听测 + 道钉投放 (独立模块, 引擎只挂两个挂点)
         self.robot = PatrolRobot(self) if ROBOT_ENABLED else None
+
+        # 新增: 部署阶段 (全部通信桩从 base 00 向右布设) + 两台 3D 建模勘察探头
+        self.phase = "DEPLOY" if DEPLOY_ENABLED else "RUN"
+        self.deploy_ticks = 0
+        self.deploy_progress = 0
+        self.probes = [ProbeRobot(self, i) for i in range(2)] if PROBE_ENABLED else []
+        if DEPLOY_ENABLED:
+            self._start_deploy()
 
     # ==================================================================
     # 地质: 腔室 / 隧道 / 巨柱 / 散布节点
@@ -278,6 +289,70 @@ class SimulationEngine:
                 return False
         return True
 
+    # ==================================================================
+    # 部署阶段: 从 base 00(最左端)sink 聚拢起步, 各通信桩向右推进到布设目标位
+    # ==================================================================
+    def _start_deploy(self):
+        """面包屑部署: 把全部通信桩按 1/2 分装到两台 3D 勘察探头上, 探针从 base 00
+        (最左端)向右推进, 按通信距离在身后逐颗撒布节点 —— 铺成一条保底主干。"""
+        cargo = [n for nid, n in self.nodes.items() if nid != self.sink_id]
+        random.shuffle(cargo)
+        for probe in self.probes:
+            probe.clear_cargo()
+        self.probes[0].load(cargo[::2])
+        self.probes[1].load(cargo[1::2])
+        sink = self.nodes[self.sink_id] if self.sink_id in self.nodes else next(iter(self.nodes.values()))
+        for n in cargo:
+            n.state = "CARGO"                       # 尚未撒布: 跟随载体, 不入网不渲染
+            n.x, n.z = round(sink.x, 1), round(sink.z, 1)
+        self.phase = "DEPLOY"
+        self.deploy_ticks = 0
+        self.deploy_progress = 0
+        self._emit("deploy_start", "info",
+                   f"🚀 面包屑部署启动: 两台 3D 勘察机器人携带 {len(cargo)} 个通信桩, "
+                   f"从 {self.sink_id}(base 00) 向右按通信距离逐颗撒布…",
+                   narration=f"🚀 面包屑部署开始! 两台 3D 建模勘察机器人每人携带一半通信桩,"
+                             f"从基地 {self.sink_id} 出发向右推进, 每走出一段通信距离就撒下一颗节点,"
+                             f"在身后铺成一条保底主干链; 地图也随它们的脚步逐片点亮。",
+                   node=self.sink_id)
+
+    def _step_deploy(self):
+        """面包屑推进: 探针每离开上一颗足够远(≥PROBE_DEPLOY_GAP), 就撒下下一颗; 全部撒完 -> RUN。"""
+        if self.phase != "DEPLOY":
+            return
+        self.deploy_ticks += 1
+        for probe in self.probes:
+            probe.tick()                            # 探针移动(避障)
+            if probe.can_drop():                    # 距上一颗到位 -> 撒下一颗
+                n = probe.onboard.pop(0)
+                n.x, n.z = round(probe.x, 1), round(probe.z, 1)
+                n.state = "ACTIVE"
+                probe.record_drop((n.x, n.z))
+                self._emit("node_deploy", "info",
+                           f"📍 {probe.name} 撒布 {n.id} @({n.x:.0f},{n.z:.0f}) ·探针已撒 {probe.dropped} 个",
+                           node=n.id)
+        # 未撒布的继续跟随载体(仅供计数), 并锁死 CARGO 态防 SEU 误激活
+        for probe in self.probes:
+            for n in probe.onboard:
+                n.x, n.z = probe.x, probe.z
+                n.state = "CARGO"
+        todo = sum(len(p.onboard) for p in self.probes)
+        self.deploy_progress = round(100 * (len(self.nodes) - 1 - todo) / max(1, len(self.nodes) - 1))
+        if todo == 0 or self.deploy_ticks >= DEPLOY_MAX_TICKS:
+            for probe in self.probes:               # 兜底: 超时则就近一次性撒完
+                for n in probe.onboard:
+                    n.x, n.z = round(probe.x, 1), round(probe.z, 1)
+                    n.state = "ACTIVE"
+                probe.onboard = []
+            self.phase = "RUN"
+            self.deploy_progress = 100
+            self._recompute_los()                   # 用最终落位重算 LOS, 锁定正确拓扑
+            self._emit("deploy_done", "ok",
+                       f"✅ 面包屑部署完成 ({self.deploy_ticks} tick): {len(self.nodes)} 个节点撒布就位, 开始稳定路由",
+                       narration=f"🛰️ 两台勘察机器人已把 {len(self.nodes)} 个通信桩沿熔岩管撒成一条保底主干,"
+                                 f"地图点亮, 数据从基地 {self.sink_id} 一路踏着这些\"面包屑\"接力前行。",
+                       node=self.sink_id)
+
     def _recompute_los(self):
         """LOS: 巨石 + 石柱多球 + 管内几何约束. 被遮挡节点对永不建边 -> mesh 拓扑"""
         from .physics import WORLD_SCALE
@@ -333,7 +408,8 @@ class SimulationEngine:
         })
         # 关键解说单独保留, 不受事件滚动队列挤出 -> 前端解说员始终可播
         if narration and type_ in ("disaster", "node_dead", "healing_start",
-                                   "converged", "isolated", "rejoin"):
+                                   "converged", "isolated", "rejoin",
+                                   "deploy_start", "deploy_done"):
             self.last_narration = {"id": self._event_seq, "text": narration}
 
     @staticmethod
@@ -344,7 +420,8 @@ class SimulationEngine:
     # 核心: 链路 + 路由 + 模式机
     # ==================================================================
     def compute_network(self, quiet: bool = False):
-        nodes = list(self.nodes.values())
+        # 面包屑部署阶段: 未撒布(CARGO)的通信桩尚未入网, 不参与构图/路由
+        nodes = [n for n in self.nodes.values() if n.state != "CARGO"]
         links = {}
         for i in range(len(nodes)):
             for j in range(i + 1, len(nodes)):
@@ -780,6 +857,10 @@ class SimulationEngine:
             "tick": self.tick,
             "disaster": self.disaster,
             "mode": self.mode,
+            "phase": self.phase,
+            "deploy_ticks": self.deploy_ticks,
+            "deploy_progress": self.deploy_progress,
+            "probes": [p.export() for p in self.probes],
             "wave": self.wave,
             "events": list(self.events)[-40:],
             "last_narration": self.last_narration,
@@ -837,6 +918,9 @@ class SimulationEngine:
                 try:
                     for n in self.nodes.values():
                         n.step(dt_hours=0.004)
+                    self._step_deploy()          # 部署阶段: 各通信桩向右推进至布设目标位
+                    for p in self.probes:        # 勘察探头: 向右推进, 探明地形(前端点亮迷雾)
+                        p.tick()
                     self.compute_network()
                     self.transport.step()   # 报文逐跳推进 (握手/重传/超时)
                     self.chain_net.step(self.tick)  # 区块链泛洪/出块/追块

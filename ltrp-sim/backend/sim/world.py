@@ -17,10 +17,26 @@ def letter(i: int) -> str:
 
 
 class World:
+    """熔岩管几何世界:多腔室 + 窄喉道 + 巨石(随机种子可复现)。
+
+    实例属性:W/H=世界尺寸; chambers=腔室列表(cx/hl/r); boulders=巨石列表(x/y/r);
+    throats()=喉道 x 区间; yc/r_at/inside/los 提供几何查询。
+    生命周期:World(seed) 一次性生成形状与障碍,之后只读(巨石位置可被引擎拖放)。
+    """
+
     def __init__(self, seed=7):
+        """按种子生成整张地图:形状参数 → 腔室排布 → 巨石分布(随机数消耗顺序固定,保证复现)。
+
+        Args: seed=地图种子。Returns: None。
+        """
         self.seed = seed
         rng = random.Random(seed)
-        # ---- 总体尺寸与管道起伏 ----
+        self._gen_shape(rng)
+        self._gen_chambers(rng)
+        self._gen_boulders(rng)
+
+    def _gen_shape(self, rng: random.Random):
+        """生成总体尺寸与管道起伏参数。Args: rng=本世界的随机源。Returns: None。"""
         self.n_chambers = rng.randint(4, 6)
         self.frac = rng.uniform(0.78, 0.92)       # 有腔室覆盖的 x 比例(其余为两端引道)
         self.W = rng.randint(2800, 3600)
@@ -29,7 +45,9 @@ class World:
         self.wl = rng.uniform(180, 300)           # 主波长
         self.phase = rng.uniform(0, 2 * math.pi)
         self.harm = rng.uniform(0.12, 0.36)       # 二次谐波占幅比例
-        # ---- 腔室排布:等间距,半径/半长随机,喉道长度随机 ----
+
+    def _gen_chambers(self, rng: random.Random):
+        """腔室排布:等间距,半径/半长随机,喉道长度随机,并压缩以适配总长。Returns: None。"""
         hl = [rng.randint(150, 230) for _ in range(self.n_chambers)]
         cr = [rng.randint(135, 185) for _ in range(self.n_chambers)]
         throat_len = rng.randint(90, 180)
@@ -45,10 +63,13 @@ class World:
             self.chambers.append({"cx": round(cx, 1), "hl": round(h, 1), "r": cr[i]})
             x = cx + h + throat_len * scale
         max_r = max(c["r"] for c in self.chambers)
+        self._ch_x = [(c["cx"] - c["hl"], c["cx"] + c["hl"]) for c in self.chambers]
         self.H = int(2 * (self.amp * (1 + self.harm) + max_r) + 240)
-        # ---- 巨石:每腔 2~4 块,大小/位置随机,远离喉道避免封死通路 ----
+
+    def _gen_boulders(self, rng: random.Random):
+        """巨石分布:每腔 2~4 块,大小/位置随机,远离喉道避免封死通路。Returns: None。"""
         self.boulders = []
-        for ci, ch in enumerate(self.chambers):
+        for ch in self.chambers:
             placed, tries = 0, 0
             want = rng.randint(2, 4)
             while placed < want and tries < 400:
@@ -70,9 +91,12 @@ class World:
             + self.amp * self.harm * math.sin(2 * math.pi * x / (self.wl * 0.41) + self.phase * 2.7)
 
     def r_at(self, x: float) -> float:
-        # 腔室处增宽(按该腔自己的半径),喉道收窄到 base_r
+        """x 处的管道半径:腔室处增宽(按该腔自己的半径),喉道收窄到 base_r。
+        先用 _ch_x 预筛腔室 x 区间,跳过与 x 无关的腔室(t≤0 时贡献恰为 base_r,不影响 max)。"""
         r = self.base_r
-        for ch in self.chambers:
+        for (lo, hi), ch in zip(self._ch_x, self.chambers):
+            if x < lo or x > hi:
+                continue
             t = max(0.0, 1.0 - ((x - ch["cx"]) / ch["hl"]) ** 2)
             r = max(r, ch["r"] * t + self.base_r * (1 - t))
         return r

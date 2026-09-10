@@ -13,6 +13,8 @@ export default function App() {
   const [connected, setConnected] = useState(false);
   const [selected, setSelected] = useState(null);
   const [paramsOpen, setParamsOpen] = useState(false);
+  const [signalCover, setSignalCover] = useState(false);
+  const [energyShow, setEnergyShow] = useState(false);
 
   useEffect(() => {
     const handle = connectWS({
@@ -55,7 +57,11 @@ export default function App() {
   return (
     <div className="app">
       <HUD stats={snap.stats} connected={connected}
-           onParams={() => setParamsOpen((v) => !v)} />
+           onParams={() => setParamsOpen((v) => !v)}
+           signalCover={signalCover}
+           onToggleSignal={() => setSignalCover((v) => !v)}
+           energyShow={energyShow}
+           onToggleEnergy={() => setEnergyShow((v) => !v)} />
       <div className="main">
         <div className="canvas-col">
           <TopoMap2D
@@ -64,6 +70,8 @@ export default function App() {
             selected={selected}
             onSelect={setSelected}
             onMoveObstacle={onMoveObstacle}
+            signalCover={signalCover}
+            energyShow={energyShow}
           />
           <div className="legend">
             <span>⬡ 基站</span><span>● 道钉</span><span>◇ 探测器</span>

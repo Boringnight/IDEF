@@ -1,0 +1,393 @@
+{"phase": "m1", "seed": 1, "throat": 0, "cut_half": 80, "killed": 3, "partitions": 1, "recover_ticks": -1, "final_cov": 0.227}
+{"phase": "m1", "seed": 1, "throat": 1, "cut_half": 50, "killed": 3, "partitions": 1, "recover_ticks": 2, "final_cov": 1.0}
+{"phase": "m1", "seed": 1, "throat": 2, "cut_half": 260, "killed": 5, "partitions": 1, "recover_ticks": 170, "final_cov": 1.0}
+{"phase": "m1", "seed": 2, "throat": 0, "cut_half": 50, "killed": 2, "partitions": 1, "recover_ticks": -1, "final_cov": 0.522}
+{"phase": "m1", "seed": 2, "throat": 1, "cut_half": 50, "killed": 2, "partitions": 1, "recover_ticks": 78, "final_cov": 1.0}
+{"phase": "m1", "seed": 2, "throat": 2, "cut_half": null}
+{"phase": "m1", "seed": 3, "throat": 0, "cut_half": 80, "killed": 4, "partitions": 1, "recover_ticks": -1, "final_cov": 0.381}
+{"phase": "m1", "seed": 3, "throat": 1, "cut_half": 50, "killed": 2, "partitions": 1, "recover_ticks": 24, "final_cov": 1.0}
+{"phase": "m1", "seed": 3, "throat": 2, "cut_half": null}
+{"phase": "m1", "seed": 4, "throat": 0, "cut_half": 80, "killed": 5, "partitions": 1, "recover_ticks": 197, "final_cov": 1.0}
+{"phase": "m1", "seed": 4, "throat": 1, "cut_half": 50, "killed": 1, "partitions": 1, "recover_ticks": 168, "final_cov": 1.0}
+{"phase": "m1", "seed": 4, "throat": 2, "cut_half": null}
+{"phase": "m1", "seed": 5, "throat": 0, "cut_half": 50, "killed": 4, "partitions": 1, "recover_ticks": -1, "final_cov": 0.394}
+{"phase": "m1", "seed": 5, "throat": 1, "cut_half": 50, "killed": 5, "partitions": 1, "recover_ticks": 62, "final_cov": 1.0}
+{"phase": "m1", "seed": 5, "throat": 2, "cut_half": 80, "killed": 2, "partitions": 1, "recover_ticks": 8, "final_cov": 1.0}
+{"phase": "m1", "seed": 5, "throat": 3, "cut_half": null}
+{"phase": "m1", "seed": 5, "throat": 4, "cut_half": null}
+{"phase": "m1", "seed": 6, "throat": 0, "cut_half": 80, "killed": 2, "partitions": 1, "recover_ticks": 32, "final_cov": 1.0}
+{"phase": "m1", "seed": 6, "throat": 1, "cut_half": 80, "killed": 3, "partitions": 1, "recover_ticks": 67, "final_cov": 1.0}
+{"phase": "m1", "seed": 6, "throat": 2, "cut_half": 80, "killed": 3, "partitions": 1, "recover_ticks": 94, "final_cov": 1.0}
+{"phase": "m1", "seed": 6, "throat": 3, "cut_half": 50, "killed": 2, "partitions": 1, "recover_ticks": 96, "final_cov": 1.0}
+{"phase": "m1", "seed": 6, "throat": 4, "cut_half": null}
+{"phase": "m1", "seed": 7, "throat": 0, "cut_half": 50, "killed": 2, "partitions": 1, "recover_ticks": 35, "final_cov": 1.0}
+{"phase": "m1", "seed": 7, "throat": 1, "cut_half": 50, "killed": 3, "partitions": 1, "recover_ticks": 68, "final_cov": 1.0}
+{"phase": "m1", "seed": 7, "throat": 2, "cut_half": 80, "killed": 2, "partitions": 1, "recover_ticks": 90, "final_cov": 1.0}
+{"phase": "m1", "seed": 7, "throat": 3, "cut_half": 120, "killed": 3, "partitions": 2, "recover_ticks": 8, "final_cov": 1.0}
+{"phase": "m1", "seed": 8, "throat": 0, "cut_half": 50, "killed": 2, "partitions": 1, "recover_ticks": 43, "final_cov": 1.0}
+{"phase": "m1", "seed": 8, "throat": 1, "cut_half": 50, "killed": 3, "partitions": 1, "recover_ticks": 76, "final_cov": 1.0}
+{"phase": "m1", "seed": 8, "throat": 2, "cut_half": null}
+{"phase": "m1", "seed": 9, "throat": 0, "cut_half": 120, "killed": 4, "partitions": 1, "recover_ticks": 43, "final_cov": 1.0}
+{"phase": "m1", "seed": 9, "throat": 1, "cut_half": 80, "killed": 2, "partitions": 1, "recover_ticks": 60, "final_cov": 1.0}
+{"phase": "m1", "seed": 9, "throat": 2, "cut_half": 50, "killed": 2, "partitions": 1, "recover_ticks": 78, "final_cov": 1.0}
+{"phase": "m1", "seed": 9, "throat": 3, "cut_half": null}
+{"phase": "m1", "seed": 10, "throat": 0, "cut_half": 50, "killed": 2, "partitions": 1, "recover_ticks": 38, "final_cov": 1.0}
+{"phase": "m1", "seed": 10, "throat": 1, "cut_half": 80, "killed": 3, "partitions": 1, "recover_ticks": 71, "final_cov": 1.0}
+{"phase": "m1", "seed": 10, "throat": 2, "cut_half": 120, "killed": 3, "partitions": 1, "recover_ticks": 95, "final_cov": 1.0}
+{"phase": "m1", "seed": 10, "throat": 3, "cut_half": 120, "killed": 4, "partitions": 1, "recover_ticks": 87, "final_cov": 1.0}
+{"phase": "m1", "seed": 10, "throat": 4, "cut_half": null}
+{"phase": "m1", "seed": 11, "throat": 0, "cut_half": 80, "killed": 5, "partitions": 1, "recover_ticks": -1, "final_cov": 0.192}
+{"phase": "m1", "seed": 11, "throat": 1, "cut_half": 80, "killed": 4, "partitions": 1, "recover_ticks": 92, "final_cov": 1.0}
+{"phase": "m1", "seed": 11, "throat": 2, "cut_half": 180, "killed": 4, "partitions": 1, "recover_ticks": 3182, "final_cov": 1.0}
+{"phase": "m1", "seed": 11, "throat": 3, "cut_half": null}
+{"phase": "m1", "seed": 12, "throat": 0, "cut_half": 120, "killed": 3, "partitions": 1, "recover_ticks": 49, "final_cov": 1.0}
+{"phase": "m1", "seed": 12, "throat": 1, "cut_half": 80, "killed": 4, "partitions": 1, "recover_ticks": 85, "final_cov": 1.0}
+{"phase": "m1", "seed": 12, "throat": 2, "cut_half": 50, "killed": 2, "partitions": 1, "recover_ticks": 111, "final_cov": 1.0}
+{"phase": "m1", "seed": 12, "throat": 3, "cut_half": null}
+{"phase": "m1", "seed": 13, "throat": 0, "cut_half": 50, "killed": 2, "partitions": 1, "recover_ticks": 57, "final_cov": 1.0}
+{"phase": "m1", "seed": 13, "throat": 1, "cut_half": 50, "killed": 2, "partitions": 1, "recover_ticks": 84, "final_cov": 1.0}
+{"phase": "m1", "seed": 13, "throat": 2, "cut_half": 50, "killed": 1, "partitions": 1, "recover_ticks": 112, "final_cov": 1.0}
+{"phase": "m1", "seed": 13, "throat": 3, "cut_half": null}
+{"phase": "m1", "seed": 14, "throat": 0, "cut_half": 120, "killed": 4, "partitions": 1, "recover_ticks": 51, "final_cov": 1.0}
+{"phase": "m1", "seed": 14, "throat": 1, "cut_half": 80, "killed": 3, "partitions": 1, "recover_ticks": 76, "final_cov": 1.0}
+{"phase": "m1", "seed": 14, "throat": 2, "cut_half": 50, "killed": 3, "partitions": 1, "recover_ticks": 2, "final_cov": 1.0}
+{"phase": "m1", "seed": 15, "throat": 0, "cut_half": 80, "killed": 3, "partitions": 1, "recover_ticks": 54, "final_cov": 1.0}
+{"phase": "m1", "seed": 15, "throat": 1, "cut_half": 80, "killed": 2, "partitions": 1, "recover_ticks": 84, "final_cov": 1.0}
+{"phase": "m1", "seed": 15, "throat": 2, "cut_half": 180, "killed": 2, "partitions": 1, "recover_ticks": 5, "final_cov": 1.0}
+{"phase": "m2", "seed": 1, "k": 1, "draw": 0, "throats": [2], "cut_halves": [260], "recover_ticks": 170, "final_cov": 1.0}
+{"phase": "m2", "seed": 1, "k": 1, "draw": 1, "throats": [1], "cut_halves": [80], "recover_ticks": 76, "final_cov": 1.0}
+{"phase": "m2", "seed": 1, "k": 2, "draw": 0, "throats": [1, 2], "cut_halves": [80, 80], "recover_ticks": 76, "final_cov": 1.0}
+{"phase": "m2", "seed": 1, "k": 2, "draw": 1, "throats": [1, 2], "cut_halves": [80, 80], "recover_ticks": 76, "final_cov": 1.0}
+{"phase": "m2", "seed": 2, "k": 1, "draw": 0, "recover_ticks": null, "note": "无法构造分区"}
+{"phase": "m2", "seed": 2, "k": 1, "draw": 1, "recover_ticks": null, "note": "无法构造分区"}
+{"phase": "m2", "seed": 2, "k": 2, "draw": 0, "throats": [1, 2], "cut_halves": [80, 80], "recover_ticks": 78, "final_cov": 1.0}
+{"phase": "m2", "seed": 2, "k": 2, "draw": 1, "throats": [0, 2], "cut_halves": [80, 80], "recover_ticks": 51, "final_cov": 1.0}
+{"phase": "m2", "seed": 3, "k": 1, "draw": 0, "throats": [1], "cut_halves": [80], "recover_ticks": 24, "final_cov": 1.0}
+{"phase": "m2", "seed": 3, "k": 1, "draw": 1, "throats": [1], "cut_halves": [80], "recover_ticks": 24, "final_cov": 1.0}
+{"phase": "m2", "seed": 3, "k": 2, "draw": 0, "throats": [0, 1], "cut_halves": [80, 80], "recover_ticks": -1, "final_cov": 0.444}
+{"phase": "m2", "seed": 3, "k": 2, "draw": 1, "throats": [0, 2], "cut_halves": [80, 80], "recover_ticks": -1, "final_cov": 0.381}
+{"phase": "m2", "seed": 4, "k": 1, "draw": 0, "recover_ticks": null, "note": "无法构造分区"}
+{"phase": "m2", "seed": 4, "k": 1, "draw": 1, "throats": [0], "cut_halves": [80], "recover_ticks": 197, "final_cov": 1.0}
+{"phase": "m2", "seed": 4, "k": 2, "draw": 0, "throats": [2, 1], "cut_halves": [null, 80], "recover_ticks": 2497, "final_cov": 1.0}
+{"phase": "m2", "seed": 4, "k": 2, "draw": 1, "throats": [1, 2], "cut_halves": [80, 80], "recover_ticks": 2497, "final_cov": 1.0}
+{"phase": "m2", "seed": 5, "k": 1, "draw": 0, "recover_ticks": null, "note": "无法构造分区"}
+{"phase": "m2", "seed": 5, "k": 1, "draw": 1, "recover_ticks": null, "note": "无法构造分区"}
+{"phase": "m2", "seed": 5, "k": 2, "draw": 0, "throats": [2, 0], "cut_halves": [80, 80], "recover_ticks": -1, "final_cov": 0.419}
+{"phase": "m2", "seed": 5, "k": 2, "draw": 1, "throats": [2, 4], "cut_halves": [80, 80], "recover_ticks": 8, "final_cov": 1.0}
+{"phase": "m2", "seed": 5, "k": 3, "draw": 0, "throats": [3, 0, 2], "cut_halves": [null, 80, 80], "recover_ticks": -1, "final_cov": 0.419}
+{"phase": "m2", "seed": 5, "k": 3, "draw": 1, "throats": [1, 2, 0], "cut_halves": [80, 80, 80], "recover_ticks": 3668, "final_cov": 1.0}
+{"phase": "m2", "seed": 5, "k": 4, "draw": 0, "throats": [0, 4, 2, 1], "cut_halves": [80, 80, 80, 80], "recover_ticks": 3668, "final_cov": 1.0}
+{"phase": "m2", "seed": 5, "k": 4, "draw": 1, "throats": [3, 0, 2, 4], "cut_halves": [null, 80, 80, 80], "recover_ticks": -1, "final_cov": 0.419}
+{"phase": "m2", "seed": 6, "k": 1, "draw": 0, "throats": [3], "cut_halves": [80], "recover_ticks": 97, "final_cov": 1.0}
+{"phase": "m2", "seed": 6, "k": 1, "draw": 1, "throats": [2], "cut_halves": [80], "recover_ticks": 94, "final_cov": 1.0}
+{"phase": "m2", "seed": 6, "k": 2, "draw": 0, "throats": [1, 2], "cut_halves": [80, 80], "recover_ticks": -1, "final_cov": 0.387}
+{"phase": "m2", "seed": 6, "k": 2, "draw": 1, "throats": [0, 2], "cut_halves": [80, 80], "recover_ticks": -1, "final_cov": 0.156}
+{"phase": "m2", "seed": 6, "k": 3, "draw": 0, "throats": [1, 3, 0], "cut_halves": [80, 80, 80], "recover_ticks": 269, "final_cov": 1.0}
+{"phase": "m2", "seed": 6, "k": 3, "draw": 1, "throats": [2, 3, 4], "cut_halves": [80, 80, 80], "recover_ticks": 285, "final_cov": 1.0}
+{"phase": "m2", "seed": 6, "k": 4, "draw": 0, "throats": [1, 2, 4, 3], "cut_halves": [80, 80, 80, 80], "recover_ticks": 1495, "final_cov": 1.0}
+{"phase": "m2", "seed": 6, "k": 4, "draw": 1, "throats": [2, 0, 3, 4], "cut_halves": [80, 80, 80, 80], "recover_ticks": -1, "final_cov": 0.172}
+{"phase": "m2", "seed": 7, "k": 1, "draw": 0, "throats": [3], "cut_halves": [120], "recover_ticks": 8, "final_cov": 1.0}
+{"phase": "m2", "seed": 7, "k": 1, "draw": 1, "throats": [1], "cut_halves": [80], "recover_ticks": 68, "final_cov": 1.0}
+{"phase": "m2", "seed": 7, "k": 2, "draw": 0, "throats": [2, 0], "cut_halves": [80, 80], "recover_ticks": 170, "final_cov": 1.0}
+{"phase": "m2", "seed": 7, "k": 2, "draw": 1, "throats": [3, 0], "cut_halves": [120, 80], "recover_ticks": 35, "final_cov": 1.0}
+{"phase": "m2", "seed": 7, "k": 3, "draw": 0, "throats": [2, 3, 1], "cut_halves": [80, 80, 80], "recover_ticks": 142, "final_cov": 1.0}
+{"phase": "m2", "seed": 7, "k": 3, "draw": 1, "throats": [2, 1, 0], "cut_halves": [80, 80, 80], "recover_ticks": 160, "final_cov": 1.0}
+{"phase": "m2", "seed": 8, "k": 1, "draw": 0, "throats": [1], "cut_halves": [80], "recover_ticks": 139, "final_cov": 1.0}
+{"phase": "m2", "seed": 8, "k": 1, "draw": 1, "recover_ticks": null, "note": "无法构造分区"}
+{"phase": "m2", "seed": 8, "k": 2, "draw": 0, "throats": [2, 1], "cut_halves": [null, 80], "recover_ticks": 139, "final_cov": 1.0}
+{"phase": "m2", "seed": 8, "k": 2, "draw": 1, "throats": [0, 1], "cut_halves": [80, 80], "recover_ticks": -1, "final_cov": 0.625}
+{"phase": "m2", "seed": 9, "k": 1, "draw": 0, "throats": [0], "cut_halves": [120], "recover_ticks": 43, "final_cov": 1.0}
+{"phase": "m2", "seed": 9, "k": 1, "draw": 1, "throats": [2], "cut_halves": [80], "recover_ticks": 78, "final_cov": 1.0}
+{"phase": "m2", "seed": 9, "k": 2, "draw": 0, "throats": [3, 0], "cut_halves": [null, 120], "recover_ticks": 43, "final_cov": 1.0}
+{"phase": "m2", "seed": 9, "k": 2, "draw": 1, "throats": [1, 2], "cut_halves": [80, 80], "recover_ticks": 130, "final_cov": 1.0}
+{"phase": "m2", "seed": 9, "k": 3, "draw": 0, "throats": [3, 1, 0], "cut_halves": [null, 80, 80], "recover_ticks": 60, "final_cov": 1.0}
+{"phase": "m2", "seed": 9, "k": 3, "draw": 1, "throats": [3, 2, 0], "cut_halves": [null, 80, 80], "recover_ticks": 78, "final_cov": 1.0}
+{"phase": "m2", "seed": 10, "k": 1, "draw": 0, "throats": [3], "cut_halves": [120], "recover_ticks": 87, "final_cov": 1.0}
+{"phase": "m2", "seed": 10, "k": 1, "draw": 1, "recover_ticks": null, "note": "无法构造分区"}
+{"phase": "m2", "seed": 10, "k": 2, "draw": 0, "throats": [2, 4], "cut_halves": [120, 80], "recover_ticks": 95, "final_cov": 1.0}
+{"phase": "m2", "seed": 10, "k": 2, "draw": 1, "throats": [4, 1], "cut_halves": [null, 80], "recover_ticks": 71, "final_cov": 1.0}
+{"phase": "m2", "seed": 10, "k": 3, "draw": 0, "throats": [4, 1, 0], "cut_halves": [null, 80, 80], "recover_ticks": 1058, "final_cov": 1.0}
+{"phase": "m2", "seed": 10, "k": 3, "draw": 1, "throats": [1, 0, 4], "cut_halves": [80, 80, 80], "recover_ticks": -1, "final_cov": 0.25}
+{"phase": "m2", "seed": 10, "k": 4, "draw": 0, "throats": [3, 1, 2, 4], "cut_halves": [120, 80, 80, 80], "recover_ticks": 153, "final_cov": 1.0}
+{"phase": "m2", "seed": 10, "k": 4, "draw": 1, "throats": [2, 3, 4, 0], "cut_halves": [120, 80, 80, 80], "recover_ticks": 123, "final_cov": 1.0}
+{"phase": "m2", "seed": 11, "k": 1, "draw": 0, "throats": [1], "cut_halves": [80], "recover_ticks": 92, "final_cov": 1.0}
+{"phase": "m2", "seed": 11, "k": 1, "draw": 1, "throats": [1], "cut_halves": [80], "recover_ticks": 92, "final_cov": 1.0}
+{"phase": "m2", "seed": 11, "k": 2, "draw": 0, "throats": [0, 3], "cut_halves": [80, 80], "recover_ticks": -1, "final_cov": 0.192}
+{"phase": "m2", "seed": 11, "k": 2, "draw": 1, "throats": [3, 2], "cut_halves": [null, 180], "recover_ticks": 3182, "final_cov": 1.0}
+{"phase": "m2", "seed": 11, "k": 3, "draw": 0, "throats": [2, 3, 0], "cut_halves": [180, 80, 80], "recover_ticks": -1, "final_cov": 0.227}
+{"phase": "m2", "seed": 11, "k": 3, "draw": 1, "throats": [1, 0, 3], "cut_halves": [80, 80, 80], "recover_ticks": -1, "final_cov": 0.227}
+{"phase": "m2", "seed": 12, "k": 1, "draw": 0, "throats": [0], "cut_halves": [120], "recover_ticks": 49, "final_cov": 1.0}
+{"phase": "m2", "seed": 12, "k": 1, "draw": 1, "throats": [0], "cut_halves": [120], "recover_ticks": 49, "final_cov": 1.0}
+{"phase": "m2", "seed": 12, "k": 2, "draw": 0, "throats": [3, 2], "cut_halves": [null, 80], "recover_ticks": 110, "final_cov": 1.0}
+{"phase": "m2", "seed": 12, "k": 2, "draw": 1, "throats": [3, 2], "cut_halves": [null, 80], "recover_ticks": 110, "final_cov": 1.0}
+{"phase": "m2", "seed": 12, "k": 3, "draw": 0, "throats": [3, 1, 0], "cut_halves": [null, 80, 80], "recover_ticks": 167, "final_cov": 1.0}
+{"phase": "m2", "seed": 12, "k": 3, "draw": 1, "throats": [2, 0, 3], "cut_halves": [80, 80, 80], "recover_ticks": 279, "final_cov": 1.0}
+{"phase": "m2", "seed": 13, "k": 1, "draw": 0, "recover_ticks": null, "note": "无法构造分区"}
+{"phase": "m2", "seed": 13, "k": 1, "draw": 1, "recover_ticks": null, "note": "无法构造分区"}
+{"phase": "m2", "seed": 13, "k": 2, "draw": 0, "throats": [1, 2], "cut_halves": [80, 80], "recover_ticks": 170, "final_cov": 1.0}
+{"phase": "m2", "seed": 13, "k": 2, "draw": 1, "throats": [3, 2], "cut_halves": [null, 80], "recover_ticks": 112, "final_cov": 1.0}
+{"phase": "m2", "seed": 13, "k": 3, "draw": 0, "throats": [3, 2, 0], "cut_halves": [null, 80, 80], "recover_ticks": 201, "final_cov": 1.0}
+{"phase": "m2", "seed": 13, "k": 3, "draw": 1, "throats": [0, 3, 2], "cut_halves": [80, 80, 80], "recover_ticks": 201, "final_cov": 1.0}
+{"phase": "m2", "seed": 14, "k": 1, "draw": 0, "throats": [2], "cut_halves": [80], "recover_ticks": 105, "final_cov": 1.0}
+{"phase": "m2", "seed": 14, "k": 1, "draw": 1, "throats": [1], "cut_halves": [80], "recover_ticks": 76, "final_cov": 1.0}
+{"phase": "m2", "seed": 14, "k": 2, "draw": 0, "throats": [2, 0], "cut_halves": [80, 80], "recover_ticks": 105, "final_cov": 1.0}
+{"phase": "m2", "seed": 14, "k": 2, "draw": 1, "throats": [0, 1], "cut_halves": [120, 80], "recover_ticks": 279, "final_cov": 1.0}
+{"phase": "m2", "seed": 15, "k": 1, "draw": 0, "throats": [2], "cut_halves": [180], "recover_ticks": 5, "final_cov": 1.0}
+{"phase": "m2", "seed": 15, "k": 1, "draw": 1, "throats": [0], "cut_halves": [80], "recover_ticks": 54, "final_cov": 1.0}
+{"phase": "m2", "seed": 15, "k": 2, "draw": 0, "throats": [2, 0], "cut_halves": [180, 80], "recover_ticks": 54, "final_cov": 1.0}
+{"phase": "m2", "seed": 15, "k": 2, "draw": 1, "throats": [1, 2], "cut_halves": [80, 80], "recover_ticks": 84, "final_cov": 1.0}
+{"phase": "m3", "seed": 1, "victim": 0, "ok": true, "rejoin_ticks": 101, "isolated_at": [1856, 377], "final_cov": 1.0}
+{"phase": "m3", "seed": 1, "victim": 1, "ok": true, "rejoin_ticks": 146, "isolated_at": [2004, 346], "final_cov": 1.0}
+{"phase": "m3", "seed": 1, "victim": 2, "ok": true, "rejoin_ticks": 29, "isolated_at": [1851, 357], "final_cov": 1.0}
+{"phase": "m3", "seed": 2, "victim": 0, "ok": true, "rejoin_ticks": 24, "isolated_at": [1845, 420], "final_cov": 1.0}
+{"phase": "m3", "seed": 2, "victim": 1, "ok": true, "rejoin_ticks": 99, "isolated_at": [1851, 413], "final_cov": 1.0}
+{"phase": "m3", "seed": 2, "victim": 2, "ok": true, "rejoin_ticks": 74, "isolated_at": [1848, 416], "final_cov": 1.0}
+{"phase": "m3", "seed": 3, "victim": 0, "ok": true, "rejoin_ticks": 43, "isolated_at": [1817, 469], "final_cov": 1.0}
+{"phase": "m3", "seed": 3, "victim": 1, "ok": true, "rejoin_ticks": 86, "isolated_at": [1819, 468], "final_cov": 1.0}
+{"phase": "m3", "seed": 3, "victim": 2, "ok": true, "rejoin_ticks": 24, "isolated_at": [1815, 469], "final_cov": 1.0}
+{"phase": "m3", "seed": 4, "victim": 0, "ok": true, "rejoin_ticks": 313, "isolated_at": [1405, 366], "final_cov": 1.0}
+{"phase": "m3", "seed": 4, "victim": 1, "ok": true, "rejoin_ticks": 190, "isolated_at": [1456, 350], "final_cov": 1.0}
+{"phase": "m3", "seed": 4, "victim": 2, "ok": true, "rejoin_ticks": 123, "isolated_at": [1460, 354], "final_cov": 1.0}
+{"phase": "m3", "seed": 5, "victim": 0, "ok": false, "rejoin_ticks": -1, "isolated_at": [2370, 389], "final_cov": 0.973}
+{"phase": "m3", "seed": 5, "victim": 1, "ok": true, "rejoin_ticks": 107, "isolated_at": [1844, 410], "final_cov": 1.0}
+{"phase": "m3", "seed": 5, "victim": 2, "ok": false, "rejoin_ticks": -1, "isolated_at": [2374, 400], "final_cov": 0.973}
+{"phase": "m3", "seed": 6, "victim": 0, "ok": true, "rejoin_ticks": 10, "isolated_at": [2949, 316], "final_cov": 1.0}
+{"phase": "m3", "seed": 6, "victim": 1, "ok": false, "rejoin_ticks": -1, "isolated_at": [2840, 423], "final_cov": 0.973}
+{"phase": "m3", "seed": 6, "victim": 2, "ok": true, "rejoin_ticks": 10, "isolated_at": [2949, 364], "final_cov": 1.0}
+{"phase": "m3", "seed": 7, "victim": 0, "ok": true, "rejoin_ticks": 68, "isolated_at": [2408, 330], "final_cov": 1.0}
+{"phase": "m3", "seed": 7, "victim": 1, "ok": true, "rejoin_ticks": 107, "isolated_at": [2408, 330], "final_cov": 1.0}
+{"phase": "m3", "seed": 7, "victim": 2, "ok": true, "rejoin_ticks": 105, "isolated_at": [2433, 314], "final_cov": 1.0}
+{"phase": "m3", "seed": 8, "victim": 0, "ok": true, "rejoin_ticks": 13, "isolated_at": [1754, 331], "final_cov": 1.0}
+{"phase": "m3", "seed": 8, "victim": 1, "ok": true, "rejoin_ticks": 44, "isolated_at": [1754, 331], "final_cov": 1.0}
+{"phase": "m3", "seed": 8, "victim": 2, "ok": true, "rejoin_ticks": 28, "isolated_at": [1756, 320], "final_cov": 1.0}
+{"phase": "m3", "seed": 9, "victim": 0, "ok": true, "rejoin_ticks": 29, "isolated_at": [2426, 358], "final_cov": 1.0}
+{"phase": "m3", "seed": 9, "victim": 1, "ok": true, "rejoin_ticks": 44, "isolated_at": [2452, 357], "final_cov": 1.0}
+{"phase": "m3", "seed": 9, "victim": 2, "ok": true, "rejoin_ticks": 14, "isolated_at": [2426, 357], "final_cov": 1.0}
+{"phase": "m3", "seed": 10, "victim": 0, "ok": true, "rejoin_ticks": 45, "isolated_at": [2680, 335], "final_cov": 1.0}
+{"phase": "m3", "seed": 10, "victim": 1, "ok": true, "rejoin_ticks": 6, "isolated_at": [2871, 349], "final_cov": 1.0}
+{"phase": "m3", "seed": 10, "victim": 2, "ok": true, "rejoin_ticks": 4, "isolated_at": [2849, 332], "final_cov": 1.0}
+{"phase": "m3", "seed": 11, "victim": 0, "ok": true, "rejoin_ticks": 154, "isolated_at": [2330, 410], "final_cov": 0.968}
+{"phase": "m3", "seed": 11, "victim": 1, "ok": false, "rejoin_ticks": -1, "isolated_at": [2819, 425], "final_cov": 0.968}
+{"phase": "m3", "seed": 11, "victim": 2, "ok": false, "rejoin_ticks": -1, "isolated_at": [2807, 405], "final_cov": 0.968}
+{"phase": "m3", "seed": 12, "victim": 0, "ok": true, "rejoin_ticks": 78, "isolated_at": [2365, 357], "final_cov": 1.0}
+{"phase": "m3", "seed": 12, "victim": 1, "ok": false, "rejoin_ticks": -1, "isolated_at": [2540, 324], "final_cov": 0.968}
+{"phase": "m3", "seed": 12, "victim": 2, "ok": false, "rejoin_ticks": -1, "isolated_at": [2528, 346], "final_cov": 0.968}
+{"phase": "m3", "seed": 13, "victim": 0, "ok": true, "rejoin_ticks": 123, "isolated_at": [2117, 430], "final_cov": 0.871}
+{"phase": "m3", "seed": 13, "victim": 1, "ok": true, "rejoin_ticks": 56, "isolated_at": [1971, 480], "final_cov": 1.0}
+{"phase": "m3", "seed": 13, "victim": 2, "ok": true, "rejoin_ticks": 41, "isolated_at": [1912, 386], "final_cov": 1.0}
+{"phase": "m3", "seed": 14, "victim": 0, "ok": true, "rejoin_ticks": 104, "isolated_at": [2085, 354], "final_cov": 1.0}
+{"phase": "m3", "seed": 14, "victim": 1, "ok": true, "rejoin_ticks": 112, "isolated_at": [2081, 389], "final_cov": 1.0}
+{"phase": "m3", "seed": 14, "victim": 2, "ok": true, "rejoin_ticks": 46, "isolated_at": [2081, 390], "final_cov": 1.0}
+{"phase": "m3", "seed": 15, "victim": 0, "ok": true, "rejoin_ticks": 126, "isolated_at": [2005, 352], "final_cov": 1.0}
+{"phase": "m3", "seed": 15, "victim": 1, "ok": true, "rejoin_ticks": 129, "isolated_at": [2026, 429], "final_cov": 1.0}
+{"phase": "m3", "seed": 15, "victim": 2, "ok": true, "rejoin_ticks": 129, "isolated_at": [2098, 429], "final_cov": 1.0}
+{"phase": "m5", "seed": 1, "p": 0.05, "draw": 0, "killed": 1, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 1, "p": 0.05, "draw": 1, "killed": 1, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 1, "p": 0.1, "draw": 0, "killed": 2, "partitions_after_kill": 1, "cov_after_kill": 0.261, "recover_ticks": 52, "final_cov": 1.0}
+{"phase": "m5", "seed": 1, "p": 0.1, "draw": 1, "killed": 2, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 1, "p": 0.15, "draw": 0, "killed": 3, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 1, "p": 0.15, "draw": 1, "killed": 3, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 1, "p": 0.2, "draw": 0, "killed": 4, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 1, "p": 0.2, "draw": 1, "killed": 4, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 1, "p": 0.3, "draw": 0, "killed": 7, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 1, "p": 0.3, "draw": 1, "killed": 7, "partitions_after_kill": 2, "cov_after_kill": 0.556, "recover_ticks": 71, "final_cov": 1.0}
+{"phase": "m5", "seed": 1, "p": 0.4, "draw": 0, "killed": 9, "partitions_after_kill": 1, "cov_after_kill": 0.562, "recover_ticks": 81, "final_cov": 1.0}
+{"phase": "m5", "seed": 1, "p": 0.4, "draw": 1, "killed": 9, "partitions_after_kill": 3, "cov_after_kill": 0.375, "recover_ticks": 216, "final_cov": 1.0}
+{"phase": "m5", "seed": 1, "p": 0.5, "draw": 0, "killed": 11, "partitions_after_kill": 2, "cov_after_kill": 0.357, "recover_ticks": 734, "final_cov": 1.0}
+{"phase": "m5", "seed": 1, "p": 0.5, "draw": 1, "killed": 11, "partitions_after_kill": 1, "cov_after_kill": 0.214, "recover_ticks": -1, "final_cov": 0.214}
+{"phase": "m5", "seed": 2, "p": 0.05, "draw": 0, "killed": 1, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 2, "p": 0.05, "draw": 1, "killed": 1, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 2, "p": 0.1, "draw": 0, "killed": 2, "partitions_after_kill": 1, "cov_after_kill": 0.826, "recover_ticks": 78, "final_cov": 1.0}
+{"phase": "m5", "seed": 2, "p": 0.1, "draw": 1, "killed": 2, "partitions_after_kill": 1, "cov_after_kill": 0.826, "recover_ticks": 78, "final_cov": 1.0}
+{"phase": "m5", "seed": 2, "p": 0.15, "draw": 0, "killed": 3, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 2, "p": 0.15, "draw": 1, "killed": 3, "partitions_after_kill": 1, "cov_after_kill": 0.818, "recover_ticks": 78, "final_cov": 1.0}
+{"phase": "m5", "seed": 2, "p": 0.2, "draw": 0, "killed": 4, "partitions_after_kill": 1, "cov_after_kill": 0.857, "recover_ticks": 82, "final_cov": 1.0}
+{"phase": "m5", "seed": 2, "p": 0.2, "draw": 1, "killed": 4, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 2, "p": 0.3, "draw": 0, "killed": 7, "partitions_after_kill": 1, "cov_after_kill": 0.556, "recover_ticks": 257, "final_cov": 1.0}
+{"phase": "m5", "seed": 2, "p": 0.3, "draw": 1, "killed": 7, "partitions_after_kill": 2, "cov_after_kill": 0.333, "recover_ticks": -1, "final_cov": 0.722}
+{"phase": "m5", "seed": 2, "p": 0.4, "draw": 0, "killed": 9, "partitions_after_kill": 1, "cov_after_kill": 0.875, "recover_ticks": 157, "final_cov": 1.0}
+{"phase": "m5", "seed": 2, "p": 0.4, "draw": 1, "killed": 9, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 2, "p": 0.5, "draw": 0, "killed": 11, "partitions_after_kill": 2, "cov_after_kill": 0.214, "recover_ticks": -1, "final_cov": 0.214}
+{"phase": "m5", "seed": 2, "p": 0.5, "draw": 1, "killed": 11, "partitions_after_kill": 3, "cov_after_kill": 0.143, "recover_ticks": -1, "final_cov": 0.214}
+{"phase": "m5", "seed": 3, "p": 0.05, "draw": 0, "killed": 1, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 3, "p": 0.05, "draw": 1, "killed": 1, "partitions_after_kill": 1, "cov_after_kill": 0.792, "recover_ticks": 60, "final_cov": 1.0}
+{"phase": "m5", "seed": 3, "p": 0.1, "draw": 0, "killed": 2, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 3, "p": 0.1, "draw": 1, "killed": 2, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 3, "p": 0.15, "draw": 0, "killed": 3, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 3, "p": 0.15, "draw": 1, "killed": 3, "partitions_after_kill": 3, "cov_after_kill": 0.818, "recover_ticks": -1, "final_cov": 0.955}
+{"phase": "m5", "seed": 3, "p": 0.2, "draw": 0, "killed": 4, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 3, "p": 0.2, "draw": 1, "killed": 4, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 3, "p": 0.3, "draw": 0, "killed": 7, "partitions_after_kill": 2, "cov_after_kill": 0.833, "recover_ticks": -1, "final_cov": 0.944}
+{"phase": "m5", "seed": 3, "p": 0.3, "draw": 1, "killed": 7, "partitions_after_kill": 2, "cov_after_kill": 0.389, "recover_ticks": 214, "final_cov": 1.0}
+{"phase": "m5", "seed": 3, "p": 0.4, "draw": 0, "killed": 9, "partitions_after_kill": 4, "cov_after_kill": 0.188, "recover_ticks": -1, "final_cov": 0.188}
+{"phase": "m5", "seed": 3, "p": 0.4, "draw": 1, "killed": 9, "partitions_after_kill": 4, "cov_after_kill": 0.125, "recover_ticks": -1, "final_cov": 0.438}
+{"phase": "m5", "seed": 3, "p": 0.5, "draw": 0, "killed": 11, "partitions_after_kill": 2, "cov_after_kill": 0.786, "recover_ticks": -1, "final_cov": 0.786}
+{"phase": "m5", "seed": 3, "p": 0.5, "draw": 1, "killed": 11, "partitions_after_kill": 4, "cov_after_kill": 0.429, "recover_ticks": -1, "final_cov": 0.643}
+{"phase": "m5", "seed": 4, "p": 0.05, "draw": 0, "killed": 1, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 4, "p": 0.05, "draw": 1, "killed": 1, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 4, "p": 0.1, "draw": 0, "killed": 2, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 4, "p": 0.1, "draw": 1, "killed": 2, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 4, "p": 0.15, "draw": 0, "killed": 3, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 4, "p": 0.15, "draw": 1, "killed": 3, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 4, "p": 0.2, "draw": 0, "killed": 4, "partitions_after_kill": 1, "cov_after_kill": 0.905, "recover_ticks": 168, "final_cov": 1.0}
+{"phase": "m5", "seed": 4, "p": 0.2, "draw": 1, "killed": 4, "partitions_after_kill": 1, "cov_after_kill": 0.905, "recover_ticks": 168, "final_cov": 1.0}
+{"phase": "m5", "seed": 4, "p": 0.3, "draw": 0, "killed": 7, "partitions_after_kill": 1, "cov_after_kill": 0.222, "recover_ticks": 14, "final_cov": 1.0}
+{"phase": "m5", "seed": 4, "p": 0.3, "draw": 1, "killed": 7, "partitions_after_kill": 1, "cov_after_kill": 0.889, "recover_ticks": 168, "final_cov": 1.0}
+{"phase": "m5", "seed": 4, "p": 0.4, "draw": 0, "killed": 9, "partitions_after_kill": 1, "cov_after_kill": 0.812, "recover_ticks": 208, "final_cov": 1.0}
+{"phase": "m5", "seed": 4, "p": 0.4, "draw": 1, "killed": 9, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 215, "final_cov": 1.0}
+{"phase": "m5", "seed": 4, "p": 0.5, "draw": 0, "killed": 11, "partitions_after_kill": 1, "cov_after_kill": 0.071, "recover_ticks": 229, "final_cov": 1.0}
+{"phase": "m5", "seed": 4, "p": 0.5, "draw": 1, "killed": 11, "partitions_after_kill": 2, "cov_after_kill": 0.143, "recover_ticks": 225, "final_cov": 1.0}
+{"phase": "m5", "seed": 5, "p": 0.05, "draw": 0, "killed": 2, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 5, "p": 0.05, "draw": 1, "killed": 2, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 5, "p": 0.1, "draw": 0, "killed": 3, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 5, "p": 0.1, "draw": 1, "killed": 3, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 5, "p": 0.15, "draw": 0, "killed": 5, "partitions_after_kill": 1, "cov_after_kill": 0.375, "recover_ticks": 674, "final_cov": 1.0}
+{"phase": "m5", "seed": 5, "p": 0.15, "draw": 1, "killed": 5, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 5, "p": 0.2, "draw": 0, "killed": 7, "partitions_after_kill": 1, "cov_after_kill": 0.133, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 5, "p": 0.2, "draw": 1, "killed": 7, "partitions_after_kill": 1, "cov_after_kill": 0.667, "recover_ticks": 62, "final_cov": 1.0}
+{"phase": "m5", "seed": 5, "p": 0.3, "draw": 0, "killed": 10, "partitions_after_kill": 2, "cov_after_kill": 0.407, "recover_ticks": -1, "final_cov": 0.407}
+{"phase": "m5", "seed": 5, "p": 0.3, "draw": 1, "killed": 10, "partitions_after_kill": 1, "cov_after_kill": 0.556, "recover_ticks": 42, "final_cov": 1.0}
+{"phase": "m5", "seed": 5, "p": 0.4, "draw": 0, "killed": 14, "partitions_after_kill": 4, "cov_after_kill": 0.609, "recover_ticks": -1, "final_cov": 0.783}
+{"phase": "m5", "seed": 5, "p": 0.4, "draw": 1, "killed": 14, "partitions_after_kill": 2, "cov_after_kill": 0.087, "recover_ticks": 2, "final_cov": 1.0}
+{"phase": "m5", "seed": 5, "p": 0.5, "draw": 0, "killed": 17, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 5, "p": 0.5, "draw": 1, "killed": 17, "partitions_after_kill": 2, "cov_after_kill": 0.45, "recover_ticks": -1, "final_cov": 0.2}
+{"phase": "m5", "seed": 6, "p": 0.05, "draw": 0, "killed": 2, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 6, "p": 0.05, "draw": 1, "killed": 2, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 6, "p": 0.1, "draw": 0, "killed": 3, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 6, "p": 0.1, "draw": 1, "killed": 3, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 6, "p": 0.15, "draw": 0, "killed": 5, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 6, "p": 0.15, "draw": 1, "killed": 5, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 6, "p": 0.2, "draw": 0, "killed": 7, "partitions_after_kill": 1, "cov_after_kill": 0.867, "recover_ticks": 2, "final_cov": 1.0}
+{"phase": "m5", "seed": 6, "p": 0.2, "draw": 1, "killed": 7, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 6, "p": 0.3, "draw": 0, "killed": 10, "partitions_after_kill": 1, "cov_after_kill": 0.704, "recover_ticks": 101, "final_cov": 1.0}
+{"phase": "m5", "seed": 6, "p": 0.3, "draw": 1, "killed": 10, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 6, "p": 0.4, "draw": 0, "killed": 14, "partitions_after_kill": 1, "cov_after_kill": 0.304, "recover_ticks": 258, "final_cov": 1.0}
+{"phase": "m5", "seed": 6, "p": 0.4, "draw": 1, "killed": 14, "partitions_after_kill": 2, "cov_after_kill": 0.217, "recover_ticks": 79, "final_cov": 1.0}
+{"phase": "m5", "seed": 6, "p": 0.5, "draw": 0, "killed": 17, "partitions_after_kill": 3, "cov_after_kill": 0.2, "recover_ticks": -1, "final_cov": 0.2}
+{"phase": "m5", "seed": 6, "p": 0.5, "draw": 1, "killed": 17, "partitions_after_kill": 2, "cov_after_kill": 0.2, "recover_ticks": 169, "final_cov": 1.0}
+{"phase": "m5", "seed": 7, "p": 0.05, "draw": 0, "killed": 1, "partitions_after_kill": 2, "cov_after_kill": 0.267, "recover_ticks": 40, "final_cov": 1.0}
+{"phase": "m5", "seed": 7, "p": 0.05, "draw": 1, "killed": 1, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 7, "p": 0.1, "draw": 0, "killed": 3, "partitions_after_kill": 2, "cov_after_kill": 0.286, "recover_ticks": 40, "final_cov": 1.0}
+{"phase": "m5", "seed": 7, "p": 0.1, "draw": 1, "killed": 3, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 7, "p": 0.15, "draw": 0, "killed": 4, "partitions_after_kill": 2, "cov_after_kill": 0.37, "recover_ticks": 164, "final_cov": 1.0}
+{"phase": "m5", "seed": 7, "p": 0.15, "draw": 1, "killed": 4, "partitions_after_kill": 3, "cov_after_kill": 0.259, "recover_ticks": 40, "final_cov": 1.0}
+{"phase": "m5", "seed": 7, "p": 0.2, "draw": 0, "killed": 6, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 7, "p": 0.2, "draw": 1, "killed": 6, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 7, "p": 0.3, "draw": 0, "killed": 8, "partitions_after_kill": 2, "cov_after_kill": 0.174, "recover_ticks": -1, "final_cov": 0.174}
+{"phase": "m5", "seed": 7, "p": 0.3, "draw": 1, "killed": 8, "partitions_after_kill": 1, "cov_after_kill": 0.304, "recover_ticks": 41, "final_cov": 1.0}
+{"phase": "m5", "seed": 7, "p": 0.4, "draw": 0, "killed": 11, "partitions_after_kill": 4, "cov_after_kill": 0.3, "recover_ticks": 272, "final_cov": 1.0}
+{"phase": "m5", "seed": 7, "p": 0.4, "draw": 1, "killed": 11, "partitions_after_kill": 2, "cov_after_kill": 0.2, "recover_ticks": 41, "final_cov": 1.0}
+{"phase": "m5", "seed": 7, "p": 0.5, "draw": 0, "killed": 14, "partitions_after_kill": 5, "cov_after_kill": 0.294, "recover_ticks": -1, "final_cov": 0.471}
+{"phase": "m5", "seed": 7, "p": 0.5, "draw": 1, "killed": 14, "partitions_after_kill": 3, "cov_after_kill": 0.235, "recover_ticks": 249, "final_cov": 1.0}
+{"phase": "m5", "seed": 8, "p": 0.05, "draw": 0, "killed": 1, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 8, "p": 0.05, "draw": 1, "killed": 1, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 8, "p": 0.1, "draw": 0, "killed": 2, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 8, "p": 0.1, "draw": 1, "killed": 2, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 8, "p": 0.15, "draw": 0, "killed": 3, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 8, "p": 0.15, "draw": 1, "killed": 3, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 8, "p": 0.2, "draw": 0, "killed": 4, "partitions_after_kill": 1, "cov_after_kill": 0.905, "recover_ticks": 133, "final_cov": 1.0}
+{"phase": "m5", "seed": 8, "p": 0.2, "draw": 1, "killed": 4, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 8, "p": 0.3, "draw": 0, "killed": 7, "partitions_after_kill": 1, "cov_after_kill": 0.667, "recover_ticks": -1, "final_cov": 0.667}
+{"phase": "m5", "seed": 8, "p": 0.3, "draw": 1, "killed": 7, "partitions_after_kill": 1, "cov_after_kill": 0.333, "recover_ticks": 44, "final_cov": 1.0}
+{"phase": "m5", "seed": 8, "p": 0.4, "draw": 0, "killed": 9, "partitions_after_kill": 1, "cov_after_kill": 0.625, "recover_ticks": 48, "final_cov": 1.0}
+{"phase": "m5", "seed": 8, "p": 0.4, "draw": 1, "killed": 9, "partitions_after_kill": 2, "cov_after_kill": 0.375, "recover_ticks": 187, "final_cov": 1.0}
+{"phase": "m5", "seed": 8, "p": 0.5, "draw": 0, "killed": 11, "partitions_after_kill": 1, "cov_after_kill": 0.5, "recover_ticks": 50, "final_cov": 1.0}
+{"phase": "m5", "seed": 8, "p": 0.5, "draw": 1, "killed": 11, "partitions_after_kill": 1, "cov_after_kill": 0.143, "recover_ticks": 20, "final_cov": 1.0}
+{"phase": "m5", "seed": 9, "p": 0.05, "draw": 0, "killed": 1, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 9, "p": 0.05, "draw": 1, "killed": 1, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 9, "p": 0.1, "draw": 0, "killed": 3, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 9, "p": 0.1, "draw": 1, "killed": 3, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 9, "p": 0.15, "draw": 0, "killed": 4, "partitions_after_kill": 1, "cov_after_kill": 0.815, "recover_ticks": 75, "final_cov": 1.0}
+{"phase": "m5", "seed": 9, "p": 0.15, "draw": 1, "killed": 4, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 9, "p": 0.2, "draw": 0, "killed": 6, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 9, "p": 0.2, "draw": 1, "killed": 6, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 9, "p": 0.3, "draw": 0, "killed": 8, "partitions_after_kill": 2, "cov_after_kill": 0.565, "recover_ticks": -1, "final_cov": 0.565}
+{"phase": "m5", "seed": 9, "p": 0.3, "draw": 1, "killed": 8, "partitions_after_kill": 1, "cov_after_kill": 0.043, "recover_ticks": 12, "final_cov": 1.0}
+{"phase": "m5", "seed": 9, "p": 0.4, "draw": 0, "killed": 11, "partitions_after_kill": 2, "cov_after_kill": 0.15, "recover_ticks": 155, "final_cov": 1.0}
+{"phase": "m5", "seed": 9, "p": 0.4, "draw": 1, "killed": 11, "partitions_after_kill": 2, "cov_after_kill": 0.35, "recover_ticks": 225, "final_cov": 1.0}
+{"phase": "m5", "seed": 9, "p": 0.5, "draw": 0, "killed": 14, "partitions_after_kill": 3, "cov_after_kill": 0.176, "recover_ticks": 161, "final_cov": 1.0}
+{"phase": "m5", "seed": 9, "p": 0.5, "draw": 1, "killed": 14, "partitions_after_kill": 4, "cov_after_kill": 0.294, "recover_ticks": -1, "final_cov": 0.353}
+{"phase": "m5", "seed": 10, "p": 0.05, "draw": 0, "killed": 2, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 10, "p": 0.05, "draw": 1, "killed": 2, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 10, "p": 0.1, "draw": 0, "killed": 3, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 10, "p": 0.1, "draw": 1, "killed": 3, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 10, "p": 0.15, "draw": 0, "killed": 5, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 10, "p": 0.15, "draw": 1, "killed": 5, "partitions_after_kill": 1, "cov_after_kill": 0.906, "recover_ticks": 2, "final_cov": 1.0}
+{"phase": "m5", "seed": 10, "p": 0.2, "draw": 0, "killed": 7, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 10, "p": 0.2, "draw": 1, "killed": 7, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 10, "p": 0.3, "draw": 0, "killed": 10, "partitions_after_kill": 1, "cov_after_kill": 0.333, "recover_ticks": 58, "final_cov": 1.0}
+{"phase": "m5", "seed": 10, "p": 0.3, "draw": 1, "killed": 10, "partitions_after_kill": 1, "cov_after_kill": 0.481, "recover_ticks": 86, "final_cov": 1.0}
+{"phase": "m5", "seed": 10, "p": 0.4, "draw": 0, "killed": 14, "partitions_after_kill": 2, "cov_after_kill": 0.217, "recover_ticks": 174, "final_cov": 1.0}
+{"phase": "m5", "seed": 10, "p": 0.4, "draw": 1, "killed": 14, "partitions_after_kill": 2, "cov_after_kill": 0.261, "recover_ticks": -1, "final_cov": 0.304}
+{"phase": "m5", "seed": 10, "p": 0.5, "draw": 0, "killed": 17, "partitions_after_kill": 2, "cov_after_kill": 0.3, "recover_ticks": 174, "final_cov": 1.0}
+{"phase": "m5", "seed": 10, "p": 0.5, "draw": 1, "killed": 17, "partitions_after_kill": 3, "cov_after_kill": 0.55, "recover_ticks": 814, "final_cov": 1.0}
+{"phase": "m5", "seed": 11, "p": 0.05, "draw": 0, "killed": 1, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 11, "p": 0.05, "draw": 1, "killed": 1, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 11, "p": 0.1, "draw": 0, "killed": 3, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 11, "p": 0.1, "draw": 1, "killed": 3, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 11, "p": 0.15, "draw": 0, "killed": 4, "partitions_after_kill": 1, "cov_after_kill": 0.074, "recover_ticks": -1, "final_cov": 0.963}
+{"phase": "m5", "seed": 11, "p": 0.15, "draw": 1, "killed": 4, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 11, "p": 0.2, "draw": 0, "killed": 6, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 11, "p": 0.2, "draw": 1, "killed": 6, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 11, "p": 0.3, "draw": 0, "killed": 8, "partitions_after_kill": 1, "cov_after_kill": 0.304, "recover_ticks": 58, "final_cov": 1.0}
+{"phase": "m5", "seed": 11, "p": 0.3, "draw": 1, "killed": 8, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 11, "p": 0.4, "draw": 0, "killed": 11, "partitions_after_kill": 1, "cov_after_kill": 0.6, "recover_ticks": 93, "final_cov": 1.0}
+{"phase": "m5", "seed": 11, "p": 0.4, "draw": 1, "killed": 11, "partitions_after_kill": 1, "cov_after_kill": 0.4, "recover_ticks": 62, "final_cov": 1.0}
+{"phase": "m5", "seed": 11, "p": 0.5, "draw": 0, "killed": 14, "partitions_after_kill": 2, "cov_after_kill": 0.118, "recover_ticks": -1, "final_cov": 0.941}
+{"phase": "m5", "seed": 11, "p": 0.5, "draw": 1, "killed": 14, "partitions_after_kill": 3, "cov_after_kill": 0.118, "recover_ticks": 397, "final_cov": 1.0}
+{"phase": "m5", "seed": 12, "p": 0.05, "draw": 0, "killed": 1, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 12, "p": 0.05, "draw": 1, "killed": 1, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 12, "p": 0.1, "draw": 0, "killed": 3, "partitions_after_kill": 1, "cov_after_kill": 0.179, "recover_ticks": 38, "final_cov": 1.0}
+{"phase": "m5", "seed": 12, "p": 0.1, "draw": 1, "killed": 3, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 12, "p": 0.15, "draw": 0, "killed": 4, "partitions_after_kill": 1, "cov_after_kill": 0.296, "recover_ticks": 70, "final_cov": 1.0}
+{"phase": "m5", "seed": 12, "p": 0.15, "draw": 1, "killed": 4, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 12, "p": 0.2, "draw": 0, "killed": 6, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 12, "p": 0.2, "draw": 1, "killed": 6, "partitions_after_kill": 2, "cov_after_kill": 0.72, "recover_ticks": 94, "final_cov": 1.0}
+{"phase": "m5", "seed": 12, "p": 0.3, "draw": 0, "killed": 8, "partitions_after_kill": 1, "cov_after_kill": 0.609, "recover_ticks": 95, "final_cov": 1.0}
+{"phase": "m5", "seed": 12, "p": 0.3, "draw": 1, "killed": 8, "partitions_after_kill": 2, "cov_after_kill": 0.391, "recover_ticks": 159, "final_cov": 1.0}
+{"phase": "m5", "seed": 12, "p": 0.4, "draw": 0, "killed": 11, "partitions_after_kill": 1, "cov_after_kill": 0.25, "recover_ticks": 52, "final_cov": 1.0}
+{"phase": "m5", "seed": 12, "p": 0.4, "draw": 1, "killed": 11, "partitions_after_kill": 1, "cov_after_kill": 0.9, "recover_ticks": 112, "final_cov": 1.0}
+{"phase": "m5", "seed": 12, "p": 0.5, "draw": 0, "killed": 14, "partitions_after_kill": 2, "cov_after_kill": 0.235, "recover_ticks": 294, "final_cov": 1.0}
+{"phase": "m5", "seed": 12, "p": 0.5, "draw": 1, "killed": 14, "partitions_after_kill": 3, "cov_after_kill": 0.235, "recover_ticks": 174, "final_cov": 1.0}
+{"phase": "m5", "seed": 13, "p": 0.05, "draw": 0, "killed": 1, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 13, "p": 0.05, "draw": 1, "killed": 1, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 13, "p": 0.1, "draw": 0, "killed": 3, "partitions_after_kill": 1, "cov_after_kill": 0.25, "recover_ticks": 32, "final_cov": 1.0}
+{"phase": "m5", "seed": 13, "p": 0.1, "draw": 1, "killed": 3, "partitions_after_kill": 1, "cov_after_kill": 0.893, "recover_ticks": 100, "final_cov": 1.0}
+{"phase": "m5", "seed": 13, "p": 0.15, "draw": 0, "killed": 4, "partitions_after_kill": 2, "cov_after_kill": 0.481, "recover_ticks": 100, "final_cov": 1.0}
+{"phase": "m5", "seed": 13, "p": 0.15, "draw": 1, "killed": 4, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 13, "p": 0.2, "draw": 0, "killed": 6, "partitions_after_kill": 1, "cov_after_kill": 0.56, "recover_ticks": -1, "final_cov": 0.44}
+{"phase": "m5", "seed": 13, "p": 0.2, "draw": 1, "killed": 6, "partitions_after_kill": 2, "cov_after_kill": 0.4, "recover_ticks": -1, "final_cov": 0.44}
+{"phase": "m5", "seed": 13, "p": 0.3, "draw": 0, "killed": 8, "partitions_after_kill": 4, "cov_after_kill": 0.261, "recover_ticks": -1, "final_cov": 0.261}
+{"phase": "m5", "seed": 13, "p": 0.3, "draw": 1, "killed": 8, "partitions_after_kill": 2, "cov_after_kill": 0.783, "recover_ticks": -1, "final_cov": 0.87}
+{"phase": "m5", "seed": 13, "p": 0.4, "draw": 0, "killed": 11, "partitions_after_kill": 2, "cov_after_kill": 0.25, "recover_ticks": -1, "final_cov": 0.25}
+{"phase": "m5", "seed": 13, "p": 0.4, "draw": 1, "killed": 11, "partitions_after_kill": 2, "cov_after_kill": 0.2, "recover_ticks": 57, "final_cov": 1.0}
+{"phase": "m5", "seed": 13, "p": 0.5, "draw": 0, "killed": 14, "partitions_after_kill": 3, "cov_after_kill": 0.059, "recover_ticks": -1, "final_cov": 0.118}
+{"phase": "m5", "seed": 13, "p": 0.5, "draw": 1, "killed": 14, "partitions_after_kill": 5, "cov_after_kill": 0.294, "recover_ticks": -1, "final_cov": 0.294}
+{"phase": "m5", "seed": 14, "p": 0.05, "draw": 0, "killed": 1, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 14, "p": 0.05, "draw": 1, "killed": 1, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 14, "p": 0.1, "draw": 0, "killed": 2, "partitions_after_kill": 1, "cov_after_kill": 0.913, "recover_ticks": -1, "final_cov": 0.348}
+{"phase": "m5", "seed": 14, "p": 0.1, "draw": 1, "killed": 2, "partitions_after_kill": 1, "cov_after_kill": 0.913, "recover_ticks": -1, "final_cov": 0.957}
+{"phase": "m5", "seed": 14, "p": 0.15, "draw": 0, "killed": 3, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 14, "p": 0.15, "draw": 1, "killed": 3, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 14, "p": 0.2, "draw": 0, "killed": 4, "partitions_after_kill": 1, "cov_after_kill": 0.476, "recover_ticks": 83, "final_cov": 1.0}
+{"phase": "m5", "seed": 14, "p": 0.2, "draw": 1, "killed": 4, "partitions_after_kill": 1, "cov_after_kill": 0.905, "recover_ticks": 57, "final_cov": 1.0}
+{"phase": "m5", "seed": 14, "p": 0.3, "draw": 0, "killed": 7, "partitions_after_kill": 1, "cov_after_kill": 0.278, "recover_ticks": -1, "final_cov": 0.278}
+{"phase": "m5", "seed": 14, "p": 0.3, "draw": 1, "killed": 7, "partitions_after_kill": 2, "cov_after_kill": 0.333, "recover_ticks": 79, "final_cov": 1.0}
+{"phase": "m5", "seed": 14, "p": 0.4, "draw": 0, "killed": 9, "partitions_after_kill": 3, "cov_after_kill": 0.062, "recover_ticks": -1, "final_cov": 0.062}
+{"phase": "m5", "seed": 14, "p": 0.4, "draw": 1, "killed": 9, "partitions_after_kill": 3, "cov_after_kill": 0.062, "recover_ticks": -1, "final_cov": 0.5}
+{"phase": "m5", "seed": 14, "p": 0.5, "draw": 0, "killed": 11, "partitions_after_kill": 3, "cov_after_kill": 0.071, "recover_ticks": -1, "final_cov": 0.286}
+{"phase": "m5", "seed": 14, "p": 0.5, "draw": 1, "killed": 11, "partitions_after_kill": 1, "cov_after_kill": 0.214, "recover_ticks": -1, "final_cov": 0.214}
+{"phase": "m5", "seed": 15, "p": 0.05, "draw": 0, "killed": 1, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 15, "p": 0.05, "draw": 1, "killed": 1, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 15, "p": 0.1, "draw": 0, "killed": 2, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 15, "p": 0.1, "draw": 1, "killed": 2, "partitions_after_kill": 1, "cov_after_kill": 0.957, "recover_ticks": 5, "final_cov": 1.0}
+{"phase": "m5", "seed": 15, "p": 0.15, "draw": 0, "killed": 3, "partitions_after_kill": 1, "cov_after_kill": 0.955, "recover_ticks": 5, "final_cov": 1.0}
+{"phase": "m5", "seed": 15, "p": 0.15, "draw": 1, "killed": 3, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 15, "p": 0.2, "draw": 0, "killed": 4, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 15, "p": 0.2, "draw": 1, "killed": 4, "partitions_after_kill": 0, "cov_after_kill": 1.0, "recover_ticks": 1, "final_cov": 1.0}
+{"phase": "m5", "seed": 15, "p": 0.3, "draw": 0, "killed": 7, "partitions_after_kill": 2, "cov_after_kill": 0.611, "recover_ticks": 71, "final_cov": 1.0}
+{"phase": "m5", "seed": 15, "p": 0.3, "draw": 1, "killed": 7, "partitions_after_kill": 1, "cov_after_kill": 0.389, "recover_ticks": 61, "final_cov": 1.0}
+{"phase": "m5", "seed": 15, "p": 0.4, "draw": 0, "killed": 9, "partitions_after_kill": 2, "cov_after_kill": 0.812, "recover_ticks": 104, "final_cov": 1.0}
+{"phase": "m5", "seed": 15, "p": 0.4, "draw": 1, "killed": 9, "partitions_after_kill": 1, "cov_after_kill": 0.375, "recover_ticks": 2, "final_cov": 1.0}
+{"phase": "m5", "seed": 15, "p": 0.5, "draw": 0, "killed": 11, "partitions_after_kill": 3, "cov_after_kill": 0.429, "recover_ticks": -1, "final_cov": 0.571}
+{"phase": "m5", "seed": 15, "p": 0.5, "draw": 1, "killed": 11, "partitions_after_kill": 2, "cov_after_kill": 0.143, "recover_ticks": -1, "final_cov": 0.714}

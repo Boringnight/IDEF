@@ -61,6 +61,14 @@ export class Radar2D {
     this.off = document.createElement('canvas')
     this.offCtx = this.off.getContext('2d')
 
+    // 战争迷雾离屏层: 初始整片灰色地图, 勘察探头经过处被\"点亮\"(destination-out 打洞)
+    this.fog = document.createElement('canvas')
+    this.fogCtx = this.fog.getContext('2d')
+    this.fogDirty = true
+    this.revealPts = []          // 已点亮的圆形区域 [{x,z,r}] (世界坐标)
+    this._lastReveal = {}        // probe.id -> 上次点亮位置 (防重复)
+    this._baseRevealed = false   // base 00 起点常亮 (只点亮一次)
+
     this.infoPanel = null          // 点击节点的极客数据面板
     this.wallMode = false          // 放墙模式: 关闭时左键=平移画面, 开启时左键拖=画墙
     this.showChain = true          // 渲染总线: 链上报文跳 (TX/BLOCK/SYNC_*) 显示开关
@@ -101,6 +109,9 @@ export class Radar2D {
       this.canvas.height = Math.round(h * dpr)
       this.off.width = this.canvas.width
       this.off.height = this.canvas.height
+      this.fog.width = this.canvas.width
+      this.fog.height = this.canvas.height
+      this.fogDirty = true
       this.staticDirty = true
     }
     this.dpr = dpr
@@ -147,13 +158,38 @@ export class Radar2D {
       this._busPool = []; this._busTick = -1
       this._rbQ = null; this._rbStep = null; this._rbLast = null; this._pilot = null
       this.flashes = []; this.crosses = []; this._lastEvId = -1
+      this.revealPts = []; this._lastReveal = {}; this._baseRevealed = false
+      this.fogDirty = true
     }
     this.snapshot = snapshot
     this._snapPerf = performance.now()
     this.staticDirty = true          // 节点/边数据 5Hz 变化 -> 静息层重绘
+    this._updateReveal(snapshot)     // 勘察探头经过处点亮战争迷雾
     this._refreshHoverEdges()
     this._collectFlashes()           // 真实报文事件 -> 送达闪烁 / 失败红叉
     if (this.infoPanel) this._fillInfoPanel()
+  }
+
+  /* 勘察探头经过 -> 在地图上点亮(打洞)一片圆形区域; base 00 起点常亮 */
+  _updateReveal(snap) {
+    const sink = snap.nodes?.['NODE-00'] ?? snap.nodes?.[snap.sink_id]
+    if (sink && !this._baseRevealed) { this._revealAt(sink.x, sink.z, 200); this._baseRevealed = true }
+    for (const p of snap.probes ?? []) {
+      const r = p.range ?? 240
+      const last = this._lastReveal[p.id]
+      if (!last || Math.hypot(p.x - last.x, p.z - last.z) > r * 0.4) {
+        this._lastReveal[p.id] = { x: p.x, z: p.z }
+        this._revealAt(p.x, p.z, r)
+      }
+    }
+  }
+  /* 只会新增真正未被点亮的点, 防止反复刷新迷雾层 */
+  _revealAt(x, z, r) {
+    for (const p of this.revealPts) {
+      if (Math.hypot(p.x - x, p.z - z) < Math.min(p.r, r) * 0.5) return   // 该区域已点亮
+    }
+    this.revealPts.push({ x, z, r })
+    this.fogDirty = true
   }
 
   /* 真实报文事件: 送达 -> 青绿闪烁圈; 失败/超时 -> 红圈 + 红叉停在出事节点 */
@@ -526,12 +562,20 @@ export class Radar2D {
     ctx.clearRect(0, 0, W, H)
     ctx.drawImage(this.off, 0, 0, W, H)
 
-    // 动态层: 渲染总线报文点 (链上泛洪等) + DATA 方块/活跃边/事件闪烁
+    // 动态层(数据/链路): 渲染总线报文点 (链上泛洪等) + DATA 方块/活跃边/事件闪烁
     this._drawBusDots(ctx)
     if (this.showData) this._drawTransport(ctx)
+
+    // 战争迷雾层盖在数据之上: 灰色地图 + 勘察探头点亮处以 destination-out 打洞透出真彩地图;
+    // 未探明区域的几何/链路/数据一并隐去, 探明后就整体点亮
+    if (this.fogDirty) { this._renderFog(W, H); this.fogDirty = false }
+    ctx.drawImage(this.fog, 0, 0, W, H)
+
+    // 动态实体(始终保持可见): 巡检机器人 / 勘察探头 / 悬停高亮 / 部署 HUD
     this._drawRobot(ctx)
-    // Hover 层: 高亮邻边 + 邻域信息 (悬停时)
+    this._drawProbes(ctx)
     if (this.hoverId && this.hoverEdges.length) this._drawHoverGlow(ctx)
+    this._drawDeployHUD(ctx)
   }
 
   /* ---------- 通用渲染总线绘制器: 非 DATA 报文跳一律自动上屏 ----------
@@ -890,6 +934,32 @@ export class Radar2D {
     o.restore()
   }
 
+  /* ---------- 战争迷雾层 (离屏): 整片灰色地图 + 勘察探头打洞点亮 ---------- */
+  _renderFog(W, H) {
+    const o = this.fogCtx
+    const dpr = this.dpr
+    o.setTransform(dpr, 0, 0, dpr, 0, 0)
+    o.clearRect(0, 0, W, H)
+    o.save()
+    o.translate(this.view.x, this.view.y)
+    o.scale(this.view.scale, this.view.scale)
+    // 迷雾底色: 铺满整个腔室 (地图) 的灰 —— 未探明 = 灰蒙蒙一片
+    o.fillStyle = 'rgba(96,108,126,0.88)'
+    for (const p of this.chamberPaths ?? []) o.fill(p)
+    // 用 destination-out 在已探明区域打洞 + 软边 -> 露出底下的真彩地图
+    o.globalCompositeOperation = 'destination-out'
+    for (const rp of this.revealPts) {
+      const R = rp.r * 1.05
+      const g = o.createRadialGradient(rp.x, rp.z, R * 0.38, rp.x, rp.z, R)
+      g.addColorStop(0, 'rgba(0,0,0,1)')
+      g.addColorStop(1, 'rgba(0,0,0,0)')
+      o.fillStyle = g
+      o.beginPath(); o.arc(rp.x, rp.z, R, 0, Math.PI * 2); o.fill()
+    }
+    o.globalCompositeOperation = 'source-over'
+    o.restore()
+  }
+
   /* ---------- Hover 层: 局部高亮 + 波浪脉冲 ---------- */
   _drawHoverGlow(ctx) {
     const A = this.snapshot.nodes[this.hoverId]
@@ -1006,7 +1076,8 @@ export class Radar2D {
 
   _drawNodes(o, snap, lw) {
     for (const [id, n] of Object.entries(snap.nodes)) {
-      const r = lw(id === 'NODE-00' ? 10 : (n.role === 'beacon' ? 5 : 6.5))
+      if (n.state === 'CARGO') continue    // 面包屑部署: 未撒布的通信桩跟随载体, 不单独渲染
+      const r = lw(id === 'NODE-00' ? 7.5 : (n.role === 'beacon' ? 3.8 : 4.4))
       const hot = n.temp_c > 60
       const lowbat = n.battery_soc < 25
       let color = '#39d7c4'
@@ -1163,6 +1234,89 @@ export class Radar2D {
       ctx.font = Math.max(8, lw(9)) + 'px Consolas,monospace'
       ctx.fillText('BOT·' + (rb.state === 'RESCUE' ? '救援' : rb.state === 'INVESTIGATE' ? '核查' : rb.state === 'FALLBACK' ? '回撤' : '巡逻') + ' 钉×' + rb.stock,
                    x, z - lw(12))
+    }
+    ctx.restore()
+  }
+
+  /* ---------- 部署阶段 HUD: 顶部进度条 (从 base 00 向右, 节点就位比例) ---------- */
+  _drawDeployHUD(ctx) {
+    const snap = this.snapshot
+    if (snap?.phase !== 'DEPLOY') return
+    const W = this.canvas.width / this.dpr, H = this.canvas.height / this.dpr
+    const prog = Math.max(0, Math.min(100, snap?.deploy_progress ?? 0))
+    const barW = Math.min(360, W * 0.5), barH = 8
+    const x = (W - barW) / 2, y = 18
+    const rr = (px, py, w, h, r) => { ctx.beginPath(); ctx.roundRect ? ctx.roundRect(px, py, w, h, r) : ctx.rect(px, py, w, h) }
+    ctx.save()
+    ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0)
+    ctx.fillStyle = 'rgba(6,13,26,0.82)'
+    ctx.strokeStyle = 'rgba(110,160,220,0.35)'
+    ctx.lineWidth = 1
+    rr(x - 12, y - 24, barW + 24, 46, 8); ctx.fill(); ctx.stroke()
+    ctx.fillStyle = 'rgba(200,230,255,0.95)'
+    ctx.font = '11px Consolas,monospace'
+    ctx.textAlign = 'left'
+    ctx.fillText('🚀 面包屑部署中 · 勘察机器人向 base 00 右侧撒布通信桩', x, y - 9)
+    ctx.fillStyle = 'rgba(70,95,130,0.35)'
+    rr(x, y, barW, barH, 4); ctx.fill()
+    ctx.fillStyle = '#39d7c4'
+    rr(x, y, barW * prog / 100, barH, 4); ctx.fill()
+    ctx.fillStyle = 'rgba(200,230,255,0.9)'
+    ctx.textAlign = 'right'
+    ctx.fillText(prog.toFixed(0) + '%', x + barW, y - 9)
+    ctx.restore()
+  }
+
+  /* ---------- 3D 勘察探头 (动态层): 青色圆形 + 十字准线 + 扫描环 + 点亮半径 ---------- */
+  _drawProbes(ctx) {
+    const snap = this.snapshot
+    if (!snap?.probes?.length) return
+    ctx.save()
+    ctx.translate(this.view.x, this.view.y)
+    ctx.scale(this.view.scale, this.view.scale)
+    const lw = (px) => px / this.view.scale
+    ctx.textAlign = 'center'
+    const tt = performance.now() / 1000
+    for (const p of snap.probes) {
+      const R = p.range ?? 240
+      // 探测/点亮半径虚线圈 (与迷雾打洞范围一致)
+      ctx.setLineDash([lw(8), lw(7)])
+      ctx.strokeStyle = 'rgba(120,215,255,0.30)'
+      ctx.lineWidth = lw(1.1)
+      ctx.beginPath(); ctx.arc(p.x, p.z, R, 0, Math.PI * 2); ctx.stroke()
+      ctx.setLineDash([])
+      // 旋转扩散扫描环
+      const ph = (tt * 0.85 + (p.index ?? 0) * 1.7) % 1
+      ctx.strokeStyle = 'rgba(165,235,255,' + (0.9 * (1 - ph)).toFixed(3) + ')'
+      ctx.lineWidth = lw(2)
+      ctx.beginPath(); ctx.arc(p.x, p.z, lw(5) + ph * lw(26), 0, Math.PI * 2); ctx.stroke()
+      // 本体: 青色圆 + 十字准线
+      const r = lw(6)
+      ctx.shadowColor = '#7FE6FF'; ctx.shadowBlur = lw(12)
+      ctx.fillStyle = '#6FD8FF'
+      ctx.beginPath(); ctx.arc(p.x, p.z, r, 0, Math.PI * 2); ctx.fill()
+      ctx.shadowBlur = 0
+      ctx.strokeStyle = 'rgba(210,250,255,0.95)'; ctx.lineWidth = lw(1.4)
+      ctx.beginPath()
+      ctx.moveTo(p.x - r - lw(4), p.z); ctx.lineTo(p.x + r + lw(4), p.z)
+      ctx.moveTo(p.x, p.z - r - lw(4)); ctx.lineTo(p.x, p.z + r + lw(4))
+      ctx.stroke()
+      // 名称 + 载货/已撒数 (面包屑: 载体上的数量一目了然)
+      ctx.fillStyle = 'rgba(200,240,255,0.95)'
+      ctx.font = Math.max(8, lw(9)) + 'px Consolas,monospace'
+      const cargo = p.cargo ?? 0
+      const sub = p.carrier ? `· 已撒${p.dropped ?? 0}/还需${cargo}` : '·3D'
+      ctx.fillText((p.name ?? '勘察') + sub, p.x, p.z - lw(16))
+      if (p.carrier && cargo > 0) {
+        // 载体"货舱"微标: 沿机头上方的小点阵, 点数=剩余载货量(裁剪到 6 点避免拥挤)
+        const dots = Math.min(6, Math.max(1, Math.round(cargo / 6)))
+        ctx.fillStyle = 'rgba(255,225,150,0.9)'
+        for (let d = 0; d < dots; d++) {
+          ctx.beginPath()
+          ctx.arc(p.x - lw(11) + d * lw(4.4), p.z - lw(11), lw(1.5), 0, Math.PI * 2)
+          ctx.fill()
+        }
+      }
     }
     ctx.restore()
   }
